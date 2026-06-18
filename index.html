@@ -201,6 +201,7 @@ input:focus, select:focus { border-color: var(--red); }
     <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
     <div class="tab" onclick="switchTab('result')">📊 推荐结果</div>
     <div class="tab" onclick="switchTab('report')">📝 配置报告</div>
+    <div class="tab" onclick="switchTab('news')">📰 资讯</div>
   </div>
 
   <!-- Tab 1: 市场 -->
@@ -277,6 +278,11 @@ input:focus, select:focus { border-color: var(--red); }
     </div>
     <div class="card report" id="reportArea"></div>
   </div>
+
+  <!-- Tab 5: 资讯 -->
+  <div id="tab-news" style="display:none;">
+    <div id="newsContent"></div>
+  </div>
 </div>
 
 <!-- 移动端底部导航 -->
@@ -292,6 +298,9 @@ input:focus, select:focus { border-color: var(--red); }
   </div>
   <div class="mobile-nav-item" onclick="switchTab('report')" data-tab="report">
     <span class="nav-icon">📝</span>报告
+  </div>
+  <div class="mobile-nav-item" onclick="switchTab('news')" data-tab="news">
+    <span class="nav-icon">📰</span>资讯
   </div>
   <div class="mobile-nav-item" onclick="exportPPT()" id="mobileExportBtn">
     <span class="nav-icon">📥</span>导出
@@ -544,11 +553,11 @@ let sids = new Set();
 // UI 逻辑
 // ============================================================
 function switchTab(tab) {
-  ['input','result','report','market'].forEach(t => {
+  ['input','result','report','market','news'].forEach(t => {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['market','input','result','report'][i]===tab);
+    el.classList.toggle('active', ['market','input','result','report','news'][i]===tab);
   });
   // 同步移动端底部导航
   document.querySelectorAll('.mobile-nav-item').forEach(el => {
@@ -556,6 +565,8 @@ function switchTab(tab) {
   });
   // 市场 tab 自动渲染
   if (tab === 'market') renderMarketTab();
+  // 资讯 tab 自动渲染
+  if (tab === 'news') renderNewsTab();
   // 滚动到顶部
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -656,7 +667,7 @@ function renderMarketTab() {
   // ===== 每日展望 =====
   const outlook = (window._dailyOutlook) || {};
   if (Object.keys(outlook).length > 0) {
-    html += '<div class="card"><div class="card-title">📋 每日展望</div>';
+    html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📋 每日展望<span><button onclick="copyOutlook()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;color:var(--gray);cursor:pointer;">📋 复制</button></span></div>';
     const icons = {债券:'🟢', 股票:'🔴', 黄金:'🟡', 汇率:'🔵'};
     for (const [asset, info] of Object.entries(outlook)) {
       html += '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0f0f0;">';
@@ -667,17 +678,63 @@ function renderMarketTab() {
     html += '</div>';
   }
 
-  // ===== 今日资讯（限10条）=====
+  // 市场Tab不再渲染资讯，改为独立Tab
+  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📰 今日资讯速览<span><button onclick="switchTab(\'news\')" style="font-size:0.75rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button></span></div>';
+  html += '<p style="font-size:0.82rem;color:var(--gray);">点击上方按钮或底部导航切换到「📰 资讯」标签查看完整新闻列表。</p>';
+  html += '</div>';
+
+  container.innerHTML = html;
+  container.dataset.rendered = 'true';
+}
+
+// ===== 复制每日展望 ====
+function copyOutlook() {
+  const outlook = (window._dailyOutlook) || {};
+  if (Object.keys(outlook).length === 0) { toast('暂无展望数据'); return; }
+  const icons = {债券:'🟢', 股票:'🔴', 黄金:'🟡', 汇率:'🔵'};
+  let text = '📋 每日市场展望\n\n';
+  for (const [asset, info] of Object.entries(outlook)) {
+    text += (icons[asset]||'') + ' ' + asset + '：' + (info.label||'') + '\n';
+    text += (info.analysis||'') + '\n\n';
+  }
+  text += '—— 理财经理智能投顾系统';
+  navigator.clipboard.writeText(text).then(() => {
+    toast('✅ 每日展望已复制，可直接粘贴发送');
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('✅ 已复制到剪贴板');
+  });
+}
+
+// ============================================================
+// 资讯Tab渲染（独立Tab）
+// ============================================================
+function renderNewsTab() {
+  const container = document.getElementById('newsContent');
   const dailyNews = (window._dailyNews) || [];
+  
+  let html = '';
   if (dailyNews.length === 0) {
     html += '<div class="card"><div class="card-title">📰 今日资讯</div>';
     html += '<p style="font-size:0.82rem;color:var(--gray);">暂无实时资讯，等待数据管道更新后显示。</p>';
-    html += '<p style="font-size:0.75rem;color:var(--gray);">每天早晨数据管道会自动爬取最新财经要闻并生成分析。</p>';
+    html += '<p style="font-size:0.75rem;color:var(--gray);">每天早晨数据管道会自动爬取最新财经要闻。</p>';
     html += '</div>';
   } else {
-    const topNews = dailyNews.slice(0, 10);
-    html += '<div class="card"><div class="card-title">📰 今日资讯（' + topNews.length + '条精选）</div>';
-    for (const n of topNews) {
+    // 去重显示
+    const seen = window._renderedNewsIds || new Set();
+    const fresh = dailyNews.filter(n => !seen.has(n.title));
+    
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
+    html += '<div style="font-weight:700;">📰 今日资讯（' + fresh.length + '条）</div>';
+    html += '<button onclick="refreshNewsTab()" id="btnRefreshNews" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 刷新资讯</button>';
+    html += '</div>';
+    
+    for (const n of fresh) {
       const catCls = {宏观经济:'macro', 行业动态:'industry', 上市公司:'company', 国际地缘:'geopolitics'}[n.category] || 'macro';
       html += '<div class="news-card">';
       html += '<span class="news-cat ' + catCls + '">' + (n.category||'资讯') + '</span>';
@@ -687,11 +744,35 @@ function renderMarketTab() {
       if (n.plain_text) html += '<div class="news-plain">💬 人话版：' + n.plain_text + '</div>';
       html += '</div>';
     }
-    html += '</div>';
+    
+    // 标记已显示
+    dailyNews.forEach(n => seen.add(n.title));
+    window._renderedNewsIds = seen;
   }
-
+  
   container.innerHTML = html;
-  container.dataset.rendered = 'true';
+}
+
+async function refreshNewsTab() {
+  const btn = document.getElementById('btnRefreshNews');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 刷新中...'; }
+  
+  try {
+    const resp = await fetch('data/daily.json?' + Date.now());
+    if (resp.ok) {
+      const daily = await resp.json();
+      if (daily.news) {
+        window._dailyNews = daily.news;
+        window._renderedNewsIds = new Set(); // 清除去重标记，允许显示所有新闻
+      }
+      if (daily.daily_outlook) window._dailyOutlook = daily.daily_outlook;
+    }
+    renderNewsTab();
+    toast('✅ 资讯已刷新');
+  } catch(e) {
+    toast('⚠ 刷新失败，请稍后重试');
+  }
+  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新资讯'; }
 }
 
 function judgeBias(market) {
