@@ -339,6 +339,14 @@ let MARKET = {"date": "2026-06-09 12:28", "macro": {"title": "宏观经济速览
       const verEl = document.getElementById('headerBuild');
       if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + daily.date;
     }
+    if (daily.news && daily.news.length > 0) window._dailyNews = daily.news;
+    if (daily.daily_outlook) window._dailyOutlook = daily.daily_outlook;
+    // 数据加载完成后刷新市场Tab
+    const container = document.getElementById('marketContent');
+    if (container && container.dataset.rendered === 'true') {
+      container.dataset.rendered = '';
+      renderMarketTab();
+    }
   } catch(e) { console.warn('[数据] daily.json 加载失败，使用内置快照:', e.message); }
 })();
 
