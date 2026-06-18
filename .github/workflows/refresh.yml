@@ -23,16 +23,23 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: 采集云端数据
+      - name: 采集实时数据
         run: python3 cloud_fetcher.py
 
       - name: 运行数据匹配管道
         run: python3 data_pipeline.py --input data/market_input.json --output data/daily.json
 
+      - name: 存档历史数据
+        run: |
+          DATE=$(date +%Y-%m-%d)
+          mkdir -p data/history
+          cp data/daily.json "data/history/${DATE}.json"
+          echo "📁 历史存档: data/history/${DATE}.json"
+
       - name: 提交更新
         run: |
           git config user.name "理财经理数据机器人"
           git config user.email "bot@wealth-advisor.local"
-          git add data/market_input.json data/daily.json
+          git add data/market_input.json data/daily.json data/history/
           git diff --cached --quiet || git commit -m "📊 数据自动更新 $(date +'%Y-%m-%d %H:%M')"
           git push

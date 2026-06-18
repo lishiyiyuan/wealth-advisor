@@ -187,7 +187,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260618-2122</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260618-2330</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -260,6 +260,7 @@ input:focus, select:focus { border-color: var(--red); }
         <button class="btn btn-outline" onclick="switchTab('input')" style="font-size:0.8rem;padding:6px 14px;">← 返回修改</button>
         <button class="btn btn-outline" onclick="viewReport()" style="font-size:0.8rem;padding:6px 14px;">📝 查看报告</button>
         <button class="btn btn-primary" onclick="exportPPT()" id="btnExportPPT" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
+        <button class="btn btn-outline" onclick="showClientSummary()" style="font-size:0.8rem;padding:6px 14px;color:#059669;border-color:#059669;">📱 客户摘要</button>
       </div>
     </div>
     <div id="resultArea"></div>
@@ -299,6 +300,21 @@ input:focus, select:focus { border-color: var(--red); }
 
 <div class="toast" id="toast"></div>
 
+<!-- 客户摘要弹窗 -->
+<div id="summaryModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center;padding:16px;">
+  <div style="background:#fff;border-radius:12px;max-width:480px;width:100%;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <div style="padding:16px 20px;border-bottom:1px solid #e5e7eb;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:#fff;border-radius:12px 12px 0 0;">
+      <span style="font-weight:700;font-size:1rem;">📱 客户方案摘要</span>
+      <button onclick="closeSummary()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--gray);line-height:1;">×</button>
+    </div>
+    <div id="summaryContent" style="padding:20px;font-size:0.9rem;line-height:1.8;color:var(--dark);white-space:pre-wrap;"></div>
+    <div style="padding:12px 20px;border-top:1px solid #e5e7eb;display:flex;gap:8px;">
+      <button onclick="copySummary()" id="btnCopySummary" style="flex:1;padding:10px;border-radius:8px;border:none;font-size:0.85rem;font-weight:600;background:var(--red);color:#fff;cursor:pointer;">📋 一键复制</button>
+      <button onclick="closeSummary()" style="padding:10px 20px;border-radius:8px;border:1px solid #e5e7eb;font-size:0.85rem;background:#fff;color:var(--gray);cursor:pointer;">关闭</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ============================================================
 // 产品数据
@@ -321,7 +337,7 @@ let MARKET = {"date": "2026-06-09 12:28", "macro": {"title": "宏观经济速览
       console.log('[数据] 已从 daily.json 加载最新市场数据 (' + (daily.date || '') + ')');
       // 更新 header 日期
       const verEl = document.getElementById('headerBuild');
-      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2122 · 数据 ' + daily.date;
+      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + daily.date;
     }
   } catch(e) { console.warn('[数据] daily.json 加载失败，使用内置快照:', e.message); }
 })();
@@ -357,7 +373,7 @@ async function refreshData(showToast) {
     // 更新 header 日期
     const verEl = document.getElementById('headerBuild');
     if (verEl && daily.date) {
-      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2122 · 数据 ' + daily.date;
+      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + daily.date;
     }
     
     // 强制刷新市场Tab（重置缓存）
@@ -395,7 +411,7 @@ setInterval(async function() {
       if (mc) mc.dataset.rendered = '';
       renderMarketTab();
       const verEl = document.getElementById('headerBuild');
-      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2122 · 数据 ' + newDate;
+      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + newDate;
     }
   } catch(e) { /* 静默失败 */ }
 }, 30 * 60 * 1000);
@@ -1608,6 +1624,86 @@ function exportPPT() {
       btn.innerHTML = '📥 导出PPT';
     }
   }, 100);
+}
+
+// ============================================================
+// 客户摘要（微信发送版）
+// ============================================================
+function showClientSummary() {
+  if (!lastResult || !lastProfile) { toast('请先完成产品匹配'); return; }
+  
+  const profile = lastProfile;
+  const selResult = filterSelectedProducts();
+  const market = MARKET || {};
+  const ap = market.asset_prices || {};
+  const sr = market.sector_rotation || {};
+  
+  const riskNames = {PR1:'保守型',PR2:'稳健型',PR3:'平衡型',PR4:'成长型',PR5:'进取型'};
+  const riskName = riskNames[profile.risk_level] || '平衡型';
+  
+  let summary = '';
+  
+  // 称呼+画像
+  summary += '尊敬的客户，您好！\n\n';
+  summary += '根据您的风险偏好和资产状况，我为您制定了一份个性化资产配置方案，供您参考。\n\n';
+  summary += '【您的画像】\n';
+  summary += `风险等级：${riskName}（${profile.risk_level}）\n`;
+  summary += `可投资资产：${profile.assets || 100}万元\n`;
+  summary += `投资期限：${profile.horizon_days <= 90 ? '短期' : profile.horizon_days <= 365 ? '中期' : '长期'}\n\n`;
+  
+  // 市场环境
+  summary += '【当前市场环境】\n';
+  const aShare = ap.a_share || {};
+  const gold = ap.gold || {};
+  const dep = market.deposit_rate || {};
+  summary += `A股：${aShare.level || '震荡'}，${aShare.trend || '结构性行情'}\n`;
+  summary += `黄金：${gold.price || '波动'}，${gold.trend || '震荡'}\n`;
+  summary += `利率：存款利率${dep.trend || '持续下行'}，锁定收益正当时\n\n`;
+  
+  // 产品推荐
+  summary += '【配置建议】\n';
+  let idx = 1;
+  for (const [cat, prods] of Object.entries(selResult.by_category || {})) {
+    if (!prods || prods.length === 0) continue;
+    const top = prods.slice(0, 3);
+    for (const p of top) {
+      const ret = p.expected_return_low && p.expected_return_high 
+        ? `（预期${p.expected_return_low.toFixed(1)}%-${p.expected_return_high.toFixed(1)}%）` : '';
+      const term = p.term_days ? (p.term_days >= 365 ? `${Math.round(p.term_days/365)}年期` : `${p.term_days}天`) : '';
+      summary += `${idx}. 【${cat}】${p.product_name} ${term} ${ret}\n`;
+      if (p.recommendation_reason) summary += `   推荐理由：${p.recommendation_reason}\n`;
+      idx++;
+    }
+  }
+  
+  // 结尾
+  summary += '\n【风险提示】\n';
+  summary += '以上产品建议基于当前市场环境分析，不构成收益承诺。投资有风险，市场波动可能导致实际收益低于预期。建议您根据自身情况审慎决策。\n\n';
+  summary += `—— 理财经理 · ${new Date().getFullYear()}年${new Date().getMonth()+1}月${new Date().getDate()}日`;
+  
+  document.getElementById('summaryContent').textContent = summary;
+  document.getElementById('summaryModal').style.display = 'flex';
+}
+
+function closeSummary() {
+  document.getElementById('summaryModal').style.display = 'none';
+}
+
+function copySummary() {
+  const text = document.getElementById('summaryContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    toast('✅ 已复制，可直接粘贴到微信发送');
+  }).catch(() => {
+    // 降级方案
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    toast('✅ 已复制到剪贴板');
+  });
+  closeSummary();
 }
 
 // ============================================================
