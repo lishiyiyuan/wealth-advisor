@@ -1,10 +1,10 @@
 // 智能投顾 PWA Service Worker v1.0
-const CACHE_NAME = 'wealth-advisor-v1';
+const CACHE_NAME = 'wealth-advisor-v2';
 const APP_SHELL = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/mobile.html',
+  './',
+  './index.html',
+  './manifest.json',
+  './mobile.html',
 ];
 
 // 安装：预缓存应用外壳
