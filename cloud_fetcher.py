@@ -270,6 +270,70 @@ def save_history():
             print(f'  🗑 清理旧数据: {f}')
 
 # ============================================================
+# 每日市场展望（债/股/金/汇 四维度）
+# ============================================================
+
+def generate_outlook(a_share, gold, fx, bond):
+    """
+    基于实时市场数据生成每日展望。
+    返回 {债券:{label,analysis}, 股票, 黄金, 汇率} 四个维度。
+    """
+    a_trend = a_share[1]
+    gold_trend = gold[1]
+    fx_trend = fx[1]
+    bond_trend = bond[1]
+    
+    outlook = {}
+    
+    # 债券展望
+    if '低位' in bond_trend:
+        bond_label = '弱势债牛'
+        bond_analysis = '10年期国债收益率维持低位运行，货币政策稳健偏松，但海外加息预期制约下行空间。短期维持弱势债牛判断，关注LPR调整窗口。'
+    else:
+        bond_label = '震荡偏强'
+        bond_analysis = '国债收益率窄幅震荡，基本面对债市仍有支撑。后续聚焦内需复苏节奏和货币政策信号。'
+    outlook['债券'] = {'label': bond_label, 'analysis': bond_analysis}
+    
+    # 股票展望
+    if '强' in a_trend:
+        stock_label = '顺风期进行中'
+        stock_analysis = 'A股震荡偏强，科技成长主线明确，AI、半导体、机器人等新质生产力方向持续活跃。政策面持续呵护，中长期资金入市渠道拓宽，结构性机会丰富。关注美联储政策动向对外资流向的影响。'
+    elif '弱' in a_trend:
+        stock_label = '短期承压'
+        stock_analysis = 'A股短期调整，市场情绪偏谨慎。关注高股息红利等防御性板块，控制仓位等待企稳信号。中长期看，估值处于历史中低位区域，调整即是布局机会。'
+    else:
+        stock_label = '震荡蓄力'
+        stock_analysis = 'A股窄幅震荡，结构性行情延续。科技成长与高股息两条主线交替活跃。耐心等待市场选择方向，均衡配置、分散风险。'
+    outlook['股票'] = {'label': stock_label, 'analysis': stock_analysis}
+    
+    # 黄金展望
+    if '回落' in gold_trend or '跌' in gold_trend:
+        gold_label = '弱势反弹'
+        gold_analysis = '黄金短期承压，美联储鹰派信号打压金价，全球通胀预期回落。但中长期看，地缘风险和各国央行购金需求仍在，金价大幅下行空间有限。短期弱势反弹，暂无上行趋势。'
+    elif '涨' in gold_trend or '强' in gold_trend:
+        gold_label = '偏强震荡'
+        gold_analysis = '黄金受避险情绪和美元走弱支撑，短期偏强。但美联储政策不确定性仍是最大变量。建议逢低配置，作为资产组合的压舱石。'
+    else:
+        gold_label = '弱势震荡'
+        gold_analysis = '黄金短期缺乏方向性驱动，美联储政策与地缘风险交织。建议控制仓位，等待更明确的入场信号。中长期避险配置价值不变。'
+    outlook['黄金'] = {'label': gold_label, 'analysis': gold_analysis}
+    
+    # 汇率展望
+    if '升值' in fx_trend or '走强' in fx_trend:
+        fx_label = '继续升值'
+        fx_analysis = '人民币温和走强，强劲出口数据和中美利差边际变化提供支撑。短期升值趋势延续，有利于跨境配置和出境消费。关注美元指数走势和美联储政策变化。'
+    elif '贬值' in fx_trend:
+        fx_label = '短期承压'
+        fx_analysis = '人民币面临美元走强压力，中美利差倒挂持续。但出口韧性和央行调控工具有效，大幅贬值风险可控。建议适度增加美元资产配置。'
+    else:
+        fx_label = '温和震荡'
+        fx_analysis = '人民币短期缺乏方向性突破，在岸汇率维持区间波动。出口数据和中美关系是核心变量。建议保持汇率中性策略。'
+    outlook['汇率'] = {'label': fx_label, 'analysis': fx_analysis}
+    
+    return outlook
+
+
+# ============================================================
 # 主流程
 # ============================================================
 
@@ -316,7 +380,13 @@ def main():
                 "risk_factors": ["美联储政策不确定性", "中美利差倒挂持续", "A股短期涨幅较快存在回调风险", "地缘政治不确定性"]
             }
         },
-        "news": news
+        "news": news,
+        "daily_outlook": generate_outlook(
+            (a_level, a_trend, a_chg),
+            (gold_price, gold_trend),
+            (fx_rate, fx_trend),
+            (bond_rate, bond_trend)
+        )
     }
     
     os.makedirs(os.path.dirname(OUTPUT), exist_ok=True)

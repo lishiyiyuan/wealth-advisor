@@ -187,7 +187,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260618-2330</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260618-2355</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -337,7 +337,7 @@ let MARKET = {"date": "2026-06-09 12:28", "macro": {"title": "宏观经济速览
       console.log('[数据] 已从 daily.json 加载最新市场数据 (' + (daily.date || '') + ')');
       // 更新 header 日期
       const verEl = document.getElementById('headerBuild');
-      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + daily.date;
+      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + daily.date;
     }
   } catch(e) { console.warn('[数据] daily.json 加载失败，使用内置快照:', e.message); }
 })();
@@ -369,11 +369,15 @@ async function refreshData(showToast) {
       window._dailyNews = daily.news;
       changed = true;
     }
+    if (daily.daily_outlook) {
+      window._dailyOutlook = daily.daily_outlook;
+      changed = true;
+    }
     
     // 更新 header 日期
     const verEl = document.getElementById('headerBuild');
     if (verEl && daily.date) {
-      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + daily.date;
+      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + daily.date;
     }
     
     // 强制刷新市场Tab（重置缓存）
@@ -407,11 +411,12 @@ setInterval(async function() {
       _lastDataDate = newDate;
       if (daily.market) MARKET = daily.market;
       if (daily.news && daily.news.length > 0) window._dailyNews = daily.news;
+      if (daily.daily_outlook) window._dailyOutlook = daily.daily_outlook;
       const mc = document.getElementById('marketContent');
       if (mc) mc.dataset.rendered = '';
       renderMarketTab();
       const verEl = document.getElementById('headerBuild');
-      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2330 · 数据 ' + newDate;
+      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + newDate;
     }
   } catch(e) { /* 静默失败 */ }
 }, 30 * 60 * 1000);
@@ -640,6 +645,20 @@ function renderMarketTab() {
   
   html += '</div>'; // end card
 
+  // ===== 每日展望 =====
+  const outlook = (window._dailyOutlook) || {};
+  if (Object.keys(outlook).length > 0) {
+    html += '<div class="card"><div class="card-title">📋 每日展望</div>';
+    const icons = {债券:'🟢', 股票:'🔴', 黄金:'🟡', 汇率:'🔵'};
+    for (const [asset, info] of Object.entries(outlook)) {
+      html += '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0f0f0;">';
+      html += '<div style="font-size:0.95rem;font-weight:700;margin-bottom:4px;">' + (icons[asset]||'') + ' ' + asset + '：<span style="color:var(--red);">' + (info.label||'') + '</span></div>';
+      html += '<div style="font-size:0.82rem;color:var(--gray);line-height:1.7;">' + (info.analysis||'') + '</div>';
+      html += '</div>';
+    }
+    html += '</div>';
+  }
+
   // ===== 今日资讯（限10条）=====
   const dailyNews = (window._dailyNews) || [];
   if (dailyNews.length === 0) {
@@ -696,7 +715,11 @@ function judgeBias(market) {
     if (daily.news && daily.news.length > 0) {
       window._dailyNews = daily.news;
       console.log('[资讯] 从 daily.json 加载 ' + daily.news.length + ' 条新闻');
-      // 如果市场Tab已经渲染过，强制刷新以显示新闻
+    }
+    if (daily.daily_outlook) {
+      window._dailyOutlook = daily.daily_outlook;
+    }
+    if ((daily.news && daily.news.length > 0) || daily.daily_outlook) {
       const container = document.getElementById('marketContent');
       if (container && container.dataset.rendered === 'true') {
         container.dataset.rendered = '';

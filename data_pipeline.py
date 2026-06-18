@@ -301,6 +301,7 @@ def main():
             raw = json.load(f)
         market_data = raw.get("market", raw.get("market_data", raw))
         news_items = raw.get("news", [])
+        daily_outlook = raw.get("daily_outlook", {})
     
     # 确保 PRODUCTS 已加载
     if not PRODUCTS:
@@ -329,6 +330,7 @@ def main():
         "allocation": ALLOCATION,
         "product_matches": matches,
         "news": processed_news,
+        "daily_outlook": daily_outlook,
         "summary": {
             "equity_outlook": f"权益市场{match_equity_bias(bias['equity'])}",
             "bond_outlook": f"债券市场{match_bond_bias(bias['bond'])}",
