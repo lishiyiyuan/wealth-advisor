@@ -1,0 +1,1227 @@
+{
+  "date": "2026-06-18",
+  "generated_at": "2026-06-18T21:16:45.868987+08:00",
+  "market": {
+    "asset_prices": {
+      "a_share": {
+        "level": "4070-4120点区间",
+        "trend": "震荡偏强（科技成长领涨，创业板突破4000点）",
+        "ytd": "+约5%"
+      },
+      "bond": {
+        "cn_10y": "约1.60%",
+        "us_10y": "约4.55%",
+        "trend": "中债收益率低位运行，美债受美联储鹰派推升"
+      },
+      "gold": {
+        "price": "约4253美元/盎司",
+        "trend": "剧烈震荡（18日单日跌1.78%，美联储决议后从4382急坠至4219，尾盘收4258）",
+        "outlook": "美联储鹰派信号打压金价，短期波动加大，中长期避险配置价值不减"
+      },
+      "fx": {
+        "usd_cny": "约6.7623",
+        "dxy": "约99.8",
+        "trend": "人民币温和震荡，美元受加息预期支撑小幅走强"
+      }
+    },
+    "deposit_rate": {
+      "current": "1年期定存基准约1.1%，3年期约1.5%",
+      "trend": "持续下行（银行净息差历史低位，降息降准仍有空间）",
+      "outlook": "存款利率中长期下行趋势明确，储蓄型保险锁定利率价值持续凸显。"
+    },
+    "macro": {
+      "lpr_1y": "3.10%",
+      "lpr_5y": "3.60%",
+      "cpi_status": "物价温和回升",
+      "pmi_status": "制造业PMI维持扩张区间"
+    },
+    "capital_market": {
+      "policy_stance": "陆家嘴论坛：金融监管总局提出推动包容平等的全球金融治理，深化资本市场改革。美联储维持利率不变但释放鹰派信号，点阵图显示年内仍可能加息。",
+      "market_outlook": "A股6月第三周转强，创业板突破4000点，科技成长全面爆发。AI/半导体/机器人等新质生产力方向持续活跃。关注美联储加息预期对全球流动性的边际影响。"
+    },
+    "sector_rotation": {
+      "current_hotspots": [
+        {
+          "sector": "AI算力/大模型",
+          "driver": "大模型API降价+算力需求爆发",
+          "momentum": "强"
+        },
+        {
+          "sector": "半导体/芯片",
+          "driver": "国产替代加速+设备端景气上行",
+          "momentum": "强"
+        },
+        {
+          "sector": "机器人/自动化",
+          "driver": "产业规模化落地+政策持续加码",
+          "momentum": "中强"
+        },
+        {
+          "sector": "新能源/新材料",
+          "driver": "技术突破+出口韧性",
+          "momentum": "中"
+        },
+        {
+          "sector": "高股息红利",
+          "driver": "低利率环境+险资持续增配",
+          "momentum": "中"
+        }
+      ],
+      "risk_factors": [
+        "美联储鹰派信号升温，全球流动性边际收紧",
+        "中美利差倒挂持续，人民币汇率波动",
+        "黄金价格剧烈波动，避险资产稳定性下降",
+        "A股科技板块短期涨幅较快，存在技术性回调风险"
+      ]
+    }
+  },
+  "market_bias": {
+    "equity": "偏多",
+    "bond": "偏多",
+    "gold": "中性",
+    "deposit": "偏空（利率下行中）",
+    "fx": "偏多（人民币走强）"
+  },
+  "allocation": {
+    "PR1": {
+      "存款/货币": "60-80%",
+      "保险": "10-20%",
+      "理财": "10-20%",
+      "基金": "0-10%"
+    },
+    "PR2": {
+      "存款/货币": "40-50%",
+      "保险": "10-20%",
+      "理财": "20-30%",
+      "基金": "10-20%"
+    },
+    "PR3": {
+      "存款/货币": "20-30%",
+      "保险": "10-20%",
+      "理财": "25-35%",
+      "基金": "20-35%"
+    },
+    "PR4": {
+      "存款/货币": "10-20%",
+      "保险": "5-15%",
+      "理财": "20-30%",
+      "基金": "35-50%"
+    },
+    "PR5": {
+      "存款/货币": "5-10%",
+      "保险": "5-10%",
+      "理财": "15-25%",
+      "基金": "50-70%"
+    }
+  },
+  "product_matches": {
+    "PR1": [
+      {
+        "product_id": "002912",
+        "product_name": "国寿鑫添宝两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "中国人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.34,
+        "expected_return_high": 1.86,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "004885",
+        "product_name": "泰康安盈A保险产品计划（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "泰康人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.6,
+        "expected_return_high": 1.97,
+        "term_days": 1825,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(5年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "006006",
+        "product_name": "太保保利盈（2025）两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "太平洋人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.53,
+        "expected_return_high": 1.78,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "028877",
+        "product_name": "工银安盛人寿财富盈两全保险（分红型）私银",
+        "product_category": "保险",
+        "sub_category": "两全险（分红型）",
+        "issuer": "工银安盛",
+        "risk_level": "PR2",
+        "expected_return_low": 2.19,
+        "expected_return_high": 2.43,
+        "term_days": 1825,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(5年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "分红型",
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "044137",
+        "product_name": "大家鼎鑫99两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "大家人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.17,
+        "expected_return_high": 1.82,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "048082",
+        "product_name": "中汇人寿汇添利（稳盈）两全保险私银",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "中汇人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.52,
+        "expected_return_high": 1.78,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "097051",
+        "product_name": "国民福寿双全C05款两全保险（分红型）私银",
+        "product_category": "保险",
+        "sub_category": "两全险（分红型）",
+        "issuer": "国民养老",
+        "risk_level": "PR2",
+        "expected_return_low": 0.56,
+        "expected_return_high": 2.83,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "分红型",
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "028848",
+        "product_name": "工银安盛人寿盛世相守25养老年金保险B私银",
+        "product_category": "保险",
+        "sub_category": "养老年金险",
+        "issuer": "工银安盛",
+        "risk_level": "PR2",
+        "expected_return_low": 1.73,
+        "expected_return_high": 1.79,
+        "term_days": -1,
+        "min_investment": 1.0,
+        "score": 75,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "年金险"
+        ]
+      }
+    ],
+    "PR2": [
+      {
+        "product_id": "002912",
+        "product_name": "国寿鑫添宝两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "中国人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.34,
+        "expected_return_high": 1.86,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "004885",
+        "product_name": "泰康安盈A保险产品计划（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "泰康人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.6,
+        "expected_return_high": 1.97,
+        "term_days": 1825,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(5年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "006006",
+        "product_name": "太保保利盈（2025）两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "太平洋人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.53,
+        "expected_return_high": 1.78,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "028877",
+        "product_name": "工银安盛人寿财富盈两全保险（分红型）私银",
+        "product_category": "保险",
+        "sub_category": "两全险（分红型）",
+        "issuer": "工银安盛",
+        "risk_level": "PR2",
+        "expected_return_low": 2.19,
+        "expected_return_high": 2.43,
+        "term_days": 1825,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(5年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "分红型",
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "044137",
+        "product_name": "大家鼎鑫99两全保险（私银）",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "大家人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.17,
+        "expected_return_high": 1.82,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "048082",
+        "product_name": "中汇人寿汇添利（稳盈）两全保险私银",
+        "product_category": "保险",
+        "sub_category": "两全险",
+        "issuer": "中汇人寿",
+        "risk_level": "PR2",
+        "expected_return_low": 1.52,
+        "expected_return_high": 1.78,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "097051",
+        "product_name": "国民福寿双全C05款两全保险（分红型）私银",
+        "product_category": "保险",
+        "sub_category": "两全险（分红型）",
+        "issuer": "国民养老",
+        "risk_level": "PR2",
+        "expected_return_low": 0.56,
+        "expected_return_high": 2.83,
+        "term_days": 2190,
+        "min_investment": 1.0,
+        "score": 80,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显",
+          "私银专属产品，条款更优",
+          "长期限(6年)，锁定长期利率"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "封闭",
+        "tags": [
+          "分红型",
+          "私银专属",
+          "两全险"
+        ]
+      },
+      {
+        "product_id": "000793",
+        "product_name": "工银高端制造",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR3",
+        "expected_return_low": 71.86,
+        "expected_return_high": 71.86,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "科技",
+          "高波",
+          "主动权益（科技）",
+          "新能源"
+        ]
+      }
+    ],
+    "PR3": [
+      {
+        "product_id": "007674",
+        "product_name": "工银产业升级",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 87.69,
+        "expected_return_high": 87.69,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 101,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "AI",
+          "主动权益（科技）",
+          "新能源",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "100039",
+        "product_name": "富国通胀通缩",
+        "product_category": "基金",
+        "sub_category": "主动权益（周期）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.5,
+        "expected_return_high": 187.5,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 89,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "主动权益（周期）",
+          "算力",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "000793",
+        "product_name": "工银高端制造",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR3",
+        "expected_return_low": 71.86,
+        "expected_return_high": 71.86,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "科技",
+          "高波",
+          "主动权益（科技）",
+          "新能源"
+        ]
+      },
+      {
+        "product_id": "000979",
+        "product_name": "景顺长城沪港深精选",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR3",
+        "expected_return_low": 141.51,
+        "expected_return_high": 141.51,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "AI",
+          "科技",
+          "主动权益（科技）",
+          "港股",
+          "高波"
+        ]
+      },
+      {
+        "product_id": "001048",
+        "product_name": "富国新兴产业",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.93,
+        "expected_return_high": 187.93,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（科技）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "001158",
+        "product_name": "工银新材料新能源",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR3",
+        "expected_return_low": 81.88,
+        "expected_return_high": 81.88,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "新能源"
+        ]
+      },
+      {
+        "product_id": "001816",
+        "product_name": "汇添富新睿精选",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 106.74,
+        "expected_return_high": 106.74,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "002168",
+        "product_name": "嘉实智能汽车",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 68.88,
+        "expected_return_high": 68.88,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "新能源"
+        ]
+      }
+    ],
+    "PR4": [
+      {
+        "product_id": "007674",
+        "product_name": "工银产业升级",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 87.69,
+        "expected_return_high": 87.69,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 101,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "AI",
+          "主动权益（科技）",
+          "新能源",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "100039",
+        "product_name": "富国通胀通缩",
+        "product_category": "基金",
+        "sub_category": "主动权益（周期）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.5,
+        "expected_return_high": 187.5,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 89,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "主动权益（周期）",
+          "算力",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "001048",
+        "product_name": "富国新兴产业",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.93,
+        "expected_return_high": 187.93,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（科技）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "001816",
+        "product_name": "汇添富新睿精选",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 106.74,
+        "expected_return_high": 106.74,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "002168",
+        "product_name": "嘉实智能汽车",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 68.88,
+        "expected_return_high": 68.88,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "新能源"
+        ]
+      },
+      {
+        "product_id": "010115",
+        "product_name": "易方达远见成长",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 297.79,
+        "expected_return_high": 297.79,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（科技）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "020356",
+        "product_name": "华夏半导体材料设备",
+        "product_category": "基金",
+        "sub_category": "指数（主题）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 143.23,
+        "expected_return_high": 143.23,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「半导体/芯片」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "指数（主题）",
+          "高波",
+          "半导体"
+        ]
+      },
+      {
+        "product_id": "025328",
+        "product_name": "诺安稳健回报",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": null,
+        "expected_return_high": null,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "算力",
+          "高波",
+          "主动权益（科技）"
+        ]
+      }
+    ],
+    "PR5": [
+      {
+        "product_id": "007674",
+        "product_name": "工银产业升级",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 87.69,
+        "expected_return_high": 87.69,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 101,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "AI",
+          "主动权益（科技）",
+          "新能源",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "100039",
+        "product_name": "富国通胀通缩",
+        "product_category": "基金",
+        "sub_category": "主动权益（周期）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.5,
+        "expected_return_high": 187.5,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 89,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "标的覆盖当前热点「半导体/芯片」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "主动权益（周期）",
+          "算力",
+          "高波",
+          "半导体",
+          "化工"
+        ]
+      },
+      {
+        "product_id": "001048",
+        "product_name": "富国新兴产业",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 187.93,
+        "expected_return_high": 187.93,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（科技）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "001816",
+        "product_name": "汇添富新睿精选",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 106.74,
+        "expected_return_high": 106.74,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "002168",
+        "product_name": "嘉实智能汽车",
+        "product_category": "基金",
+        "sub_category": "主动权益（能源）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 68.88,
+        "expected_return_high": 68.88,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（能源）",
+          "新能源"
+        ]
+      },
+      {
+        "product_id": "010115",
+        "product_name": "易方达远见成长",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 297.79,
+        "expected_return_high": 297.79,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "高波",
+          "主动权益（科技）",
+          "AI"
+        ]
+      },
+      {
+        "product_id": "020356",
+        "product_name": "华夏半导体材料设备",
+        "product_category": "基金",
+        "sub_category": "指数（主题）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": 143.23,
+        "expected_return_high": 143.23,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「半导体/芯片」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "指数（主题）",
+          "高波",
+          "半导体"
+        ]
+      },
+      {
+        "product_id": "025328",
+        "product_name": "诺安稳健回报",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR4",
+        "expected_return_low": null,
+        "expected_return_high": null,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 77,
+        "reasons": [
+          "权益市场偏强，基金配置机会较好",
+          "标的覆盖当前热点「AI算力/大模型」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "算力",
+          "高波",
+          "主动权益（科技）"
+        ]
+      }
+    ]
+  },
+  "news": [
+    {
+      "title": "美联储维持利率不变但释放鹰派信号，点阵图暗示年内仍可能加息",
+      "summary": "美联储6月议息维持利率5.25%-5.50%不变，但点阵图显示多数委员预计年内还有一次加息。美元走强，黄金剧烈震荡（从4382急坠至4219美元）。",
+      "category": "宏观经济",
+      "capital_view": "利率下行中长期利好固收类资产，储蓄型保险锁定收益的价值凸显。",
+      "plain_text": "简单说就是：贷款利率又降了，银行给的钱更便宜了。对老百姓来说，存款利息越来越少，要想保值就得找更好的理财方式。"
+    },
+    {
+      "title": "陆家嘴论坛开幕：推动包容平等的全球金融治理",
+      "summary": "金融监管总局局长丁向群在陆家嘴论坛提出，需要更加包容平等的金融治理机制和务实高效的金融监管协作。大模型API降价、AI金融应用成热议焦点。",
+      "category": "宏观经济",
+      "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
+      "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
+    },
+    {
+      "title": "黄金价格过山车：美联储决议后暴跌，尾盘收4258美元",
+      "summary": "6月18日伦敦现货黄金单日振幅超160美元。决议前冲至4382美元，鹰派信号后急坠至4219美元，尾盘收4258美元，全天跌幅约1.6%。",
+      "category": "宏观经济",
+      "capital_view": "黄金短期波动加大，长期作为资产配置的压舱石价值不改。",
+      "plain_text": "黄金价格最近变化不小，主要是受国际局势和美元走势的影响。短期波动正常，长期看还是保值的硬通货。"
+    },
+    {
+      "title": "创业板突破4000点，科技成长全面爆发",
+      "summary": "6月15日创业板指暴涨5.30%收4033点突破4000关口，科创板50涨超5%。上证收4096点涨1.61%。AI算力、半导体、机器人等板块领涨。",
+      "category": "行业动态",
+      "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
+      "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
+    },
+    {
+      "title": "大模型API价格战开打，算力需求持续爆发",
+      "summary": "国内多家大模型厂商大幅下调API调用价格，降幅最高达90%。AI应用从训练阶段加速向推理部署阶段过渡，算力基础设施投资持续高增。",
+      "category": "行业动态",
+      "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
+      "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
+    },
+    {
+      "title": "人民币汇率温和震荡，在岸收报6.7623",
+      "summary": "6月18日在岸人民币兑美元收盘报6.7623，较上一交易日微跌54点。美联储鹰派信号短期支撑美元，人民币缺乏方向性突破动力。",
+      "category": "宏观经济",
+      "capital_view": "人民币汇率波动影响外资流向，关注跨境配置和美元资产比例。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "宝马下调业绩预期，股价暴跌冲击全球汽车行业",
+      "summary": "宝马6月17日大幅下调2026年业绩预期，股价暴跌拖累欧洲汽车板块。中国市场需求疲软和电动车竞争加剧是主因。",
+      "category": "上市公司",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "人形机器人产业化提速，多企获新融资",
+      "summary": "优必选、宇树等头部人形机器人企业加速量产，特斯拉Optimus进入工厂测试阶段。产业链上下游企业订单爆发，资本持续涌入。",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "中国石化首次回购股份，央企市值管理持续推进",
+      "summary": "中国石化6月18日耗资约5596万元首次回购1175万股。央企市值管理改革持续推进，上市公司分红回购力度加大。",
+      "category": "上市公司",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "新能源出口保持高增长，光伏组件出口同比增长超30%",
+      "summary": "中国光伏、锂电池、新能源汽车出口持续高增长。欧盟碳关税落地倒逼产业升级，龙头企业技术和规模优势进一步凸显。",
+      "category": "行业动态",
+      "capital_view": "新能源产业链整合加速，龙头企业优势进一步集中。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    }
+  ],
+  "summary": {
+    "equity_outlook": "权益市场震荡偏强，结构性机会丰富，关注AI/半导体/机器人等新质生产力方向",
+    "bond_outlook": "债券市场收益率低位运行，债基配置价值仍存但空间收窄",
+    "strategy": "在利率下行大背景下，建议：1) 适当降低存款比例；2) 增配储蓄型保险锁定利率；3) 固收+产品替代纯固收；4) 权益类产品适度参与结构性机会",
+    "key_reminder": [
+      "存款利率持续下行中，建议尽早锁定当前较高的储蓄型保险利率",
+      "权益市场偏强，但注意控制仓位和分散投资",
+      "关注风险：美联储鹰派信号升温，全球流动性边际收紧、中美利差倒挂持续，人民币汇率波动、黄金价格剧烈波动，避险资产稳定性下降"
+    ]
+  }
+}

@@ -1,0 +1,38 @@
+name: 智能投顾数据更新
+
+on:
+  schedule:
+    # 北京时间工作日 11:00 = UTC 03:00
+    - cron: '0 3 * * 1-5'
+    # 北京时间工作日 14:10 = UTC 06:10
+    - cron: '10 6 * * 1-5'
+  workflow_dispatch:  # 允许手动触发
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 检出仓库
+        uses: actions/checkout@v4
+
+      - name: 设置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: 采集云端数据
+        run: python3 cloud_fetcher.py
+
+      - name: 运行数据匹配管道
+        run: python3 data_pipeline.py --input data/market_input.json --output data/daily.json
+
+      - name: 提交更新
+        run: |
+          git config user.name "理财经理数据机器人"
+          git config user.email "bot@wealth-advisor.local"
+          git add data/market_input.json data/daily.json
+          git diff --cached --quiet || git commit -m "📊 数据自动更新 $(date +'%Y-%m-%d %H:%M')"
+          git push
