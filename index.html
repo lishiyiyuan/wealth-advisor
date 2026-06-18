@@ -197,15 +197,20 @@ input:focus, select:focus { border-color: var(--red); }
 
 <div class="container">
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('market')">📡 市场</div>
+    <div class="tab active" onclick="switchTab('news')">📰 资讯</div>
+    <div class="tab" onclick="switchTab('market')">📡 市场</div>
     <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
     <div class="tab" onclick="switchTab('result')">📊 推荐结果</div>
     <div class="tab" onclick="switchTab('report')">📝 配置报告</div>
-    <div class="tab" onclick="switchTab('news')">📰 资讯</div>
   </div>
 
-  <!-- Tab 1: 市场 -->
-  <div id="tab-market">
+  <!-- Tab 1: 资讯 -->
+  <div id="tab-news">
+    <div id="newsContent"></div>
+  </div>
+
+  <!-- Tab 2: 市场 -->
+  <div id="tab-market" style="display:none;">
     <div id="marketContent"></div>
   </div>
 
@@ -278,16 +283,14 @@ input:focus, select:focus { border-color: var(--red); }
     </div>
     <div class="card report" id="reportArea"></div>
   </div>
-
-  <!-- Tab 5: 资讯 -->
-  <div id="tab-news" style="display:none;">
-    <div id="newsContent"></div>
-  </div>
 </div>
 
 <!-- 移动端底部导航 -->
 <div class="mobile-bottom-nav" id="mobileNav">
-  <div class="mobile-nav-item active" onclick="switchTab('market')" data-tab="market">
+  <div class="mobile-nav-item active" onclick="switchTab('news')" data-tab="news">
+    <span class="nav-icon">📰</span>资讯
+  </div>
+  <div class="mobile-nav-item" onclick="switchTab('market')" data-tab="market">
     <span class="nav-icon">📡</span>市场
   </div>
   <div class="mobile-nav-item" onclick="switchTab('input')" data-tab="input">
@@ -298,9 +301,6 @@ input:focus, select:focus { border-color: var(--red); }
   </div>
   <div class="mobile-nav-item" onclick="switchTab('report')" data-tab="report">
     <span class="nav-icon">📝</span>报告
-  </div>
-  <div class="mobile-nav-item" onclick="switchTab('news')" data-tab="news">
-    <span class="nav-icon">📰</span>资讯
   </div>
   <div class="mobile-nav-item" onclick="exportPPT()" id="mobileExportBtn">
     <span class="nav-icon">📥</span>导出
@@ -443,9 +443,9 @@ setInterval(async function() {
   fetch('data/daily.json?'+Date.now()).then(r=>r.json()).then(d=>{_lastDataDate=d.date||'';}).catch(()=>{});
 }catch(e){} })();
 
-// 页面加载后自动渲染首页（市场Tab）
+// 页面加载后自动渲染首页（资讯Tab）
 document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(function() { renderMarketTab(); }, 300);
+  setTimeout(function() { renderNewsTab(); }, 300);
 });
 
 // ============================================================
@@ -557,7 +557,7 @@ function switchTab(tab) {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['market','input','result','report','news'][i]===tab);
+    el.classList.toggle('active', ['news','market','input','result','report'][i]===tab);
   });
   // 同步移动端底部导航
   document.querySelectorAll('.mobile-nav-item').forEach(el => {
