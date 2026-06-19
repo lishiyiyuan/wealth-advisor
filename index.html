@@ -567,7 +567,7 @@ let sids = new Set();
 // UI 逻辑
 // ============================================================
 function switchTab(tab) {
-  ['input','result','report','market','news'].forEach(t => {
+  ['input','result','report','market','news','fund'].forEach(t => {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
