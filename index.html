@@ -2357,66 +2357,43 @@ function renderDashboard() {
   const container = document.getElementById('dashboardContent');
   const ap = (typeof MARKET!=='undefined'&&MARKET.asset_prices)?MARKET.asset_prices:{};
   const ss=ap.a_share||{}, g=ap.gold||{}, fx=ap.fx||{}, bond=ap.bond||{};
-  const news = (window._dailyNews||[]).slice(0,3);
   const clients = loadClients();
-  
-  // 生成预警
-  const alerts = [];
-  // 客户到期预警
-  for (const c of clients) {
-    for (const h of (c.holdings||[])) {
-      if (h.buyDate) {
-        const buy = new Date(h.buyDate);
-        const days = Math.floor((Date.now()-buy.getTime())/86400000);
-        if (days>0 && days%180<7 && days>173) alerts.push({icon:'📆',text:c.name+' 持仓'+(h.fundName||h.fundCode)+' 已持'+days+'天',type:'info'});
-      }
-      if (h.pnl < -500) alerts.push({icon:'⚠',text:c.name+' '+(h.fundName||h.fundCode)+' 亏损'+(h.pnl||0).toFixed(0)+'元',type:'warn'});
-    }
-  }
-  
-  let html = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
-  // 市场快照
-  html += '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border-radius:10px;padding:12px;grid-column:1/-1;">';
-  html += '<div style="font-size:0.75rem;opacity:0.7;margin-bottom:4px;">'+new Date().toLocaleDateString('zh-CN',{weekday:'long',month:'long',day:'numeric'})+'</div>';
-  html += '<div style="display:flex;gap:16px;font-size:0.8rem;">';
-  html += '<div><span style="opacity:0.6;">上证</span> <b>'+(ss.level||'—')+'</b> <span style="color:#c41230;font-size:0.65rem;">'+(ss.change||'')+'</span></div>';
-  html += '<div><span style="opacity:0.6;">黄金</span> <b>'+(g.level||'—')+'</b></div>';
-  html += '<div><span style="opacity:0.6;">汇率</span> <b>'+(fx.level||'—')+'</b></div>';
-  html += '<div><span style="opacity:0.6;">国债</span> <b>'+(bond.cn_10y||'—')+'</b> <span style="font-size:0.6rem;">'+(bond.trend||'')+'</span></div>';
-  html += '</div></div>';
-  
-  // 客户概览
   const totalPnl = clients.reduce((s,c)=>s+(c.holdings||[]).reduce((ss,h)=>ss+(h.pnl||0),0),0);
-  html += '<div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:10px;">';
-  html += '<div style="font-size:0.65rem;color:var(--gray);">管理客户</div>';
-  html += '<div style="font-size:1.2rem;font-weight:700;">'+clients.length+'<span style="font-size:0.7rem;font-weight:400;"> 人</span></div>';
-  html += '</div>';
-  html += '<div style="background:#fef2f2;border:1px solid #fecaca;border-radius:10px;padding:10px;">';
-  html += '<div style="font-size:0.65rem;color:var(--gray);">持仓总盈亏</div>';
-  html += '<div style="font-size:1.2rem;font-weight:700;color:'+(totalPnl>=0?'#c41230':'#059669')+';">'+(totalPnl>=0?'+':'')+totalPnl.toFixed(0)+'<span style="font-size:0.7rem;font-weight:400;"> 元</span></div>';
+  
+  let html = '';
+  // 市场快照
+  html += '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border-radius:12px;padding:14px;margin-bottom:12px;">';
+  html += '<div style="font-size:0.75rem;opacity:0.7;">'+new Date().toLocaleDateString('zh-CN',{weekday:'long',month:'long',day:'numeric'})+'</div>';
+  html += '<div style="display:flex;gap:12px;font-size:0.78rem;margin-top:4px;flex-wrap:wrap;">';
+  html += '<span>上证<b> '+(ss.level||'—')+'</b> <span style="color:#c41230;font-size:0.65rem;">'+(ss.change||'')+'</span></span>';
+  html += '<span>黄金<b> '+(g.level||'—')+'</b></span><span>汇率<b> '+(fx.level||'—')+'</b></span><span>国债<b> '+(bond.cn_10y||'—')+'</b></span>';
   html += '</div></div>';
   
-  // 预警区
-  if (alerts.length>0) {
-    html += '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px;margin-bottom:10px;">';
-    html += '<div style="font-weight:600;font-size:0.8rem;margin-bottom:6px;">⚠ 提醒 ('+alerts.length+'条)</div>';
-    for (const a of alerts.slice(0,3)) {
-      html += '<div style="font-size:0.7rem;padding:4px 0;border-bottom:1px solid #fef3c7;"><span style="margin-right:4px;">'+a.icon+'</span>'+a.text+'</div>';
-    }
-    if (alerts.length>3) html += '<div style="font-size:0.65rem;color:var(--gray);text-align:center;padding-top:4px;">还有'+(alerts.length-3)+'条提醒</div>';
-    html += '</div>';
-  }
+  // 统计
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">';
+  html += '<div style="background:#f0fdf4;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:0.65rem;color:var(--gray);">管理客户</div><div style="font-size:1.3rem;font-weight:700;">'+clients.length+'</div></div>';
+  html += '<div style="background:#fef2f2;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:0.65rem;color:var(--gray);">持仓盈亏</div><div style="font-size:1.3rem;font-weight:700;color:'+(totalPnl>=0?'#c41230':'#059669')+';">'+(totalPnl>=0?'+':'')+totalPnl.toFixed(0)+'</div></div>';
+  html += '</div>';
   
-  // 今日要闻
-  html += '<div style="font-weight:600;font-size:0.85rem;margin-bottom:6px;">📰 今日要闻</div>';
-  if (news.length>0) {
-    for (const n of news) {
-      html += '<div style="background:#fff;border-radius:8px;padding:10px;margin-bottom:6px;border:1px solid #e5e7eb;">';
-      html += '<div style="font-size:0.82rem;font-weight:500;">'+(n.title||'').slice(0,60)+'</div>';
-      html += '<div style="font-size:0.7rem;color:var(--gray);margin-top:2px;">'+(n.summary||'').slice(0,80)+'</div>';
-      html += '</div>';
-    }
+  // 功能卡片
+  const cards = [
+    {icon:'📰',title:'实时资讯',desc:'最新财经新闻',tab:'news'},
+    {icon:'📡',title:'市场行情',desc:'指数/黄金/汇率',tab:'market'},
+    {icon:'📈',title:'基金估值',desc:'45只+对比器',tab:'fund'},
+    {icon:'👥',title:'客户管理',desc:'档案+持仓',tab:'clients'},
+    {icon:'🤖',title:'AI助手',desc:'DeepSeek+联网',tab:'ai'},
+    {icon:'📋',title:'客户画像',desc:'分析→匹配',tab:'input'},
+    {icon:'📊',title:'推荐结果',desc:'产品匹配',tab:'result'},
+    {icon:'📝',title:'配置报告',desc:'方案+导出',tab:'report'},
+  ];
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  for (const c of cards) {
+    html += '<div onclick="switchTab(\''+c.tab+'\')" style="background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:14px 10px;cursor:pointer;text-align:center;">';
+    html += '<div style="font-size:1.5rem;margin-bottom:4px;">'+c.icon+'</div>';
+    html += '<div style="font-weight:600;font-size:0.82rem;">'+c.title+'</div>';
+    html += '<div style="font-size:0.65rem;color:var(--gray);">'+c.desc+'</div></div>';
   }
+  html += '</div>';
   
   container.innerHTML = html;
 }
