@@ -17,7 +17,7 @@
 :root { --red: #c41230; --dark: #1a1a2e; --gray: #6b7280; --bg: #f8f9fa; --card: #ffffff; --border: #e5e7eb; --green: #059669; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--dark); min-height: 100vh; }
-.header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: 16px 20px; position: sticky; top: 0; z-index: 100; }
+.header { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; padding: calc(16px + env(safe-area-inset-top, 0px)) 20px 16px; position: sticky; top: 0; z-index: 100; }
 .header h1 { font-size: 1.2rem; font-weight: 700; }
 .header .ver { color: var(--red); font-weight: 700; }
 .container { max-width: 800px; margin: 0 auto; padding: 16px; }
@@ -104,7 +104,7 @@ input:focus, select:focus { border-color: var(--red); }
 
 /* ===== 移动端响应式 ===== */
 @media (max-width: 768px) {
-  .header { padding: 10px 14px; }
+  .header { padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 10px; }
   .header h1 { font-size: 1rem; }
   .header .ver { font-size: 0.75rem; }
   .container { padding: 8px 8px 80px 8px; max-width: 100%; }
@@ -287,12 +287,7 @@ input:focus, select:focus { border-color: var(--red); }
 
   <!-- Tab: 基金估值 -->
   <div id="tab-fund" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-weight:700;">📈 基金实时估值</div>
-      <button onclick="renderFundTab()" id="btnRefreshFund" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 刷新估值</button>
-    </div>
     <div id="fundContent"></div>
-    <div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 · 东方财富 | 估值仅供参考，以基金公司公布净值为准</div>
   </div>
 </div>
 
@@ -869,8 +864,8 @@ async function renderFundTab() {
 
   // 异步加载历史业绩（从 fund_history.json）
   loadFundHistory().then(hist => {
-    for (const row of document.querySelectorAll('.fund-row')) {
-      const code = row.dataset.code;
+    for (const card of document.querySelectorAll('.fund-card')) {
+      const code = card.dataset.code;
       if (hist[code]) updateHistRow(code, hist[code]);
     }
   });
