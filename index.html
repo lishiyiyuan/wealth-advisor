@@ -837,40 +837,31 @@ async function renderFundTab() {
   html += '<div style="font-weight:700;">📈 基金估值（'+funds.length+'只）</div>';
   html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 获取实时估值</button></div>';
   
-  // 横向滚动表格（基金名称列固定）
-  html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e5e7eb;border-radius:8px;">';
-  html += '<div style="display:flex;min-width:600px;">';
-  
-  // 表头
-  html += '<div style="font-size:0.68rem;color:var(--gray);display:flex;padding:6px 0;border-bottom:2px solid #e5e7eb;font-weight:600;background:#f9fafb;position:sticky;top:0;z-index:1;">';
-  html += '<span style="width:140px;flex-shrink:0;padding-left:12px;position:sticky;left:0;background:#f9fafb;z-index:2;">基金名称 / 代码</span>';
-  html += '<span style="width:70px;flex-shrink:0;text-align:right;">估值</span>';
-  html += '<span style="width:65px;flex-shrink:0;text-align:right;">涨跌幅</span>';
-  html += '<span style="width:65px;flex-shrink:0;text-align:right;">净值</span>';
-  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近1月</span>';
-  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近3月</span>';
-  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近半年</span>';
-  html += '<span style="width:58px;flex-shrink:0;text-align:right;padding-right:12px;">近1年</span>';
-  html += '</div>';
-  
+  // 基金卡片列表（竖排，每只基金独立）
   for (const f of funds) {
     const code = f.product_id || '';
     const industry = f.sub_category || f.issuer || '';
-    html += '<div class="fund-row" data-code="'+code+'" style="font-size:0.78rem;display:flex;align-items:center;padding:7px 0;border-bottom:1px solid #f3f4f6;">';
-    html += '<span style="width:140px;flex-shrink:0;padding-left:12px;position:sticky;left:0;background:#fff;">';
-    html += '<div style="font-weight:600;color:var(--dark);">'+(f.product_name||'')+'</div>';
-    html += '<div style="font-size:0.62rem;color:var(--gray);">'+code+' · '+(industry.slice(0,8))+'</div>';
-    html += '</span>';
-    html += '<span class="fund-gz" style="width:70px;flex-shrink:0;text-align:right;color:var(--gray);">点击获取</span>';
-    html += '<span class="fund-chg" style="width:65px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-nav" style="width:65px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-1m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-3m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-6m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-1y" style="width:58px;flex-shrink:0;text-align:right;padding-right:12px;color:var(--gray);">—</span>';
+    html += '<div class="fund-card" data-code="'+code+'" style="background:#fff;border-radius:8px;padding:10px 12px;margin-bottom:8px;border:1px solid #e5e7eb;">';
+    // 第一行：名称 + 估值 + 涨跌
+    html += '<div style="display:flex;align-items:center;margin-bottom:6px;">';
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<div style="font-size:0.85rem;font-weight:600;color:var(--dark);">'+(f.product_name||'')+'</div>';
+    html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(industry.slice(0,10))+'</div>';
+    html += '</div>';
+    html += '<span class="fund-gz" style="font-size:0.9rem;font-weight:700;color:var(--gray);text-align:right;min-width:60px;">点击获取</span>';
+    html += '<span class="fund-chg" style="font-size:0.8rem;font-weight:600;min-width:60px;text-align:right;color:var(--gray);">—</span>';
+    html += '</div>';
+    // 第二行：净值+更新+历史业绩（可左右滑动）
+    html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">';
+    html += '<div style="display:flex;gap:10px;font-size:0.7rem;min-width:340px;">';
+    html += '<span class="fund-nav" style="color:var(--gray);white-space:nowrap;">净值 —</span>';
+    html += '<span class="fund-1m" style="color:var(--gray);white-space:nowrap;">近1月 —</span>';
+    html += '<span class="fund-3m" style="color:var(--gray);white-space:nowrap;">近3月 —</span>';
+    html += '<span class="fund-6m" style="color:var(--gray);white-space:nowrap;">近半年 —</span>';
+    html += '<span class="fund-1y" style="color:var(--gray);white-space:nowrap;">近1年 —</span>';
+    html += '</div></div>';
     html += '</div>';
   }
-  html += '</div></div>';
   html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
   container.innerHTML = html;
 
@@ -936,8 +927,8 @@ async function fetchFundEstimates() {
 }
 
 function updateRow(code, data) {
-  const row = document.querySelector('.fund-row[data-code="'+code+'"]');
-  if (!row) return;
+  const card = document.querySelector('.fund-card[data-code="'+code+'"]');
+  if (!card) return;
   
   const gz = data.gz ? parseFloat(data.gz).toFixed(4) : '—';
   const gszzl = parseFloat(data.gszzl || 0);
@@ -945,11 +936,10 @@ function updateRow(code, data) {
   const arr = gszzl >= 0 ? '▲' : (gszzl < 0 ? '▼' : '');
   const dwjz = data.dwjz ? parseFloat(data.dwjz).toFixed(4) : '—';
   
-  row.querySelector('.fund-gz').innerHTML = '<span style="font-weight:700;color:var(--dark);">'+gz+'</span>';
-  row.querySelector('.fund-chg').innerHTML = '<span style="font-weight:700;color:'+clr+';">'+arr+(gszzl>0?'+':'')+gszzl.toFixed(2)+'%</span>';
-  row.querySelector('.fund-nav').innerHTML = '<span style="color:var(--dark);">'+dwjz+'</span>';
-  
-  row.style.background = '#f9fafb';
+  card.querySelector('.fund-gz').innerHTML = gz+'<div style="font-size:0.55rem;color:#9ca3af;font-weight:400;">'+(data.gztime||'').slice(-8)+'</div>';
+  card.querySelector('.fund-chg').innerHTML = '<span style="color:'+clr+';">'+arr+(gszzl>0?'+':'')+gszzl.toFixed(2)+'%</span>';
+  card.querySelector('.fund-nav').innerHTML = '净值 <span style="font-weight:600;color:var(--dark);">'+dwjz+'</span>';
+  card.style.background = '#f9fafb';
 }
 
 async function loadFundHistory() {
@@ -961,25 +951,22 @@ async function loadFundHistory() {
 }
 
 function updateHistRow(code, hist) {
-  const row = document.querySelector('.fund-row[data-code="'+code+'"]');
-  if (!row) return;
-  const setVal = (cls, val) => {
-    const el = row.querySelector('.'+cls);
+  const card = document.querySelector('.fund-card[data-code="'+code+'"]');
+  if (!card) return;
+  const setVal = (cls, label, val) => {
+    const el = card.querySelector('.'+cls);
     if (!el || val == null) return;
     const isUp = val >= 0, clr = isUp ? '#c41230' : '#059669';
-    el.innerHTML = '<span style="color:'+clr+';">'+(isUp?'+':'')+val.toFixed(2)+'%</span>';
+    el.innerHTML = label+' <span style="font-weight:600;color:'+clr+';">'+(isUp?'+':'')+val.toFixed(2)+'%</span>';
   };
-  setVal('fund-1m', hist['1m']);
-  setVal('fund-3m', hist['3m']);
-  setVal('fund-6m', hist['6m']);
-  setVal('fund-1y', hist['1y']);
+  setVal('fund-1m', '近1月', hist['1m']);
+  setVal('fund-3m', '近3月', hist['3m']);
+  setVal('fund-6m', '近半年', hist['6m']);
+  setVal('fund-1y', '近1年', hist['1y']);
   if (hist.streak >= 3) {
     const tag = hist.streak_up ? '🔥连'+hist.streak+'涨' : '❄连'+hist.streak+'跌';
-    const nd = row.querySelector('div');
-    if (nd) {
-      const last = nd.querySelector('div:last-child');
-      if (last) last.innerHTML += ' <span style="font-size:0.55rem;color:'+(hist.streak_up?'#c41230':'#059669')+';">'+tag+'</span>';
-    }
+    const nd = card.querySelector('div div:last-child');
+    if (nd) nd.innerHTML += ' <span style="font-size:0.6rem;color:'+(hist.streak_up?'#c41230':'#059669')+';">'+tag+'</span>';
   }
 }
 
