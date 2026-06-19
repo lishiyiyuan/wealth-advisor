@@ -900,40 +900,6 @@ async function fetchFundEstimates() {
   if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新估值'; }
 }
 
-  results.sort((a, b) => parseFloat(b.gszzl || 0) - parseFloat(a.gszzl || 0));
-
-  let html = '';
-  for (const f of results) {
-    const gz = f.gz ? parseFloat(f.gz).toFixed(4) : '—';
-    const gszzl = parseFloat(f.gszzl || 0);
-    const isUp = gszzl >= 0;
-    const color = isUp ? '#c41230' : '#059669';
-    const arrow = isUp ? '▲' : (gszzl < 0 ? '▼' : '');
-
-    html += '<div style="background:#fff;border-radius:8px;padding:10px 12px;margin-bottom:8px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:8px;">';
-    html += '<div style="flex:1;min-width:0;">';
-    html += '<div style="font-size:0.82rem;font-weight:600;color:var(--dark);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + (f.name || f.fundcode) + '</div>';
-    html += '<div style="font-size:0.65rem;color:var(--gray);">' + (f.fundcode || '') + '</div>';
-    html += '</div>';
-    html += '<div style="text-align:center;">';
-    html += '<div style="font-size:0.9rem;font-weight:700;color:var(--dark);">' + gz + '</div>';
-    html += '<div style="font-size:0.55rem;color:#9ca3af;">' + (f.gztime || '—') + '</div>';
-    html += '</div>';
-    html += '<div style="text-align:right;">';
-    html += '<div style="font-size:0.85rem;font-weight:700;color:'+color+';">' + arrow + (gszzl>0?'+':'') + gszzl.toFixed(2) + '%</div>';
-    html += '<div style="font-size:0.6rem;color:#9ca3af;">净值 ' + (f.dwjz||'—') + '</div>';
-    html += '</div>';
-    html += '</div>';
-  }
-
-  if (results.length === 0) {
-    html = '<p style="text-align:center;color:var(--gray);padding:40px;">暂未获取到估值数据<br><span style="font-size:0.75rem;">基金估值API仅在交易日9:00-15:00提供数据</span><br><span style="font-size:0.7rem;">PRODUCTS已就绪，基金数:'+codes.length+'，API返回:0</span></p>';
-  }
-
-  container.innerHTML = html;
-  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新估值'; }
-}
-
 function judgeBias(market) {
   const dep = market.deposit_rate || {};
   const ap = market.asset_prices || {};
