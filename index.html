@@ -837,6 +837,8 @@ async function renderFundTab() {
   html += '<div style="font-weight:700;">📈 基金估值（'+funds.length+'只）</div>';
   html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 获取实时估值</button></div>';
   
+  html += '<input id="fundSearch" oninput="filterFunds()" placeholder="🔍 搜索基金名称/代码..." style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.82rem;margin-bottom:10px;">';
+  
   // 基金卡片列表（竖排，每只基金独立）
   for (const f of funds) {
     const code = f.product_id || '';
@@ -940,6 +942,13 @@ function updateRow(code, data) {
   card.querySelector('.fund-chg').innerHTML = '<span style="color:'+clr+';">'+arr+(gszzl>0?'+':'')+gszzl.toFixed(2)+'%</span>';
   card.querySelector('.fund-nav').innerHTML = '净值 <span style="font-weight:600;color:var(--dark);">'+dwjz+'</span>';
   card.style.background = '#f9fafb';
+}
+
+function filterFunds() {
+  const q = (document.getElementById('fundSearch')?.value||'').toLowerCase();
+  document.querySelectorAll('.fund-card').forEach(c => {
+    c.style.display = q ? ((c.textContent||'').toLowerCase().includes(q) ? '' : 'none') : '';
+  });
 }
 
 async function loadFundHistory() {
