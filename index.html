@@ -607,10 +607,11 @@ function renderMarketTab() {
   html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">';
   
   // 实时价格优先，fallback 到 MARKET
-  const asharePrice = live.ashare_price ? (live.ashare_price+'点') : ((ap.a_share||{}).level||'—');
-  const ashareTrend = live.ashare_chg ? (live.ashare_chg >= 0 ? '+' : '') + live.ashare_chg.toFixed(2) + '%' : ((ap.a_share||{}).trend||'—');
-  const goldPrice = live.gold ? ('约'+live.gold+'美元/盎司') : ((ap.gold||{}).price||'—');
-  const fxPrice = live.fx ? ('约'+live.fx) : ((ap.fx||{}).usd_cny||'—');
+  const cleanNum = (s) => (typeof s === 'string' ? s.replace(/^约/, '') : (s||'—'));
+  const asharePrice = live.ashare_price ? (live.ashare_price+'点') : cleanNum((ap.a_share||{}).level);
+  const ashareTrend = live.ashare_chg ? (live.ashare_chg >= 0 ? '+' : '') + live.ashare_chg.toFixed(2) + '%' : cleanNum((ap.a_share||{}).trend);
+  const goldPrice = live.gold ? (live.gold+'美元/盎司') : cleanNum((ap.gold||{}).price);
+  const fxPrice = live.fx ? live.fx : cleanNum((ap.fx||{}).usd_cny);
   
   const dataRows = [
     ['A股（上证指数）', asharePrice, ashareTrend, '🔴 偏多'],
