@@ -2505,6 +2505,24 @@ function renderChatUI() {
 
 function quickBtn(text) { return '<button onclick="document.getElementById(\'aiInput\').value=\''+text+'\';sendAiMsg()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;white-space:nowrap;">'+text+'</button>'; }
 
+async function webSearch(query) {
+  try {
+    const resp = await fetch('https://api.duckduckgo.com/?q='+encodeURIComponent(query)+'&format=json&no_html=1&skip_disambig=1');
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    let results = '';
+    if (data.AbstractText && data.AbstractText.length > 20) {
+      results += '【摘要】'+data.AbstractText.slice(0,300)+'\n\n';
+    }
+    const items = (data.RelatedTopics||[]).slice(0,5);
+    for (const item of items) {
+      const text = (item.Text||'').replace(/<[^>]+>/g,'').trim().slice(0,200);
+      if (text) results += '• '+text+'\n';
+    }
+    return results || null;
+  } catch(e) { return null; }
+}
+
 async function sendAiMsg() {
   const input = document.getElementById('aiInput'), btn = document.getElementById('aiSendBtn');
   const msg = input.value.trim(); if (!msg) return;
@@ -2512,22 +2530,32 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
+  // 联网搜索：先搜再喂给AI
+  let searchCtx = '';
+  if (_aiSearch) {
+    try {
+      btn.innerHTML='🔍';
+      const sr = await webSearch(msg);
+      if (sr) searchCtx = '\n\n【联网搜索结果】\n'+sr;
+    } catch(e) {}
+  }
+  
   try {
+    const sysMsg = buildAiContext() + searchCtx;
     const resp = await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},
       body:JSON.stringify({
         model:'deepseek-chat',
-        messages:[{role:'system',content:buildAiContext()},..._aiHistory],
-        temperature:0.7,max_tokens:1500,
-        enable_search: _aiSearch
+        messages:[{role:'system',content:sysMsg},..._aiHistory],
+        temperature:0.7,max_tokens:1500
       })
     });
     if (!resp.ok) throw new Error('HTTP '+resp.status+' '+resp.statusText);
     const data = await resp.json();
     _aiHistory.push({role:'assistant',content:data.choices[0].message.content});
   } catch(e) {
-    _aiHistory.push({role:'assistant',content:'⚠️ 请求失败: '+e.message+'\n可能是网络问题或API Key无效'});
+    _aiHistory.push({role:'assistant',content:'⚠️ 请求失败: '+e.message});
   }
   
   btn.disabled=false; btn.innerHTML='发送';
