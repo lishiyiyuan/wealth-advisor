@@ -13,6 +13,7 @@
 <title>智能投顾系统 - 客户资产配置与产品推荐 v2.0</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
 <style>
 :root { --red: #c41230; --dark: #1a1a2e; --gray: #6b7280; --bg: #f8f9fa; --card: #ffffff; --border: #e5e7eb; --green: #059669; }
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -2441,9 +2442,15 @@ function showBatchImport() {
   let html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;justify-content:center;align-items:flex-end;">';
   html += '<div style="background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:20px;">';
   html += '<div style="font-weight:700;font-size:1.1rem;margin-bottom:12px;">📥 批量导入持仓</div>';
-  html += '<div style="font-size:0.7rem;color:var(--gray);margin-bottom:8px;line-height:1.5;">每行一条持仓，格式：<br><b>客户名,基金代码,申购日期,买入金额,费率</b><br>例：张三,000184,2026-01-15,50000,0.15</div>';
-  html += '<textarea id="batchData" rows="8" placeholder="张三,000184,2026-01-15,50000,0.15&#10;李四,000218,2026-03-20,20000,0.10" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:monospace;"></textarea>';
-  html += '<div style="font-size:0.65rem;color:var(--gray);margin-top:4px;">客户名不存在会自动创建，费率默认0.15%</div>';
+  html += '<div style="display:flex;gap:8px;margin-bottom:8px;">';
+  html += '<button id="importTabXls" onclick="switchImportMode(\'xls\')" style="flex:1;padding:8px;border:none;border-radius:8px;background:var(--red);color:#fff;font-size:0.82rem;cursor:pointer;">📊 Excel上传</button>';
+  html += '<button id="importTabCsv" onclick="switchImportMode(\'csv\')" style="flex:1;padding:8px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.82rem;cursor:pointer;">📋 粘贴文本</button>';
+  html += '</div>';
+  html += '<div id="importXlsArea"><div style="font-size:0.7rem;color:var(--gray);margin-bottom:8px;">Excel格式：客户名 | 基金代码 | 申购日期 | 买入金额 | 费率</div>';
+  html += '<input type="file" id="xlsFile" accept=".xlsx,.xls,.csv" onchange="previewXls()" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.82rem;">';
+  html += '<div id="xlsPreview" style="margin-top:8px;font-size:0.7rem;max-height:200px;overflow-y:auto;"></div></div>';
+  html += '<div id="importCsvArea" style="display:none;"><div style="font-size:0.7rem;color:var(--gray);margin-bottom:8px;line-height:1.5;">每行一条持仓：<br><b>客户名,基金代码,申购日期,买入金额,费率</b></div>';
+  html += '<textarea id="batchData" rows="6" placeholder="张三,000184,2026-01-15,50000,0.15" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.8rem;font-family:monospace;"></textarea></div>';
   html += '<div id="batchResult" style="margin-top:8px;font-size:0.7rem;"></div>';
   html += '<div style="display:flex;gap:8px;margin-top:12px;">';
   html += '<button onclick="closeModal()" style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.85rem;cursor:pointer;">取消</button>';
@@ -2452,10 +2459,71 @@ function showBatchImport() {
   document.getElementById('modalHost').innerHTML = html;
 }
 
+function switchImportMode(mode) {
+  document.getElementById('importXlsArea').style.display = mode==='xls'?'block':'none';
+  document.getElementById('importCsvArea').style.display = mode==='csv'?'block':'none';
+  document.getElementById('importTabXls').style.background = mode==='xls'?'var(--red)':'#fff';
+  document.getElementById('importTabXls').style.color = mode==='xls'?'#fff':'var(--dark)';
+  document.getElementById('importTabCsv').style.background = mode==='csv'?'var(--red)':'#fff';
+  document.getElementById('importTabCsv').style.color = mode==='csv'?'#fff':'var(--dark)';
+  document.getElementById('importTabCsv').style.border = mode==='csv'?'none':'1px solid #e5e7eb';
+  document.getElementById('importTabXls').style.border = mode==='xls'?'none':'1px solid #e5e7eb';
+}
+
+function previewXls() {
+  const file = document.getElementById('xlsFile').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1});
+      let html = '<div style="font-weight:600;margin-bottom:4px;">预览（'+data.length+'行）</div>';
+      for (let i = 0; i < Math.min(data.length, 8); i++) {
+        html += '<div>' + data[i].join(' | ') + '</div>';
+      }
+      if (data.length > 8) html += '<div style="color:var(--gray);">...还有'+(data.length-8)+'行</div>';
+      document.getElementById('xlsPreview').innerHTML = html;
+    } catch(e) {
+      document.getElementById('xlsPreview').innerHTML = '<div style="color:#c41230;">解析失败：'+e.message+'</div>';
+    }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
 function doBatchImport() {
+  const mode = document.getElementById('importXlsArea').style.display !== 'none' ? 'xls' : 'csv';
+  
+  if (mode === 'csv') {
+    doCsvImport();
+  } else {
+    doXlsImport();
+  }
+}
+
+function doXlsImport() {
+  const file = document.getElementById('xlsFile').files[0];
+  if (!file) { toast('请选择文件'); return; }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const wb = XLSX.read(e.target.result, {type:'array'});
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const data = XLSX.utils.sheet_to_json(ws, {header:1});
+      processImportLines(data.slice(1).filter(r => r.length >= 4).map(r => r.join(',')).join('\n'));
+    } catch(e) { toast('解析失败:'+e.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function doCsvImport() {
   const raw = document.getElementById('batchData').value.trim();
   if (!raw) { toast('请粘贴数据'); return; }
-  
+  processImportLines(raw);
+}
+
+function processImportLines(raw) {
   const lines = raw.split('\n').filter(l => l.trim() && !l.startsWith('#'));
   const clients = loadClients();
   let imported = 0, skipped = 0;
@@ -2469,7 +2537,6 @@ function doBatchImport() {
     const fee = parseFloat(feeStr) || 0.15;
     if (!cname || !code || !date || amount <= 0) { skipped++; continue; }
     
-    // 查找或创建客户
     let ci = clients.findIndex(x => (x.name||'').toLowerCase() === cname.toLowerCase());
     if (ci < 0) {
       clients.push({
@@ -2479,25 +2546,18 @@ function doBatchImport() {
       });
       ci = clients.length - 1;
     }
-    
     if (!clients[ci].holdings) clients[ci].holdings = [];
     
-    // 查净值
     const navs = window._fundNavHistory || {};
-    let buyNav = (navs[code]||{})[date];
-    if (!buyNav) buyNav = 1.0;
-    
+    let buyNav = (navs[code]||{})[date] || 1.0;
     const feeAmt = amount * fee / 100;
-    const netAmt = amount - feeAmt;
-    const shares = netAmt / buyNav;
-    
-    // 查产品名称
+    const shares = (amount - feeAmt) / buyNav;
     const fund = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p => p.product_id === code);
     
     clients[ci].holdings.push({
       id: huid(), fundCode: code, fundName: fund ? fund.product_name : code,
       buyDate: date, buyAmount: amount, feeRate: fee,
-      buyNav, netAmount: netAmt, shares,
+      buyNav, netAmount: amount - feeAmt, shares,
       sellDate: null, sellNav: null, pnl: 0
     });
     imported++;
