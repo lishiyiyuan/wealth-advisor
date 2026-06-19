@@ -2463,7 +2463,7 @@ function fetchFundGz(code) {
 // ============================================================
 function getAiKey() { return localStorage.getItem('wm_ds_key')||''; }
 function setAiKey(k) { localStorage.setItem('wm_ds_key', k); }
-let _aiHistory = [];
+let _aiHistory = [], _aiSearch = false;
 
 function renderAiTab() {
   const container = document.getElementById('aiContent');
@@ -2488,7 +2488,7 @@ function saveAiKey() {
 }
 
 function renderChatUI() {
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:0.75rem;color:var(--gray);">Key: '+getAiKey().slice(0,8)+'***</div><button onclick="setAiKey(\'\');_aiHistory=[];renderAiTab();" style="font-size:0.7rem;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">更换</button></div>';
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:0.75rem;color:var(--gray);">Key: '+getAiKey().slice(0,8)+'***</div><div style="display:flex;align-items:center;gap:8px;"><label style="font-size:0.7rem;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:3px;"><input type="checkbox" id="aiSearchToggle" '+(_aiSearch?'checked':'')+' onchange="_aiSearch=this.checked" style="width:14px;height:14px;">🌐 联网</label><button onclick="setAiKey(\'\');_aiHistory=[];renderAiTab();" style="font-size:0.7rem;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">更换</button></div></div>';
   html += '<div id="aiMessages" style="max-height:60vh;overflow-y:auto;margin-bottom:10px;">';
   if (_aiHistory.length===0) {
     html += '<div style="text-align:center;color:var(--gray);padding:20px;"><div style="font-size:2rem;margin-bottom:8px;">🤖</div><div style="font-size:0.85rem;">我是你的AI投资助手</div><div style="font-size:0.7rem;margin-top:4px;">试试问我：</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;">'+quickBtn('对比000184和000218')+quickBtn('今天市场怎么样')+quickBtn('帮我推荐PR3客户的产品')+quickBtn('客户亏了15%怎么安抚')+'</div></div>';
@@ -2519,7 +2519,8 @@ async function sendAiMsg() {
       body:JSON.stringify({
         model:'deepseek-chat',
         messages:[{role:'system',content:buildAiContext()},..._aiHistory],
-        temperature:0.7,max_tokens:1500
+        temperature:0.7,max_tokens:1500,
+        enable_search: _aiSearch
       })
     });
     if (!resp.ok) throw new Error('HTTP '+resp.status+' '+resp.statusText);
@@ -2550,6 +2551,7 @@ function buildAiContext() {
   const clients = loadClients();
   if (clients.length>0) { ctx += '【客户】'+clients.map(c=>c.name+'('+c.riskLevel+','+c.totalAssets+'万)').join(' ')+'\n'; }
   ctx += '【日期】'+new Date().toISOString().slice(0,10);
+  if (_aiSearch) ctx += '\n【联网搜索】已开启，可以使用实时信息回答。';
   return ctx;
 }
 
