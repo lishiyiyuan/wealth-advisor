@@ -199,10 +199,10 @@ input:focus, select:focus { border-color: var(--red); }
   <div class="tabs">
     <div class="tab active" onclick="switchTab('news')">📰 资讯</div>
     <div class="tab" onclick="switchTab('market')">📡 市场</div>
+    <div class="tab" onclick="switchTab('fund')">📈 基金估值</div>
     <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
     <div class="tab" onclick="switchTab('result')">📊 推荐结果</div>
     <div class="tab" onclick="switchTab('report')">📝 配置报告</div>
-    <div class="tab" onclick="switchTab('fund')">📈 基金估值</div>
   </div>
 
   <!-- Tab 1: 资讯 -->
@@ -571,7 +571,7 @@ function switchTab(tab) {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['news','market','input','result','report','fund'][i]===tab);
+    el.classList.toggle('active', ['news','market','fund','input','result','report'][i]===tab);
   });
   // 同步移动端底部导航
   document.querySelectorAll('.mobile-nav-item').forEach(el => {
@@ -837,35 +837,40 @@ async function renderFundTab() {
   html += '<div style="font-weight:700;">📈 基金估值（'+funds.length+'只）</div>';
   html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 获取实时估值</button></div>';
   
+  // 横向滚动表格（基金名称列固定）
+  html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;border:1px solid #e5e7eb;border-radius:8px;">';
+  html += '<div style="display:flex;min-width:600px;">';
+  
   // 表头
-  html += '<div style="font-size:0.68rem;color:var(--gray);display:flex;padding:6px 12px;border-bottom:2px solid #e5e7eb;font-weight:600;">';
-  html += '<span style="flex:2;min-width:0;">基金名称 / 代码</span>';
-  html += '<span style="flex:0.8;text-align:right;">估值</span>';
-  html += '<span style="flex:0.7;text-align:right;">涨跌幅</span>';
-  html += '<span style="flex:0.6;text-align:right;">净值</span>';
-  html += '<span style="flex:0.5;text-align:right;">近1月</span>';
-  html += '<span style="flex:0.5;text-align:right;">近3月</span>';
-  html += '<span style="flex:0.5;text-align:right;">近半年</span>';
-  html += '<span style="flex:0.5;text-align:right;">近1年</span>';
+  html += '<div style="font-size:0.68rem;color:var(--gray);display:flex;padding:6px 0;border-bottom:2px solid #e5e7eb;font-weight:600;background:#f9fafb;position:sticky;top:0;z-index:1;">';
+  html += '<span style="width:140px;flex-shrink:0;padding-left:12px;position:sticky;left:0;background:#f9fafb;z-index:2;">基金名称 / 代码</span>';
+  html += '<span style="width:70px;flex-shrink:0;text-align:right;">估值</span>';
+  html += '<span style="width:65px;flex-shrink:0;text-align:right;">涨跌幅</span>';
+  html += '<span style="width:65px;flex-shrink:0;text-align:right;">净值</span>';
+  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近1月</span>';
+  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近3月</span>';
+  html += '<span style="width:58px;flex-shrink:0;text-align:right;">近半年</span>';
+  html += '<span style="width:58px;flex-shrink:0;text-align:right;padding-right:12px;">近1年</span>';
   html += '</div>';
   
   for (const f of funds) {
     const code = f.product_id || '';
     const industry = f.sub_category || f.issuer || '';
-    html += '<div class="fund-row" data-code="'+code+'" style="font-size:0.78rem;display:flex;align-items:center;padding:8px 12px;border-bottom:1px solid #f3f4f6;">';
-    html += '<span style="flex:2;min-width:0;">';
+    html += '<div class="fund-row" data-code="'+code+'" style="font-size:0.78rem;display:flex;align-items:center;padding:7px 0;border-bottom:1px solid #f3f4f6;">';
+    html += '<span style="width:140px;flex-shrink:0;padding-left:12px;position:sticky;left:0;background:#fff;">';
     html += '<div style="font-weight:600;color:var(--dark);">'+(f.product_name||'')+'</div>';
-    html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(industry.slice(0,8))+'</div>';
+    html += '<div style="font-size:0.62rem;color:var(--gray);">'+code+' · '+(industry.slice(0,8))+'</div>';
     html += '</span>';
-    html += '<span class="fund-gz" style="flex:0.8;text-align:right;color:var(--gray);">点击获取</span>';
-    html += '<span class="fund-chg" style="flex:0.7;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-nav" style="flex:0.6;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-1m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-3m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-6m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-1y" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-gz" style="width:70px;flex-shrink:0;text-align:right;color:var(--gray);">点击获取</span>';
+    html += '<span class="fund-chg" style="width:65px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-nav" style="width:65px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-1m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-3m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-6m" style="width:58px;flex-shrink:0;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-1y" style="width:58px;flex-shrink:0;text-align:right;padding-right:12px;color:var(--gray);">—</span>';
     html += '</div>';
   }
+  html += '</div></div>';
   html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
   container.innerHTML = html;
 
