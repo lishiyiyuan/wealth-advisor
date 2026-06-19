@@ -630,8 +630,10 @@ function renderMarketTab() {
   html += miniCard('北证50', live.bj_price||'—', live.bj_chg_val, live.bj_chg_pct);
   html += miniCard('黄金XAU', live.gold?('$'+live.gold):'—', live.gold_chg_val, live.gold_chg_pct);
   html += miniCard('USD/CNY', live.fx||'—', live.fx_chg_val, live.fx_chg_pct);
+  html += miniCard('美元指数', live.dxy||'—', live.dxy_chg_val, live.dxy_chg_pct);
   html += miniCard('10年国债', (ap.bond||{}).cn_10y||'—', null, null);
   html += '</div>';
+  html += '<div style="font-size:0.6rem;color:#9ca3af;margin-top:4px;text-align:right;">数据来源：东方财富 · 黄金API · open.er-api</div>';
   
   // 行业板块涨幅前六
   const sectors = live.sectors || [];
@@ -646,6 +648,7 @@ function renderMarketTab() {
       '</div>';
     }
     html += '</div>';
+    html += '<div style="font-size:0.6rem;color:#9ca3af;margin-top:4px;text-align:right;">数据来源：东方财富行情</div>';
   }
   
   html += '</div>'; // end card
@@ -871,7 +874,14 @@ async function fetchLivePrices() {
     const dBJ=await parseIdx(s5); if(dBJ){live.bj_price=Math.round(dBJ.f43/100);live.bj_chg_val=Math.round(dBJ.f169/100);live.bj_chg_pct=+(dBJ.f170/100).toFixed(2);live._ts=Date.now();}
     
     if(g1.status==='fulfilled'&&g1.value.ok){try{const d=await g1.value.json();if(d?.price){const p=window._livePrices?.gold;live.gold=Math.round(d.price);if(p){live.gold_chg_val=live.gold-p;live.gold_chg_pct=+((live.gold-p)/p*100).toFixed(2);}live._ts=Date.now();}}catch(e){}}
-    if(f1.status==='fulfilled'&&f1.value.ok){try{const d=await f1.value.json();if(d?.rates?.CNY){const p=window._livePrices?.fx;live.fx=d.rates.CNY.toFixed(3);if(p){live.fx_chg_val=+(live.fx-p).toFixed(4);live.fx_chg_pct=+((live.fx-p)/p*100).toFixed(3);}live._ts=Date.now();}}catch(e){}}
+    if(f1.status==='fulfilled'&&f1.value.ok){try{const d=await f1.value.json();if(d?.rates?.CNY){const p=window._livePrices?.fx;live.fx=d.rates.CNY.toFixed(3);if(p){live.fx_chg_val=+(live.fx-p).toFixed(4);live.fx_chg_pct=+((live.fx-p)/p*100).toFixed(3);}
+      // 从汇率数据计算美元指数 DXY
+      const r=d.rates; if(r.EUR&&r.JPY&&r.GBP&&r.CAD&&r.SEK&&r.CHF){
+        const eurusd=1/r.EUR, usdjpy=r.JPY, gbpusd=1/r.GBP, usdcad=r.CAD, usdsek=r.SEK, usdchf=r.CHF;
+        live.dxy=+(50.14348112*Math.pow(eurusd,-0.576)*Math.pow(usdjpy,0.136)*Math.pow(gbpusd,-0.119)*Math.pow(usdcad,0.091)*Math.pow(usdsek,0.042)*Math.pow(usdchf,0.036)).toFixed(2);
+        const pdx=window._livePrices?.dxy; if(pdx){live.dxy_chg_val=+(live.dxy-pdx).toFixed(2);live.dxy_chg_pct=+((live.dxy-pdx)/pdx*100).toFixed(2);}
+      }
+      live._ts=Date.now();}}catch(e){}}
     
     if(sec1.status==='fulfilled'&&sec1.value.ok){try{const d=await sec1.value.json();if(d?.data?.diff){live.sectors=d.data.diff.map(x=>({name:x.f14||'',chg:+(x.f3||0)}));}}catch(e){}}
     
