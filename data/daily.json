@@ -1,6 +1,6 @@
 {
   "date": "2026-06-19",
-  "generated_at": "2026-06-19T11:37:10.822894+08:00",
+  "generated_at": "2026-06-19T16:21:25.586400+08:00",
   "market": {
     "asset_prices": {
       "a_share": {
@@ -9,12 +9,12 @@
         "ytd": "+约5%"
       },
       "bond": {
-        "cn_10y": "约1.60%",
+        "cn_10y": "2.22%",
         "us_10y": "约4.55%",
-        "trend": "低位运行"
+        "trend": "下行"
       },
       "gold": {
-        "price": "约4164美元/盎司",
+        "price": "约4170美元/盎司",
         "trend": "震荡",
         "outlook": "短期震荡，中长期避险配置价值存在"
       },
@@ -77,7 +77,7 @@
   },
   "market_bias": {
     "equity": "中性",
-    "bond": "偏多",
+    "bond": "中性",
     "gold": "中性",
     "deposit": "偏空（利率下行中）",
     "fx": "中性"
@@ -117,196 +117,185 @@
   "product_matches": {
     "PR1": [
       {
-        "product_id": "002912",
-        "product_name": "国寿鑫添宝两全保险（私银）",
-        "product_category": "保险",
-        "sub_category": "两全险",
-        "issuer": "中国人寿",
-        "risk_level": "PR2",
-        "expected_return_low": 1.34,
+        "product_id": "22GS2618",
+        "product_name": "工银理财鑫添益",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "工银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 0.41,
+        "expected_return_high": 2.36,
+        "term_days": 14,
+        "min_investment": 1.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "持有期14天",
+        "tags": [
+          "固定收益类",
+          "银行理财"
+        ]
+      },
+      {
+        "product_id": "23713B",
+        "product_name": "高盛工银理财盛景私银尊享每日开放固定收益美元",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "高盛工银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 3.86,
+        "expected_return_high": 5.14,
+        "term_days": 0,
+        "min_investment": 0.2,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "T+0",
+        "tags": [
+          "固定收益类",
+          "银行理财",
+          "私银专属",
+          "外币"
+        ]
+      },
+      {
+        "product_id": "25HM004G",
+        "product_name": "中邮理财恒利鸿运日开4号(私银)",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "中邮理财",
+        "risk_level": "PR1",
+        "expected_return_low": null,
+        "expected_return_high": null,
+        "term_days": 0,
+        "min_investment": 20.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "T+0",
+        "tags": [
+          "固定收益类",
+          "银行理财",
+          "私银专属"
+        ]
+      },
+      {
+        "product_id": "26G5731A",
+        "product_name": "工银理财稳益",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "工银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 1.5,
+        "expected_return_high": 1.6,
+        "term_days": 117,
+        "min_investment": 1.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "持有期117天",
+        "tags": [
+          "固定收益类",
+          "银行理财"
+        ]
+      },
+      {
+        "product_id": "8958GS",
+        "product_name": "招赢日日金18号",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "招银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 1.81,
+        "expected_return_high": 1.81,
+        "term_days": 0,
+        "min_investment": 20.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "T+0",
+        "tags": [
+          "固定收益类",
+          "银行理财",
+          "私银专属"
+        ]
+      },
+      {
+        "product_id": "9A26168A",
+        "product_name": "兴银稳利安盈",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "兴银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 1.5,
+        "expected_return_high": 1.5,
+        "term_days": 110,
+        "min_investment": 1.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "持有期110天",
+        "tags": [
+          "固定收益类",
+          "银行理财"
+        ]
+      },
+      {
+        "product_id": "9K92119G",
+        "product_name": "兴银稳添利日盈19号(私银)",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "兴银理财",
+        "risk_level": "PR1",
+        "expected_return_low": 1.56,
+        "expected_return_high": 1.56,
+        "term_days": 0,
+        "min_investment": 20.0,
+        "score": 65,
+        "reasons": [
+          "利率下行期，理财收益相对存款优势扩大"
+        ],
+        "private_bank_only": 1,
+        "liquidity_type": "T+0",
+        "tags": [
+          "固定收益类",
+          "银行理财",
+          "私银专属"
+        ]
+      },
+      {
+        "product_id": "AM33034G",
+        "product_name": "中信理财日盈象天天利33号(私银)",
+        "product_category": "理财",
+        "sub_category": "固定收益型理财",
+        "issuer": "中信理财",
+        "risk_level": "PR1",
+        "expected_return_low": 1.86,
         "expected_return_high": 1.86,
-        "term_days": 2190,
-        "min_investment": 1.0,
-        "score": 80,
+        "term_days": 0,
+        "min_investment": 20.0,
+        "score": 65,
         "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(6年)，锁定长期利率"
+          "利率下行期，理财收益相对存款优势扩大"
         ],
         "private_bank_only": 1,
-        "liquidity_type": "封闭",
+        "liquidity_type": "T+0",
         "tags": [
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "004885",
-        "product_name": "泰康安盈A保险产品计划（私银）",
-        "product_category": "保险",
-        "sub_category": "两全险",
-        "issuer": "泰康人寿",
-        "risk_level": "PR2",
-        "expected_return_low": 1.6,
-        "expected_return_high": 1.97,
-        "term_days": 1825,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(5年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "006006",
-        "product_name": "太保保利盈（2025）两全保险（私银）",
-        "product_category": "保险",
-        "sub_category": "两全险",
-        "issuer": "太平洋人寿",
-        "risk_level": "PR2",
-        "expected_return_low": 1.53,
-        "expected_return_high": 1.78,
-        "term_days": 2190,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(6年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "028877",
-        "product_name": "工银安盛人寿财富盈两全保险（分红型）私银",
-        "product_category": "保险",
-        "sub_category": "两全险（分红型）",
-        "issuer": "工银安盛",
-        "risk_level": "PR2",
-        "expected_return_low": 2.19,
-        "expected_return_high": 2.43,
-        "term_days": 1825,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(5年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "分红型",
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "044137",
-        "product_name": "大家鼎鑫99两全保险（私银）",
-        "product_category": "保险",
-        "sub_category": "两全险",
-        "issuer": "大家人寿",
-        "risk_level": "PR2",
-        "expected_return_low": 1.17,
-        "expected_return_high": 1.82,
-        "term_days": 2190,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(6年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "048082",
-        "product_name": "中汇人寿汇添利（稳盈）两全保险私银",
-        "product_category": "保险",
-        "sub_category": "两全险",
-        "issuer": "中汇人寿",
-        "risk_level": "PR2",
-        "expected_return_low": 1.52,
-        "expected_return_high": 1.78,
-        "term_days": 2190,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(6年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "097051",
-        "product_name": "国民福寿双全C05款两全保险（分红型）私银",
-        "product_category": "保险",
-        "sub_category": "两全险（分红型）",
-        "issuer": "国民养老",
-        "risk_level": "PR2",
-        "expected_return_low": 0.56,
-        "expected_return_high": 2.83,
-        "term_days": 2190,
-        "min_investment": 1.0,
-        "score": 80,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优",
-          "长期限(6年)，锁定长期利率"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "分红型",
-          "私银专属",
-          "两全险"
-        ]
-      },
-      {
-        "product_id": "028848",
-        "product_name": "工银安盛人寿盛世相守25养老年金保险B私银",
-        "product_category": "保险",
-        "sub_category": "养老年金险",
-        "issuer": "工银安盛",
-        "risk_level": "PR2",
-        "expected_return_low": 1.73,
-        "expected_return_high": 1.79,
-        "term_days": -1,
-        "min_investment": 1.0,
-        "score": 75,
-        "reasons": [
-          "利率下行周期，锁定收益率价值凸显",
-          "私银专属产品，条款更优"
-        ],
-        "private_bank_only": 1,
-        "liquidity_type": "封闭",
-        "tags": [
-          "私银专属",
-          "年金险"
+          "固定收益类",
+          "银行理财",
+          "私银专属"
         ]
       }
     ],
@@ -507,64 +496,6 @@
     ],
     "PR3": [
       {
-        "product_id": "007674",
-        "product_name": "工银产业升级",
-        "product_category": "基金",
-        "sub_category": "主动权益（科技）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 87.69,
-        "expected_return_high": 87.69,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 94,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "标的覆盖当前热点「半导体/芯片」",
-          "标的覆盖当前热点「新能源/新材料」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "AI",
-          "主动权益（科技）",
-          "新能源",
-          "高波",
-          "半导体",
-          "化工"
-        ]
-      },
-      {
-        "product_id": "100039",
-        "product_name": "富国通胀通缩",
-        "product_category": "基金",
-        "sub_category": "主动权益（周期）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 187.5,
-        "expected_return_high": 187.5,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 82,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "标的覆盖当前热点「半导体/芯片」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "主动权益（周期）",
-          "算力",
-          "高波",
-          "半导体",
-          "化工"
-        ]
-      },
-      {
         "product_id": "INS0019",
         "product_name": "富贵竹（臻鑫版）年金保险",
         "product_category": "保险",
@@ -691,6 +622,53 @@
         "liquidity_type": "封闭",
         "tags": [
           "年金险"
+        ]
+      },
+      {
+        "product_id": "INS0033",
+        "product_name": "工银安盛御立方八号25保险产品计划",
+        "product_category": "保险",
+        "sub_category": "重疾险",
+        "issuer": "工银安盛",
+        "risk_level": "PR3",
+        "expected_return_low": null,
+        "expected_return_high": null,
+        "term_days": 0,
+        "min_investment": 1.0,
+        "score": 70,
+        "reasons": [
+          "利率下行周期，锁定收益率价值凸显"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "封闭",
+        "tags": [
+          "重疾险"
+        ]
+      },
+      {
+        "product_id": "000793",
+        "product_name": "工银高端制造",
+        "product_category": "基金",
+        "sub_category": "主动权益（科技）",
+        "issuer": "",
+        "risk_level": "PR3",
+        "expected_return_low": 71.86,
+        "expected_return_high": 71.86,
+        "term_days": 0,
+        "min_investment": 0.0,
+        "score": 70,
+        "reasons": [
+          "市场震荡期，精选基金仍有机会",
+          "标的覆盖当前热点「新能源/新材料」",
+          "无风险利率下行，权益资产相对吸引力提升"
+        ],
+        "private_bank_only": 0,
+        "liquidity_type": "T+1",
+        "tags": [
+          "科技",
+          "高波",
+          "主动权益（科技）",
+          "新能源"
         ]
       }
     ],
@@ -904,319 +882,110 @@
         ]
       }
     ],
-    "PR5": [
-      {
-        "product_id": "007674",
-        "product_name": "工银产业升级",
-        "product_category": "基金",
-        "sub_category": "主动权益（科技）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 87.69,
-        "expected_return_high": 87.69,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 94,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "标的覆盖当前热点「半导体/芯片」",
-          "标的覆盖当前热点「新能源/新材料」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "AI",
-          "主动权益（科技）",
-          "新能源",
-          "高波",
-          "半导体",
-          "化工"
-        ]
-      },
-      {
-        "product_id": "100039",
-        "product_name": "富国通胀通缩",
-        "product_category": "基金",
-        "sub_category": "主动权益（周期）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 187.5,
-        "expected_return_high": 187.5,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 82,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "标的覆盖当前热点「半导体/芯片」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "主动权益（周期）",
-          "算力",
-          "高波",
-          "半导体",
-          "化工"
-        ]
-      },
-      {
-        "product_id": "001048",
-        "product_name": "富国新兴产业",
-        "product_category": "基金",
-        "sub_category": "主动权益（科技）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 187.93,
-        "expected_return_high": 187.93,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "高波",
-          "主动权益（科技）",
-          "AI"
-        ]
-      },
-      {
-        "product_id": "001816",
-        "product_name": "汇添富新睿精选",
-        "product_category": "基金",
-        "sub_category": "主动权益（能源）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 106.74,
-        "expected_return_high": 106.74,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "高波",
-          "主动权益（能源）",
-          "AI"
-        ]
-      },
-      {
-        "product_id": "002168",
-        "product_name": "嘉实智能汽车",
-        "product_category": "基金",
-        "sub_category": "主动权益（能源）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 68.88,
-        "expected_return_high": 68.88,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「新能源/新材料」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "高波",
-          "主动权益（能源）",
-          "新能源"
-        ]
-      },
-      {
-        "product_id": "010115",
-        "product_name": "易方达远见成长",
-        "product_category": "基金",
-        "sub_category": "主动权益（科技）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 297.79,
-        "expected_return_high": 297.79,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "高波",
-          "主动权益（科技）",
-          "AI"
-        ]
-      },
-      {
-        "product_id": "020356",
-        "product_name": "华夏半导体材料设备",
-        "product_category": "基金",
-        "sub_category": "指数（主题）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": 143.23,
-        "expected_return_high": 143.23,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「半导体/芯片」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "指数（主题）",
-          "高波",
-          "半导体"
-        ]
-      },
-      {
-        "product_id": "025328",
-        "product_name": "诺安稳健回报",
-        "product_category": "基金",
-        "sub_category": "主动权益（科技）",
-        "issuer": "",
-        "risk_level": "PR4",
-        "expected_return_low": null,
-        "expected_return_high": null,
-        "term_days": 0,
-        "min_investment": 0.0,
-        "score": 70,
-        "reasons": [
-          "市场震荡期，精选基金仍有机会",
-          "标的覆盖当前热点「AI算力/大模型」",
-          "无风险利率下行，权益资产相对吸引力提升"
-        ],
-        "private_bank_only": 0,
-        "liquidity_type": "T+1",
-        "tags": [
-          "算力",
-          "高波",
-          "主动权益（科技）"
-        ]
-      }
-    ]
+    "PR5": []
   },
   "news": [
     {
-      "title": "美国防部据悉告诉国会：需要800亿美元用于伊朗战事及其他开支",
-      "summary": "据知情人士透露，美国国防部副部长斯蒂芬．范伯格（Stephen Feinberg）本周在致电国会议员时表示，五角大楼需要800亿美元来支付伊朗战事的费用以及其他非战争相关的开支。",
+      "title": "特朗普官宣苹果与英特尔合作造芯 背后有哪些考虑？",
+      "summary": "苹果正在寻求多元化其供应链，减少对台积电的依赖。 当地时间18日，美国总统特朗普在社交媒体上宣布英特尔将与苹果合作在美国本土设计芯片...",
+      "category": "行业动态",
+      "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "加仓科技股！光模块两大龙头，“吸金”超百亿，最强股票大涨超83%",
+      "summary": "本周（6月15日—18日）A股市场走强，4个交易日成交额合计超12万亿元。上证指数、深证成指、创业板指分别累计上涨1.46%、7.13%、11.02%。",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "船东谨慎避险 周五霍尔木兹海峡航运流量锐减",
+      "summary": "就在美伊承诺解除双向封锁、海峡油运一度激增的次日，周五早间霍尔木兹海峡通航量大幅回落。 周五上午暂无油轮驶出波斯湾，但一艘超大型原油运输船出现在阿曼首都马斯喀特...",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "英国国债下跌 伯纳姆胜选与油价上涨再度引发财政担忧",
+      "summary": "英国政府债券周五下跌，因油价上涨重新引发通胀担忧，同时大曼彻斯特市长安迪·伯纳姆在一场特别选举中赢得议会席位，加剧了英国的政治不确定性。",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "霍尔木兹海峡“复活”？美伊瑞士会谈取消，80美元油价暗藏反转吗",
+      "summary": "汇通财经APP讯——6月19日周五，国际油价的定价重心正从供应中断转向供应恢复。布伦特原油在80美元/桶附近交投，本周累计跌幅接近9%；美国原油则在76美元/桶附近运行。",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "SpaceX：欧盟卫星计划可能会破坏乌克兰的通信服务",
+      "summary": "SpaceX猛烈抨击欧盟限制其卫星频谱使用权的方案，称该举措或将导致乌克兰卫星通信质量恶化。自俄罗斯全面入侵以来，星链服务一直是乌克兰通信的关键支撑。",
       "category": "国际地缘",
       "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
       "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
     },
     {
-      "title": "蔡崇信：阿里全面投入AI，全栈布局有巨大优势",
-      "summary": "新浪科技讯 6月19日上午消息，昨日，阿里巴巴集团主席蔡崇信在欧洲科技峰会VivaTech 2026上，阐述了阿里巴巴全栈AI的发展战略。",
-      "category": "行业动态",
-      "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
-      "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
+      "title": "和谈稳却难救金！地缘担忧+权益震荡双重惩罚金价",
+      "summary": "汇通财经APP讯——周五（6月19日）亚欧时段，现货黄金走出持续下挫小幅探底回升的走势，之前文章提示过利好频发黄金滞胀的现象以及讨论过原因，读者可以回去查看...",
+      "category": "国际地缘",
+      "capital_view": "黄金短期波动加大，长期作为资产配置的压舱石价值不改。",
+      "plain_text": "黄金价格最近变化不小，主要是受国际局势和美元走势的影响。短期波动正常，长期看还是保值的硬通货。"
     },
     {
-      "title": "霍尔木兹大消息，伊朗宣布：通行船只须提交申请，60天内免费，相关费用由伊朗政府承担！德国派军舰前往中东",
-      "summary": "霍尔木兹大消息，伊朗宣布：通行船只须提交申请，60天内免费，相关费用由伊朗政府承担！德国派军舰前往中东，希望迅速投入行动 当地时间18日...",
+      "title": "美国货币政策转向鹰派，颠覆全球外汇市场交易预期",
+      "summary": "美联储货币政策转向鹰派，彻底扭转了今年外汇市场最热门的交易逻辑，美元随之走强，令各大新兴市场货币与主要大宗商品出口国货币的多头押注全面反转。",
       "category": "国际地缘",
       "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
       "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
     },
     {
-      "title": "301421，董事长黄胜弟被取保候审！公司涉嫌以伪报货物材质的方式出口国家管制的含锗镜片",
-      "summary": "6月18日晚，波长光电（301421.SZ，股价101.11元，市值117.00亿元）发布公告，公司6月18日从董事长黄胜弟处获悉，上海海关缉私局对其出具了《取保候审决定书》...",
-      "category": "上市公司",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "Manus的早期投资者计划以20亿美元价格回购这家人工智能公司",
-      "summary": "据媒体援引两位直接知情人士的消息称，人工智能初创公司Manus的中国早期投资者正计划Meta当初支付的20亿美元价格，从其手中回购Manus。",
-      "category": "上市公司",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "苏宁易购618：智能家电增长40%，县域增长59%",
-      "summary": "新浪科技讯 6月19日上午消息，苏宁易购618消费数据显示，5月15日至6月18日，AI智能家电销售同比增长40%，核心城市门店客流环比提升约5成。",
+      "title": "宁德时代枧下窝锂矿重获用地意见书，锂市供需格局影响几何？",
+      "summary": "端午节前的最后一个工作日，备受锂矿市场关注的宁德时代（300750.SZ/03750.HK）枧下窝矿项目迎来新进展。 6月18日，江西省自然资源厅发布了一条用地预审与选址行政许可事项...",
       "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "日经指数上涨0.3% 连续第五个交易日创下历史新高",
+      "summary": "受风险偏好情绪推动，日经225指数收涨0.3%，报71250.06点，创收盘历史新高。 瑞士报价银行高级分析师伊佩克·奥兹卡尔德斯卡娅在一封电子邮件中表示...",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "AI焦虑重燃 印度IT股追随美国同行下跌",
+      "summary": "埃森哲（Accenture）股价隔夜下跌，其影响周五蔓延至印度主要软件股，反映出市场持续担忧人工智能（AI）将导致一些IT服务被淘汰。",
+      "category": "国际地缘",
       "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
       "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
     },
     {
-      "title": "特朗普，“生日不快乐”",
-      "summary": "来源：中国新闻周刊 一场“国家背书”的私人庆典 当地时间2026年6月14日，美国白宫南草坪上，一座高达92英尺（约28米）、重达600吨的巨型钢结构拱门“巨爪”拔地而起...",
-      "category": "行业动态",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "美股6月19日因六月节休市一日",
-      "summary": "由于6月19日（周五）为美国六月节，美股休市一天。芝商所旗下贵金属、美国原油、外汇、股指、美债期货合约交易提前于北京时间20日01：00结束。",
-      "category": "行业动态",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "德邦基金“换帅”！银行系“老兵”尉迟平接棒董事长",
-      "summary": "德邦基金近期完成了备受关注的高层人事调整。 6月19日，德邦基金发布董事长变更公告，正式宣布任命尉迟平为新任董事长，任职自6月18日起生效。",
-      "category": "行业动态",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "百万美元“外援”保住美联储理事饭碗？一场关乎央行独立的法庭决战",
-      "summary": "来源：汇通网 汇通财经APP讯——美联储理事莉莎·库克在与美国总统特朗普的职务冲突中，获得外部非营利组织提供的巨额法律和安保支持。",
+      "title": "前日本央行政策委员：日本央行或于3月底前两次加息",
+      "summary": "日本央行前审议委员樱井诚周五表示，在政策重心发生标志性转变、聚焦日益加剧的通胀风险后，日本央行或在本财年末前完成两次加息。",
       "category": "宏观经济",
       "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
       "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
     },
     {
-      "title": "韩国将扩大进口鸡蛋供应，以缓解蛋价上涨",
-      "summary": "韩国农林畜产食品部周五表示，为应对禽流感疫情爆发后国内鸡蛋供应下降的问题，韩国将在7月份之前每周向国内市场供应约448万枚进口鸡蛋。",
-      "category": "行业动态",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "王利民已任司法部政治部主任",
-      "summary": "来源：政事儿 司法部网站“部领导介绍”一栏最新信息显示，王利民已任司法部党组成员、政治部主任。 公开信息显示，王利民，男，汉族，1968年10月生，研究生学历，法学硕士...",
-      "category": "行业动态",
-      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "日元逼近40年低点！日本财务大臣再提“大胆行动”，向投机交易释放干预警告",
-      "summary": "来源：智通财经网 日本财务大臣片山皋月周五表示，由于日元汇率已接近四十年来最低水平，政府可以采取大胆行动应对投机行为。 “我们可以对外汇市场过度投机行为采取大胆行...",
-      "category": "国际地缘",
-      "capital_view": "人民币汇率波动影响外资流向，关注跨境配置和美元资产比例。",
-      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
-    },
-    {
-      "title": "猎聘联合清华发布《AI时代技能趋势报告》，CEO戴科彬：AI正在重构人才坐标系与组织形态",
-      "summary": "新浪科技讯 6月19日上午消息，由同道猎聘与清华经管学院人工智能与管理研究中心联合举办的“Talent AI：《AI时代技能趋势报告》发布”活动在清华大学举办。",
+      "title": "韩国综合股价指数收跌0.1% 盘中一度创下历史新高",
+      "summary": "韩国综合股价指数（Kospi）收跌0.1%，报9052.42点。 韩国综合指数盘中创下历史新高，受芯片股持续反弹提振，并反映出纳斯达克指数隔夜的涨幅，该指数盘中一度大涨3.1%...",
       "category": "行业动态",
       "capital_view": "科技主线持续强化，相关主题基金和ETF具备配置机会。",
-      "plain_text": "AI和芯片相关公司最近很火，背后是国产替代的大趋势——以前依赖进口的，现在要自己造了。"
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
     },
     {
-      "title": "千寻位置潜龙服务器升级发布：集站成网，已获国家商用密码产品认证",
-      "summary": "新浪科技讯 6月19日上午消息，千寻位置发布潜龙时空服务器升级版 iStation Pro，宣布从基础器件到核心算法、软件全栈自研，采用高度集成的一体化设计，在网络...",
+      "title": "伊朗革命卫队：只要最高领袖下令 就将给敌人带来更加惨烈的历史性失败",
+      "summary": "伊朗革命卫队今日发布声明称，伊朗最高领袖穆杰塔巴对伊美谅解备忘录的表态，“进一步巩固了伊朗人民的团结阵线，使伊朗人民和武装力量更加坚定地守护胜利成果...",
+      "category": "行业动态",
+      "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
+      "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
+    },
+    {
+      "title": "塔塔苹果零部件工厂遭印度卫生部门调查",
+      "summary": "媒体援引三名官员及一份文件报道，印度某邦卫生部门正调查苹果代工厂塔塔旗下iPhone零部件工厂排出的液体对农户造成的影响；多名农户称农田受污染物污染...",
       "category": "行业动态",
       "capital_view": "关注该事件对市场情绪和资产配置方向的短期影响。",
       "plain_text": "这条新闻值得关注，可能会影响接下来的市场走势和投资方向。"
@@ -1224,8 +993,8 @@
   ],
   "daily_outlook": {
     "债券": {
-      "label": "弱势债牛",
-      "analysis": "10年期国债收益率维持低位运行，货币政策稳健偏松，但海外加息预期制约下行空间。短期维持弱势债牛判断，关注LPR调整窗口。"
+      "label": "震荡偏强",
+      "analysis": "国债收益率窄幅震荡，基本面对债市仍有支撑。后续聚焦内需复苏节奏和货币政策信号。"
     },
     "股票": {
       "label": "震荡蓄力",
@@ -1242,7 +1011,7 @@
   },
   "summary": {
     "equity_outlook": "权益市场震荡格局，精选个股和主题基金为上",
-    "bond_outlook": "债券市场收益率低位运行，债基配置价值仍存但空间收窄",
+    "bond_outlook": "债券市场债市平稳，利率债和信用债均有配置机会",
     "strategy": "在利率下行大背景下，建议：1) 适当降低存款比例；2) 增配储蓄型保险锁定利率；3) 固收+产品替代纯固收；4) 权益类产品适度参与结构性机会",
     "key_reminder": [
       "存款利率持续下行中，建议尽早锁定当前较高的储蓄型保险利率",
