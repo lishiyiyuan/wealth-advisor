@@ -18,6 +18,7 @@ HEADERS = {
 BASE = os.path.dirname(__file__)
 PRODUCTS_FILE = os.path.join(BASE, 'data', 'products.json')
 OUTPUT_FILE = os.path.join(BASE, 'data', 'fund_history.json')
+NAV_HISTORY_FILE = os.path.join(BASE, 'data', 'fund_nav_history.json')
 
 def fetch_text(url, timeout=10):
     try:
@@ -105,12 +106,15 @@ def main():
     codes = [str(f['product_id']) for f in funds if len(str(f.get('product_id', ''))) >= 6]
     
     history = {}
+    nav_history = {}  # 新增：完整净值历史 {code: {date: nav, ...}}
     for i, code in enumerate(codes):
         print(f'  [{i+1}/{len(codes)}] {code}', end=' ')
         navs = fetch_fund_navs(code)
         if navs:
             perf = compute_performance(navs)
             history[code] = perf
+            # 保存净值历史 {date: nav}
+            nav_history[code] = {n['date']: n['nav'] for n in navs}
             print(f'✓ {len(navs)}条净值 1m:{perf.get("1m","?")}%')
         else:
             print('✗ 无数据')
@@ -118,8 +122,11 @@ def main():
     os.makedirs(os.path.dirname(OUTPUT_FILE), exist_ok=True)
     with open(OUTPUT_FILE, 'w') as f:
         json.dump(history, f, ensure_ascii=False, indent=2)
+    print(f'✅ fund_history.json ({len(history)}只)')
     
-    print(f'✅ fund_history.json 已生成 ({os.path.getsize(OUTPUT_FILE)} bytes)')
+    with open(NAV_HISTORY_FILE, 'w') as f:
+        json.dump(nav_history, f, ensure_ascii=False, separators=(',',':'))
+    print(f'✅ fund_nav_history.json ({len(nav_history)}只, {os.path.getsize(NAV_HISTORY_FILE)} bytes)')
 
 if __name__ == '__main__':
     main()

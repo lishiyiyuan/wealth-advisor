@@ -43,6 +43,6 @@ jobs:
         run: |
           git config user.name "理财经理数据机器人"
           git config user.email "bot@wealth-advisor.local"
-          git add data/market_input.json data/daily.json data/history/ data/fund_history.json
+          git add data/market_input.json data/daily.json data/history/ data/fund_history.json data/fund_nav_history.json
           git diff --cached --quiet || git commit -m "📊 数据自动更新 $(date +'%Y-%m-%d %H:%M')"
           git push

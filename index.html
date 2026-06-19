@@ -2371,6 +2371,7 @@ function showAddHolding(clientId) {
   html += fm('申购日期','<input id="hDate" type="date" value="'+new Date().toISOString().slice(0,10)+'" onchange="previewCalc()" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;">');
   html += fm('买入金额（含手续费）','<input id="hAmount" type="number" placeholder="元" oninput="previewCalc()" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;">');
   html += fm('申购费率（%）','<input id="hFee" type="number" value="0.15" step="0.01" oninput="previewCalc()" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;">');
+  html += fm('当日净值','<input id="hNav" type="number" step="0.0001" placeholder="自动查询，无数据时手动填" oninput="previewCalc()" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;background:#fefce8;">');
   html += fm('赎回日期（选填）','<input id="hSellDate" type="date" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;">');
   html += '<div id="hCalcPreview" style="font-size:0.7rem;color:var(--gray);padding:8px;background:#f9fafb;border-radius:6px;margin-bottom:8px;min-height:20px;">输入基金代码和日期后自动计算</div>';
   html += '<div style="display:flex;gap:8px;"><button onclick="closeModal()" style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.85rem;cursor:pointer;">取消</button><button onclick="saveHolding(\''+clientId+'\')" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--red);color:#fff;font-size:0.85rem;cursor:pointer;">保存</button></div></div></div>';
@@ -2386,20 +2387,31 @@ function autoFillFund() {
 
 function previewCalc() {
   const code = document.getElementById('hCode').value.trim(), amount = parseFloat(document.getElementById('hAmount').value)||0, fee = parseFloat(document.getElementById('hFee').value)||0, date = document.getElementById('hDate').value;
-  const preview = document.getElementById('hCalcPreview');
+  const preview = document.getElementById('hCalcPreview'), navInput = document.getElementById('hNav');
   if (!code||!amount||!date) { preview.innerHTML='输入基金代码和日期后自动计算'; return; }
+  
+  // 先尝试从历史净值文件查
   const nv = (window._fundNavHistory||{})[code];
-  if (nv&&nv[date]) { const nav=nv[date],fa=amount*fee/100,na=amount-fa,sh=na/nav; preview.innerHTML='当日净值 <b>'+nav.toFixed(4)+'</b> | 手续费 '+fa.toFixed(2)+'元 | 份额 <b>'+sh.toFixed(2)+'</b>份'; }
-  else preview.innerHTML='⚠ 未找到当日净值，将使用默认值';
+  let buyNav = nv ? nv[date] : null;
+  
+  if (buyNav) {
+    navInput.value = buyNav.toFixed(4);
+    navInput.style.background = '#ecfdf5';
+    const fa=amount*fee/100,na=amount-fa,sh=na/buyNav;
+    preview.innerHTML='✅ 找到当日净值 <b>'+buyNav.toFixed(4)+'</b> | 手续费 '+fa.toFixed(2)+'元 | 份额 <b>'+sh.toFixed(2)+'</b>份';
+  } else {
+    navInput.value = '';
+    navInput.style.background = '#fefce8';
+    preview.innerHTML='⚠️ <b>未找到历史净值</b>，请在「当日净值」框手动输入申购日的基金净值';
+  }
 }
 
 async function saveHolding(clientId) {
   const code = document.getElementById('hCode').value.trim(), name = document.getElementById('hName').value.trim(), date = document.getElementById('hDate').value, amount = parseFloat(document.getElementById('hAmount').value)||0, fee = parseFloat(document.getElementById('hFee').value)||0, sellDate = document.getElementById('hSellDate').value;
+  let buyNav = parseFloat(document.getElementById('hNav').value);
   if (!code||!amount||!date) { toast('请填写完整'); return; }
+  if (!buyNav || isNaN(buyNav)) { toast('请输入或确认当日净值'); return; }
   const clients = loadClients(); const ci = clients.findIndex(x=>x.id===clientId); if(ci<0) return;
-  let buyNav = ((window._fundNavHistory||{})[code]||{})[date];
-  if (!buyNav) { try { const r=await fetch('https://fundf10.eastmoney.com/F10DataApi.aspx?type=lsjz&code='+code+'&page=1&per=1&sdate='+date.replace(/-/g,'')+'&edate='+date.replace(/-/g,'')); const t=await r.text(); const m=t.match(/<td[^>]*>([^<]+)<\/td>\s*<td[^>]*>([^<]+)<\/td>/); if(m) buyNav=parseFloat(m[2]); } catch(e){} }
-  if (!buyNav||isNaN(buyNav)) buyNav=1.0;
   const fa=amount*fee/100,na=amount-fa,sh=na/buyNav;
   const h={id:huid(),fundCode:code,fundName:name||code,buyDate:date,buyAmount:amount,feeRate:fee,buyNav,netAmount:na,shares:sh,sellDate:sellDate||null,sellNav:null,pnl:0};
   clients[ci].holdings=(clients[ci].holdings||[]); clients[ci].holdings.push(h);
