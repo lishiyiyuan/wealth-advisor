@@ -2506,19 +2506,18 @@ function renderChatUI() {
 function quickBtn(text) { return '<button onclick="document.getElementById(\'aiInput\').value=\''+text+'\';sendAiMsg()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;white-space:nowrap;">'+text+'</button>'; }
 
 async function webSearch(query) {
-  const news = window._dailyNews || [];
-  if (!news.length) return null;
-  const keywords = query.split(/[\s，,。！？、]+/).filter(w=>w.length>1);
-  const matched = news.filter(n => {
-    const text = (n.title||'')+(n.summary||'');
-    return keywords.some(kw => text.includes(kw)) || keywords.length===0;
-  }).slice(0,5);
-  if (!matched.length) return null;
-  let text = '【最新财经资讯匹配结果】\n';
-  for (const n of matched) {
-    text += '- '+(n.title||'').trim()+'\n  '+(n.summary||'').trim().slice(0,150)+'\n';
-  }
-  return text;
+  try {
+    const resp = await fetch('https://brave-search-proxy.8fjzgjv4nw.workers.dev/search?q='+encodeURIComponent(query)+'&count=5');
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const results = data.results||[];
+    if (!results.length) return null;
+    let text = '【来自Brave搜索引擎】\n';
+    for (const r of results) {
+      text += '- '+(r.title||'')+'\n  '+(r.description||'').slice(0,200)+'\n';
+    }
+    return text;
+  } catch(e) { return null; }
 }
 
 async function sendAiMsg() {
@@ -2528,21 +2527,14 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
-  // 联网搜索：从最新新闻中匹配
+  // 联网搜索：搜索结果喂给DeepSeek智能回答
+  let searchCtx = '';
   if (_aiSearch) {
     try {
       btn.innerHTML='🔍';
-      // 先刷新新闻确保最新
-      const liveNews = await fetchLiveNews();
-      if (liveNews) window._dailyNews = liveNews;
       const sr = await webSearch(msg);
-      if (sr) {
-        _aiHistory.push({role:'assistant',content:msg.includes('新闻')||msg.includes('最新') ? '📰 '+sr : sr});
-      } else {
-        _aiHistory.push({role:'assistant',content:'🔍 当前新闻中未找到相关信息\n\n💡 建议：关闭🌐联网，用AI对话模式提问（基于训练知识回答）'});
-      }
-      btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return;
-    } catch(e) { _aiHistory.push({role:'assistant',content:'🔍 搜索失败'}); btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return; }
+      if (sr) searchCtx = '\n\n'+sr+'\n请基于以上搜索结果回答问题。';
+    } catch(e) {}
   }
   
   try {
