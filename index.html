@@ -606,52 +606,29 @@ function renderMarketTab() {
   
   html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📊 实时行情<span style="font-size:0.65rem;color:'+(isLive?'#059669':'#6b7280')+';font-weight:400;">'+(isLive?'🟢 实时 '+timeStr:'📡 缓存数据')+'</span></div>';
   
-  // 股票软件风格卡片行
-  function stockRow(label, price, chgVal, chgPct, note) {
-    const isUp = chgPct > 0;
-    const isDown = chgPct < 0;
+  // 股票软件风格紧凑行
+  function stockRow(label, price, chgVal, chgPct) {
+    const isUp = chgPct > 0, isDown = chgPct < 0;
     const color = isUp ? '#c41230' : (isDown ? '#059669' : '#6b7280');
-    const arrow = isUp ? '▲' : (isDown ? '▼' : '—');
-    const chgStr = chgVal ? (arrow+' '+(chgVal>0?'+':'')+chgVal+(typeof chgVal==='number'?'':'')) : '';
+    const arrow = isUp ? '▲' : (isDown ? '▼' : '');
+    const chgStr = chgVal ? arrow+(chgVal>0?'+':'')+chgVal : '';
     const pctStr = chgPct ? ((chgPct>0?'+':'')+chgPct.toFixed(2)+'%') : '';
-    return '<div style="display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6;">' +
-      '<div style="flex:1;font-size:0.85rem;font-weight:600;">'+label+'</div>' +
-      '<div style="text-align:right;font-size:1.05rem;font-weight:700;color:var(--dark);min-width:80px;">'+price+'</div>' +
-      '<div style="text-align:right;font-size:0.8rem;color:'+color+';min-width:70px;margin-left:12px;">'+chgStr+'</div>' +
-      '<div style="text-align:right;font-size:0.85rem;font-weight:600;color:'+color+';min-width:60px;margin-left:4px;">'+pctStr+'</div>' +
-      (note ? '<div style="font-size:0.7rem;color:var(--gray);margin-left:6px;min-width:40px;">'+note+'</div>' : '') +
+    const hasPrice = price!=='—';
+    return '<div style="display:flex;align-items:baseline;padding:5px 0;line-height:1.3;">' +
+      '<span style="font-size:0.78rem;font-weight:600;color:var(--dark);width:70px;flex-shrink:0;">'+label+'</span>' +
+      '<span style="font-size:0.82rem;font-weight:700;color:var(--dark);width:72px;text-align:right;flex-shrink:0;">'+price+'</span>' +
+      '<span style="font-size:0.78rem;font-weight:600;color:'+color+';width:78px;text-align:right;flex-shrink:0;">'+chgStr+'</span>' +
+      '<span style="font-size:0.82rem;font-weight:700;color:'+color+';text-align:right;flex-shrink:0;">'+pctStr+'</span>' +
     '</div>';
   }
   
-  html += stockRow('上证指数',
-    live.ss_price||'—',
-    live.ss_chg_val||'—',
-    live.ss_chg_pct||null,
-    '沪市');
-  html += stockRow('深证成指',
-    live.sz_price||'—',
-    live.sz_chg_val||'—',
-    live.sz_chg_pct||null,
-    '深市');
-  html += stockRow('创业板指',
-    live.cy_price||'—',
-    live.cy_chg_val||'—',
-    live.cy_chg_pct||null,
-    '创业');
-  html += stockRow('黄金 (XAU)',
-    live.gold ? ('$'+live.gold) : '—',
-    live.gold_chg_val||'—',
-    live.gold_chg_pct||null,
-    '美元/盎司');
-  html += stockRow('美元/人民币',
-    live.fx||'—',
-    live.fx_chg_val||'—',
-    live.fx_chg_pct||null,
-    'USD/CNY');
-  html += stockRow('10年国债',
-    (ap.bond||{}).cn_10y||'—',
-    '', null,
-    '收益率');
+  html += stockRow('上证指数', live.ss_price||'—', live.ss_chg_val||'', live.ss_chg_pct||null);
+  html += stockRow('深证成指', live.sz_price||'—', live.sz_chg_val||'', live.sz_chg_pct||null);
+  html += stockRow('创业板指', live.cy_price||'—', live.cy_chg_val||'', live.cy_chg_pct||null);
+  html += '<div style="border-bottom:1px dashed #e5e7eb;margin:4px 0;"></div>';
+  html += stockRow('黄金XAU', live.gold?('$'+live.gold):'—', live.gold_chg_val||'', live.gold_chg_pct||null);
+  html += stockRow('USD/CNY', live.fx||'—', live.fx_chg_val||'', live.fx_chg_pct||null);
+  html += stockRow('10年国债', (ap.bond||{}).cn_10y||'—', '', null);
   
   html += '</div>'; // end card
 
