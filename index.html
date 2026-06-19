@@ -187,7 +187,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260618-2355</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260619-0856</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -346,7 +346,7 @@ let MARKET = {"date": "2026-06-09 12:28", "macro": {"title": "宏观经济速览
       console.log('[数据] 已从 daily.json 加载最新市场数据 (' + (daily.date || '') + ')');
       // 更新 header 日期
       const verEl = document.getElementById('headerBuild');
-      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + daily.date;
+      if (verEl && daily.date) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260619-0856 · 数据 ' + daily.date;
     }
     if (daily.news && daily.news.length > 0) window._dailyNews = daily.news;
     if (daily.daily_outlook) window._dailyOutlook = daily.daily_outlook;
@@ -394,7 +394,7 @@ async function refreshData(showToast) {
     // 更新 header 日期
     const verEl = document.getElementById('headerBuild');
     if (verEl && daily.date) {
-      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + daily.date;
+      verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260619-0856 · 数据 ' + daily.date;
     }
     
     // 强制刷新市场Tab（重置缓存）
@@ -433,7 +433,7 @@ setInterval(async function() {
       if (mc) mc.dataset.rendered = '';
       renderMarketTab();
       const verEl = document.getElementById('headerBuild');
-      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260618-2355 · 数据 ' + newDate;
+      if (verEl) verEl.textContent = '客户资产配置与产品推荐 · 云端版 · build 20260619-0856 · 数据 ' + newDate;
     }
   } catch(e) { /* 静默失败 */ }
 }, 30 * 60 * 1000);
@@ -598,53 +598,72 @@ function renderMarketTab() {
 
   let html = '';
 
-  // ===== 重要资本市场实时数据 =====
+  // ===== 实时行情（股票软件风格）=====
   const live = window._livePrices || {};
   const now = new Date();
   const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+  const isLive = !!live._ts;
   
-  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📊 重要资本市场实时数据<span style="font-size:0.65rem;color:'+(live._ts?'#059669':'#6b7280')+';font-weight:400;">'+(live._ts?'🟢 实时 '+timeStr:'📡 缓存数据')+'</span></div>';
-  html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">';
+  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📊 实时行情<span style="font-size:0.65rem;color:'+(isLive?'#059669':'#6b7280')+';font-weight:400;">'+(isLive?'🟢 实时 '+timeStr:'📡 缓存数据')+'</span></div>';
   
-  // 实时价格优先，fallback 到 MARKET
-  const cleanNum = (s) => (typeof s === 'string' ? s.replace(/^约/, '') : (s||'—'));
-  const asharePrice = live.ashare_price ? (live.ashare_price+'点') : cleanNum((ap.a_share||{}).level);
-  const ashareTrend = live.ashare_chg ? (live.ashare_chg >= 0 ? '+' : '') + live.ashare_chg.toFixed(2) + '%' : cleanNum((ap.a_share||{}).trend);
-  const goldPrice = live.gold ? (live.gold+'美元/盎司') : cleanNum((ap.gold||{}).price);
-  const fxPrice = live.fx ? live.fx : cleanNum((ap.fx||{}).usd_cny);
-  
-  const dataRows = [
-    ['A股（上证指数）', asharePrice, ashareTrend, '🔴 偏多'],
-    ['中国10年期国债收益率', (ap.bond||{}).cn_10y||'—', (ap.bond||{}).trend||'—', '🟢 偏多（债牛）'],
-    ['黄金（美元/盎司）', goldPrice, (ap.gold||{}).trend||'—', '🟡 偏空（高位回落）'],
-    ['人民币汇率（USD/CNY）', fxPrice, (ap.fx||{}).trend||'—', '🟢 偏多（人民币走强）'],
-    ['LPR（1年期 / 5年期）', (mc.lpr_1y||'—')+' / '+(mc.lpr_5y||'—'), '持续下行', '📉 利率走低'],
-    ['存款利率', dep.current||'—', dep.trend||'—', '📉 锁定利率正当时'],
-  ];
-  for (let i = 0; i < dataRows.length; i++) {
-    const bg = i % 2 === 0 ? '' : 'background:#f9fafb;';
-    html += '<tr style="'+bg+'">';
-    html += '<td style="padding:9px 10px;font-weight:600;">'+dataRows[i][0]+'</td>';
-    html += '<td style="padding:9px 10px;color:var(--dark);">'+dataRows[i][1]+'</td>';
-    html += '<td style="padding:9px 10px;color:var(--gray);font-size:0.8rem;">'+dataRows[i][2]+'</td>';
-    html += '<td style="padding:9px 10px;font-size:0.78rem;">'+dataRows[i][3]+'</td>';
-    html += '</tr>';
+  // 股票软件风格卡片行
+  function stockRow(label, price, chgVal, chgPct, note) {
+    const isUp = chgPct > 0;
+    const isDown = chgPct < 0;
+    const color = isUp ? '#c41230' : (isDown ? '#059669' : '#6b7280');
+    const arrow = isUp ? '▲' : (isDown ? '▼' : '—');
+    const chgStr = chgVal ? (arrow+' '+(chgVal>0?'+':'')+chgVal+(typeof chgVal==='number'?'':'')) : '';
+    const pctStr = chgPct ? ((chgPct>0?'+':'')+chgPct.toFixed(2)+'%') : '';
+    return '<div style="display:flex;align-items:center;padding:11px 0;border-bottom:1px solid #f3f4f6;">' +
+      '<div style="flex:1;font-size:0.85rem;font-weight:600;">'+label+'</div>' +
+      '<div style="text-align:right;font-size:1.05rem;font-weight:700;color:var(--dark);min-width:80px;">'+price+'</div>' +
+      '<div style="text-align:right;font-size:0.8rem;color:'+color+';min-width:70px;margin-left:12px;">'+chgStr+'</div>' +
+      '<div style="text-align:right;font-size:0.85rem;font-weight:600;color:'+color+';min-width:60px;margin-left:4px;">'+pctStr+'</div>' +
+      (note ? '<div style="font-size:0.7rem;color:var(--gray);margin-left:6px;min-width:40px;">'+note+'</div>' : '') +
+    '</div>';
   }
-  html += '</table></div>';
+  
+  html += stockRow('上证指数',
+    live.ss_price||'—',
+    live.ss_chg_val||'—',
+    live.ss_chg_pct||null,
+    '沪市');
+  html += stockRow('深证成指',
+    live.sz_price||'—',
+    live.sz_chg_val||'—',
+    live.sz_chg_pct||null,
+    '深市');
+  html += stockRow('创业板指',
+    live.cy_price||'—',
+    live.cy_chg_val||'—',
+    live.cy_chg_pct||null,
+    '创业');
+  html += stockRow('黄金 (XAU)',
+    live.gold ? ('$'+live.gold) : '—',
+    live.gold_chg_val||'—',
+    live.gold_chg_pct||null,
+    '美元/盎司');
+  html += stockRow('美元/人民币',
+    live.fx||'—',
+    live.fx_chg_val||'—',
+    live.fx_chg_pct||null,
+    'USD/CNY');
+  html += stockRow('10年国债',
+    (ap.bond||{}).cn_10y||'—',
+    '', null,
+    '收益率');
+  
+  html += '</div>'; // end card
 
-  // ===== 市场环境速览（5维度卡片）=====
-  html += '<div class="card"><div class="card-title">🌐 市场环境速览</div>';
+  // ===== 市场环境速览（5维度卡片，动态计算）=====
+  const dynBias = calcLiveBias(live, ap);
+  const biasLabels = {equity:'权益', bond:'债券', gold:'黄金', deposit:'利率', fx:'汇率'};
+  html += '<div class="card"><div class="card-title">🌐 市场环境速览<span style="font-size:0.65rem;color:#6b7280;font-weight:400;margin-left:8px;">'+(isLive?'实时计算':'基于缓存')+'</span></div>';
   html += '<div class="bias-grid">';
-  const items = [
-    {label:'权益', v:bias.equity},
-    {label:'债券', v:bias.bond},
-    {label:'黄金', v:bias.gold},
-    {label:'利率', v:bias.deposit},
-    {label:'汇率', v:bias.fx},
-  ];
-  for (const b of items) {
-    const cls = b.v.includes('偏多') ? 'bull' : (b.v.includes('偏空') ? 'bear' : 'neutral');
-    html += '<div class="bias-card"><div class="bias-label">'+b.label+'</div><div class="bias-value '+cls+'">'+b.v+'</div></div>';
+  for (const [key, label] of Object.entries(biasLabels)) {
+    const v = dynBias[key] || bias[key] || '—';
+    const cls = v.includes('偏多') ? 'bull' : (v.includes('偏空') ? 'bear' : 'neutral');
+    html += '<div class="bias-card"><div class="bias-label">'+label+'</div><div class="bias-value '+cls+'">'+v+'</div></div>';
   }
   html += '</div>';
 
@@ -835,31 +854,73 @@ function judgeBias(market) {
 // ============================================================
 async function fetchLivePrices() {
   try {
-    const [ashareResp, goldResp, fxResp] = await Promise.allSettled([
-      fetch('https://push2.eastmoney.com/api/qt/stock/get?secid=1.000001&fields=f43,f170&_='+Date.now(), {cache:'no-cache'}),
+    // 东方财富：上证/深证/创业板 + 黄金 + 汇率
+    const idxUrl = (secid) => 'https://push2.eastmoney.com/api/qt/stock/get?secid='+secid+'&fields=f43,f44,f169,f170&_='+Date.now();
+    const [s1, s2, s3, g1, f1] = await Promise.allSettled([
+      fetch(idxUrl('1.000001'), {cache:'no-cache'}),   // 上证
+      fetch(idxUrl('0.399001'), {cache:'no-cache'}),   // 深证
+      fetch(idxUrl('0.399006'), {cache:'no-cache'}),   // 创业板
       fetch('https://api.gold-api.com/price/XAU', {cache:'no-cache'}),
       fetch('https://open.er-api.com/v6/latest/USD', {cache:'no-cache'}),
     ]);
     const live = {};
-    if (ashareResp.status==='fulfilled' && ashareResp.value.ok) {
-      const d = await ashareResp.value.json();
-      if (d&&d.data) { live.ashare_price=Math.round(d.data.f43/100); live.ashare_chg=+(d.data.f170/100).toFixed(2); live._ts=Date.now(); }
+    const parseIdx = (r) => { if(r.status!=='fulfilled'||!r.value.ok) return null; return r.value.json().then(d=>d?.data||null).catch(()=>null); };
+    
+    const dSS = await parseIdx(s1);
+    if (dSS) { live.ss_price = Math.round(dSS.f43/100); live.ss_chg_val = Math.round(dSS.f169/100); live.ss_chg_pct = +(dSS.f170/100).toFixed(2); live._ts=Date.now(); }
+    
+    const dSZ = await parseIdx(s2);
+    if (dSZ) { live.sz_price = Math.round(dSZ.f43/100); live.sz_chg_val = Math.round(dSZ.f169/100); live.sz_chg_pct = +(dSZ.f170/100).toFixed(2); live._ts=Date.now(); }
+    
+    const dCY = await parseIdx(s3);
+    if (dCY) { live.cy_price = Math.round(dCY.f43/100); live.cy_chg_val = Math.round(dCY.f169/100); live.cy_chg_pct = +(dCY.f170/100).toFixed(2); live._ts=Date.now(); }
+    
+    if (g1.status==='fulfilled' && g1.value.ok) {
+      const d = await g1.value.json();
+      if (d?.price) {
+        const prevGold = window._livePrices?.gold;
+        live.gold = Math.round(d.price);
+        if (prevGold) { live.gold_chg_val = live.gold - prevGold; live.gold_chg_pct = +((live.gold-prevGold)/prevGold*100).toFixed(2); }
+        live._ts=Date.now();
+      }
     }
-    if (goldResp.status==='fulfilled' && goldResp.value.ok) {
-      const d = await goldResp.value.json();
-      if (d&&d.price) { live.gold=Math.round(d.price); live._ts=Date.now(); }
+    
+    if (f1.status==='fulfilled' && f1.value.ok) {
+      const d = await f1.value.json();
+      if (d?.rates?.CNY) {
+        const prevFx = window._livePrices?.fx;
+        live.fx = d.rates.CNY.toFixed(3);
+        if (prevFx) { live.fx_chg_val = +(live.fx - prevFx).toFixed(4); live.fx_chg_pct = +((live.fx-prevFx)/prevFx*100).toFixed(3); }
+        live._ts=Date.now();
+      }
     }
-    if (fxResp.status==='fulfilled' && fxResp.value.ok) {
-      const d = await fxResp.value.json();
-      if (d&&d.rates&&d.rates.CNY) { live.fx=d.rates.CNY.toFixed(3); live._ts=Date.now(); }
-    }
-    if (live.ashare_price||live.gold||live.fx) {
-      window._livePrices=live;
-      console.log('[实时] 上证'+(live.ashare_price||'?')+' 黄金'+(live.gold||'?')+' 汇率'+(live.fx||'?'));
+    
+    if (live.ss_price||live.gold||live.fx) {
+      window._livePrices = live;
+      console.log('[实时] 上证'+live.ss_price+' 深证'+live.sz_price+' 创业板'+live.cy_price+' 黄金'+live.gold+' 汇率'+live.fx);
       const mc=document.getElementById('marketContent');
       if (mc&&mc.dataset.rendered==='true') { mc.dataset.rendered=''; renderMarketTab(); }
     }
   } catch(e) { console.warn('[实时] 失败:', e.message); }
+}
+
+// 动态计算市场偏向（基于实时数据）
+function calcLiveBias(live, ap) {
+  const bias = {};
+  // 权益：基于三大指数涨跌
+  const eqAvg = [(live.ss_chg_pct||0),(live.sz_chg_pct||0),(live.cy_chg_pct||0)];
+  const eqUp = eqAvg.filter(v=>v>0).length;
+  bias.equity = eqUp >= 2 ? '偏多' : (eqUp === 0 ? '偏空' : '中性');
+  // 债券：低位利率=偏多
+  const bondY = parseFloat((ap.bond||{}).cn_10y||'1.6');
+  bias.bond = bondY < 1.8 ? '偏多（债牛）' : (bondY > 2.5 ? '偏空' : '中性');
+  // 黄金：基于日内涨跌
+  bias.gold = (live.gold_chg_pct||0) > 0.3 ? '偏多' : ((live.gold_chg_pct||0) < -0.3 ? '偏空' : '中性');
+  // 利率：持续下行
+  bias.deposit = '偏空（利率下行中）';
+  // 汇率：基于日内涨跌
+  bias.fx = (live.fx_chg_pct||0) < 0 ? '偏多（人民币走强）' : ((live.fx_chg_pct||0) > 0.1 ? '偏空' : '中性');
+  return bias;
 }
 (function startLivePoll(){ fetchLivePrices(); setInterval(fetchLivePrices, 60000); })();
 
