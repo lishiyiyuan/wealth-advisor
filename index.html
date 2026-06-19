@@ -796,21 +796,77 @@ async function refreshNewsTab() {
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 刷新中...'; }
   
   try {
+    // 优先从新浪API实时抓取
+    const liveNews = await fetchLiveNews();
+    if (liveNews && liveNews.length > 3) {
+      window._dailyNews = liveNews;
+      window._renderedNewsIds = new Set();
+      renderNewsTab();
+      if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新资讯'; }
+      toast('✅ 已更新 ' + liveNews.length + ' 条实时资讯');
+      return;
+    }
+  } catch(e) { console.warn('实时新闻抓取失败:', e.message); }
+  
+  // 兜底：从 daily.json 读取
+  try {
     const resp = await fetch('data/daily.json?' + Date.now());
     if (resp.ok) {
       const daily = await resp.json();
       if (daily.news) {
         window._dailyNews = daily.news;
-        window._renderedNewsIds = new Set(); // 清除去重标记，允许显示所有新闻
+        window._renderedNewsIds = new Set();
+      }
+    }
+  } catch(e) {}
+  
+  renderNewsTab();
+  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新资讯'; }
+  toast('📡 已刷新');
+}
+
+// 从新浪财经API实时抓取最新新闻
+async function fetchLiveNews() {
+  const url = 'https://feed.mix.sina.com.cn/api/roll/get?pageid=153&lid=2509&k=&num=20&page=1';
+  try {
+    const resp = await fetch(url);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const items = data?.result?.data;
+    if (!items || !items.length) return null;
+    
+    const news = [];
+    for (const item of items) {
+      const title = (item.title || '').trim();
+      if (!title || title.length < 5) continue;
+      const summary = (item.intro || item.ctime || '').trim();
+      news.push({
+        title: title.slice(0, 80),
+        summary: summary.slice(0, 150),
+        category: classifyLiveNews(title)
+      });
+      if (news.length >= 15) break;
+    }
+    return news;
+  } catch(e) { return null; }
+}
+
+function classifyLiveNews(title) {
+  const t = title;
+  if (anyKw(t, '美联储 央行 LPR 利率 CPI 通胀 GDP PMI 降息 降准 宏观 经济 财政'.split(' '))) return '宏观经济';
+  if (anyKw(t, 'A股 上证 深证 创业板 科创板 涨停 跌停 板块 行情 指数 反弹 调整 震荡 牛市 熊市 北向 外资'.split(' '))) return '行业动态';
+  if (anyKw(t, '公司 股份 回购 分红 业绩 财报 IPO 上市 融资 收购 减持 利润'.split(' '))) return '上市公司';
+  if (anyKw(t, '美国 欧洲 日本 俄 乌 中东 地缘 贸易 关税 制裁 冲突'.split(' '))) return '国际地缘';
+  if (anyKw(t, 'AI 芯片 半导体 机器人 新能源 光伏 锂电 算力 大模型 人工智能 5G 自动驾驶'.split(' '))) return '行业动态';
+  if (anyKw(t, '黄金 原油 期货 汇率 比特币 美股 港股 恒生 纳指 道指'.split(' '))) return '国际地缘';
+  return '行业动态';
+}
+
+function anyKw(text, keywords) {
+  return keywords.some(w => text.includes(w));
+}
       }
       if (daily.daily_outlook) window._dailyOutlook = daily.daily_outlook;
-    }
-    renderNewsTab();
-    toast('✅ 资讯已刷新');
-  } catch(e) {
-    toast('⚠ 刷新失败，请稍后重试');
-  }
-  if (btn) { btn.disabled = false; btn.innerHTML = '🔄 刷新资讯'; }
 }
 
 // ============================================================
