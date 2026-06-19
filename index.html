@@ -2506,24 +2506,19 @@ function renderChatUI() {
 function quickBtn(text) { return '<button onclick="document.getElementById(\'aiInput\').value=\''+text+'\';sendAiMsg()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;white-space:nowrap;">'+text+'</button>'; }
 
 async function webSearch(query) {
-  try {
-    // Brave Search 不支持跨域，通过 CORS 代理转发
-    const braveUrl = 'https://api.search.brave.com/res/v1/web/search?q='+encodeURIComponent(query)+'&count=5';
-    const proxyUrl = 'https://proxy.cors.sh/'+encodeURIComponent(braveUrl);
-    const resp = await fetch(proxyUrl,{
-      headers:{'x-cors-api-key':'temp_6c8b7a5f1a3d4e2b9f8c7d6a5b4c3d2e1'}
-    });
-    if (!resp.ok) return null;
-    const data = await resp.json();
-    const results = (data.web?.results||[]).slice(0,5);
-    if (!results.length) return null;
-    let text = '';
-    for (const r of results) {
-      const t = (r.title||'').trim(), d = (r.description||'').replace(/<[^>]+>/g,'').trim().slice(0,200);
-      if (t) text += '- '+t+'\n  '+d+'\n';
-    }
-    return text || null;
-  } catch(e) { return null; }
+  const news = window._dailyNews || [];
+  if (!news.length) return null;
+  const keywords = query.split(/[\s，,。！？、]+/).filter(w=>w.length>1);
+  const matched = news.filter(n => {
+    const text = (n.title||'')+(n.summary||'');
+    return keywords.some(kw => text.includes(kw)) || keywords.length===0;
+  }).slice(0,5);
+  if (!matched.length) return null;
+  let text = '【最新财经资讯匹配结果】\n';
+  for (const n of matched) {
+    text += '- '+(n.title||'').trim()+'\n  '+(n.summary||'').trim().slice(0,150)+'\n';
+  }
+  return text;
 }
 
 async function sendAiMsg() {
@@ -2533,18 +2528,21 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
-  // 联网搜索：直接返回搜索结果
+  // 联网搜索：从最新新闻中匹配
   if (_aiSearch) {
     try {
       btn.innerHTML='🔍';
+      // 先刷新新闻确保最新
+      const liveNews = await fetchLiveNews();
+      if (liveNews) window._dailyNews = liveNews;
       const sr = await webSearch(msg);
       if (sr) {
-        _aiHistory.push({role:'assistant',content:'🔍 搜索结果：\n\n'+sr+'\n---\n如需AI解读，请关闭🌐联网后重新提问。'});
+        _aiHistory.push({role:'assistant',content:msg.includes('新闻')||msg.includes('最新') ? '📰 '+sr : sr});
       } else {
-        _aiHistory.push({role:'assistant',content:'🔍 未找到相关结果'});
+        _aiHistory.push({role:'assistant',content:'🔍 当前新闻中未找到相关信息\n\n💡 建议：关闭🌐联网，用AI对话模式提问（基于训练知识回答）'});
       }
       btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return;
-    } catch(e) {}
+    } catch(e) { _aiHistory.push({role:'assistant',content:'🔍 搜索失败'}); btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return; }
   }
   
   try {
