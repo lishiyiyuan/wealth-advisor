@@ -17,7 +17,7 @@ export default {
       });
     }
 
-    const params = new URLSearchParams({ q, count, country: 'CN', search_lang: 'zh-hans' });
+    const params = new URLSearchParams({ q, count });
     const braveUrl = 'https://api.search.brave.com/res/v1/web/search?' + params.toString();
 
     try {
