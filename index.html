@@ -201,6 +201,7 @@ input:focus, select:focus { border-color: var(--red); }
     <div class="tab" onclick="switchTab('market')">📡 市场</div>
     <div class="tab" onclick="switchTab('fund')">📈 基金估值</div>
     <div class="tab" onclick="switchTab('clients')">👥 客户管理</div>
+    <div class="tab" onclick="switchTab('ai')">🤖 AI助手</div>
     <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
     <div class="tab" onclick="switchTab('result')">📊 推荐结果</div>
     <div class="tab" onclick="switchTab('report')">📝 配置报告</div>
@@ -291,6 +292,11 @@ input:focus, select:focus { border-color: var(--red); }
     <div id="clientsContent"></div>
   </div>
 
+  <!-- Tab: AI助手 -->
+  <div id="tab-ai" style="display:none;">
+    <div id="aiContent"></div>
+  </div>
+
   <!-- Tab: 基金估值 -->
   <div id="tab-fund" style="display:none;">
     <div id="fundContent"></div>
@@ -319,6 +325,9 @@ input:focus, select:focus { border-color: var(--red); }
   </div>
   <div class="mobile-nav-item" onclick="switchTab('clients')" data-tab="clients">
     <span class="nav-icon">👥</span>客户
+  </div>
+  <div class="mobile-nav-item" onclick="switchTab('ai')" data-tab="ai">
+    <span class="nav-icon">🤖</span>AI
   </div>
   <div class="mobile-nav-item" onclick="exportPPT()" id="mobileExportBtn">
     <span class="nav-icon">📥</span>导出
@@ -563,11 +572,11 @@ let sids = new Set();
 // UI 逻辑
 // ============================================================
 function switchTab(tab) {
-  ['input','result','report','market','news','fund','clients'].forEach(t => {
+  ['input','result','report','market','news','fund','clients','ai'].forEach(t => {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['news','market','fund','clients','input','result','report'][i]===tab);
+    el.classList.toggle('active', ['news','market','fund','clients','ai','input','result','report'][i]===tab);
   });
   // 同步移动端底部导航
   document.querySelectorAll('.mobile-nav-item').forEach(el => {
@@ -578,6 +587,7 @@ function switchTab(tab) {
   if (tab === 'news') renderNewsTab();
   if (tab === 'fund') renderFundTab();
   if (tab === 'clients') renderClientsTab();
+  if (tab === 'ai') renderAiTab();
   // 滚动到顶部
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -2446,6 +2456,82 @@ function fetchFundGz(code) {
     document.head.appendChild(s);
     s.onload = () => { if(s.parentNode)s.parentNode.removeChild(s); };
   });
+}
+
+// ============================================================
+// AI助手 Tab（DeepSeek）
+// ============================================================
+function getAiKey() { return localStorage.getItem('wm_ds_key')||''; }
+function setAiKey(k) { localStorage.setItem('wm_ds_key', k); }
+let _aiHistory = [];
+
+function renderAiTab() {
+  const container = document.getElementById('aiContent');
+  const hasKey = !!getAiKey();
+  let html = '<div style="font-weight:700;margin-bottom:12px;">🤖 AI 助手</div>';
+  if (!hasKey) {
+    html += '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:12px;margin-bottom:12px;">';
+    html += '<div style="font-weight:600;font-size:0.85rem;">🔑 请先配置 DeepSeek API Key</div>';
+    html += '<input id="aiKeyInput" type="password" placeholder="sk-..." style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.82rem;margin:8px 0;">';
+    html += '<div style="font-size:0.65rem;color:var(--gray);">Key 仅保存在浏览器本地，不会上传</div>';
+    html += '<button onclick="saveAiKey()" style="margin-top:8px;padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:0.82rem;">保存并开始</button></div>';
+  } else {
+    html += renderChatUI();
+  }
+  container.innerHTML = html;
+}
+
+function saveAiKey() {
+  const k = document.getElementById('aiKeyInput').value.trim();
+  if (!k||!k.startsWith('sk-')) { toast('请输入有效的Key (sk-开头)'); return; }
+  setAiKey(k); _aiHistory=[]; renderAiTab(); toast('Key已保存');
+}
+
+function renderChatUI() {
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:0.75rem;color:var(--gray);">Key: '+getAiKey().slice(0,8)+'***</div><button onclick="setAiKey(\'\');_aiHistory=[];renderAiTab();" style="font-size:0.7rem;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">更换</button></div>';
+  html += '<div id="aiMessages" style="max-height:60vh;overflow-y:auto;margin-bottom:10px;">';
+  if (_aiHistory.length===0) {
+    html += '<div style="text-align:center;color:var(--gray);padding:20px;"><div style="font-size:2rem;margin-bottom:8px;">🤖</div><div style="font-size:0.85rem;">我是你的AI投资助手</div><div style="font-size:0.7rem;margin-top:4px;">试试问我：</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;">'+quickBtn('对比000184和000218')+quickBtn('今天市场怎么样')+quickBtn('帮我推荐PR3客户的产品')+quickBtn('客户亏了15%怎么安抚')+'</div></div>';
+  } else {
+    for (const m of _aiHistory) {
+      if (m.role==='user') html += '<div style="text-align:right;margin:8px 0;"><span style="background:var(--red);color:#fff;padding:6px 12px;border-radius:12px;font-size:0.82rem;display:inline-block;max-width:80%;text-align:left;">'+m.content+'</span></div>';
+      else html += '<div style="margin:8px 0;"><span style="background:#f3f4f6;padding:6px 12px;border-radius:12px;font-size:0.82rem;display:inline-block;max-width:90%;white-space:pre-wrap;">'+m.content+'</span></div>';
+    }
+  }
+  html += '</div>';
+  html += '<div style="display:flex;gap:8px;"><input id="aiInput" placeholder="输入问题..." onkeydown="if(event.key===\'Enter\')sendAiMsg()" style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.85rem;"><button onclick="sendAiMsg()" id="aiSendBtn" style="padding:10px 16px;background:var(--red);color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:0.85rem;">发送</button></div>';
+  return html;
+}
+
+function quickBtn(text) { return '<button onclick="document.getElementById(\'aiInput\').value=\''+text+'\';sendAiMsg()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;white-space:nowrap;">'+text+'</button>'; }
+
+async function sendAiMsg() {
+  const input = document.getElementById('aiInput'), btn = document.getElementById('aiSendBtn');
+  const msg = input.value.trim(); if (!msg) return;
+  input.value=''; btn.disabled=true; btn.innerHTML='...';
+  _aiHistory.push({role:'user',content:msg}); renderChatUI();
+  try {
+    const resp = await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:buildAiContext()},..._aiHistory],temperature:0.7,max_tokens:1500})});
+    if (!resp.ok) throw new Error('API '+resp.status);
+    const data = await resp.json();
+    _aiHistory.push({role:'assistant',content:data.choices[0].message.content});
+  } catch(e) { _aiHistory.push({role:'assistant',content:'⚠️ '+e.message}); }
+  btn.disabled=false; btn.innerHTML='发送'; renderChatUi();
+  setTimeout(()=>{const m=document.getElementById('aiMessages');if(m)m.scrollTop=99999;},100);
+}
+
+function buildAiContext() {
+  const ap = (typeof MARKET!=='undefined'&&MARKET.asset_prices)?MARKET.asset_prices:{};
+  const ss = ap.a_share?.level||'未知', g=ap.gold?.level||'未知', fx=ap.fx?.level||'未知', b=ap.bond?.cn_10y||'未知';
+  const funds = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p=>p.product_category==='基金');
+  const fl = funds.slice(0,8).map(f=>f.product_id+' '+f.product_name).join(', ');
+  let ctx = '你是工商银行广州分行资深理财经理的AI助手。帮助理财经理分析市场、推荐产品、撰写客户话术。回答简洁专业，控制在500字内。\n\n';
+  ctx += '【市场】上证'+ss+' | 黄金'+g+' | 汇率'+fx+' | 国债'+b+'\n';
+  ctx += '【产品】重点基金:'+fl+'... 共'+funds.length+'只\n';
+  const clients = loadClients();
+  if (clients.length>0) { ctx += '【客户】'+clients.map(c=>c.name+'('+c.riskLevel+','+c.totalAssets+'万)').join(' ')+'\n'; }
+  ctx += '【日期】'+new Date().toISOString().slice(0,10);
+  return ctx;
 }
 
 (async function loadNavHistory() {
