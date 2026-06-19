@@ -392,6 +392,24 @@ let MARKET = {"date": "2026-06-09 12:28", "macro": {"title": "宏观经济速览
   } catch(e) { console.warn('[数据] 加载失败:', e.message); }
 })();
 
+async function fetchLiveMarket() {
+  try {
+    const resp = await fetch('https://push2.eastmoney.com/api/qt/ulist.np/get?fltt=2&fields=f2,f3,f12,f14&secids=1.000001,0.GFEXAU,1.USDCNH&_='+Date.now());
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const items = data.data?.diff || [];
+    const sse = items.find(i=>i.f12==='000001');
+    const gold = items.find(i=>i.f12==='GFEXAU');
+    const fx = items.find(i=>i.f12==='USDCNH');
+    return {
+      sse: sse ? sse.f2.toFixed(0) : '',
+      sseChg: sse ? (sse.f3>=0?'+':'')+sse.f3.toFixed(2)+'%' : '',
+      gold: gold ? (gold.f2/31.1035).toFixed(0) : '',
+      fx: fx ? fx.f2.toFixed(2) : ''
+    };
+  } catch(e) { return null; }
+}
+
 // ============================================================
 // 手动刷新 + 定时自动刷新
 // ============================================================
@@ -406,6 +424,9 @@ async function refreshData(showToast) {
   label.textContent = '刷新中...';
   
   try {
+    // 实时行情（东方财富浏览器直连）
+    const live = await fetchLiveMarket();
+    
     const resp = await fetch('data/daily.json?' + Date.now());
     if (!resp.ok) throw new Error('HTTP ' + resp.status);
     const daily = await resp.json();
@@ -413,6 +434,17 @@ async function refreshData(showToast) {
     let changed = false;
     if (daily.market) {
       MARKET = daily.market;
+      // 用实时数据覆盖
+      if (live && live.sse) {
+        if (!MARKET.asset_prices) MARKET.asset_prices = {};
+        if (!MARKET.asset_prices.a_share) MARKET.asset_prices.a_share = {};
+        MARKET.asset_prices.a_share.level = '约'+live.sse+'点';
+        MARKET.asset_prices.a_share.change = live.sseChg||'';
+        if (!MARKET.asset_prices.gold) MARKET.asset_prices.gold = {};
+        MARKET.asset_prices.gold.level = '约'+live.gold+'元/克';
+        if (!MARKET.asset_prices.fx) MARKET.asset_prices.fx = {};
+        MARKET.asset_prices.fx.level = '约'+live.fx;
+      }
       changed = true;
     }
     if (daily.news && daily.news.length > 0) {
@@ -2366,7 +2398,7 @@ function renderDashboard() {
   html += '<div style="font-size:0.75rem;opacity:0.7;">'+new Date().toLocaleDateString('zh-CN',{weekday:'long',month:'long',day:'numeric'})+'</div>';
   html += '<div style="display:flex;gap:12px;font-size:0.78rem;margin-top:4px;flex-wrap:wrap;">';
   html += '<span>上证<b> '+(ss.level||'—')+'</b> <span style="color:#c41230;font-size:0.65rem;">'+(ss.change||'')+'</span></span>';
-  html += '<span>黄金<b> '+(g.level||'—')+'</b></span><span>汇率<b> '+(fx.level||'—')+'</b></span><span>国债<b> '+(bond.cn_10y||'—')+'</b></span>';
+  html += '<span>黄金<b> '+(g.level||'—')+'</b></span><span>汇率<b> '+(fx.level||'—')+'</b></span><span>10年国债<b> '+(bond.cn_10y||'—')+'</b></span>';
   html += '</div></div>';
   
   // 统计
