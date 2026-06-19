@@ -140,23 +140,17 @@ def match_products(market_data):
                 score += 3
                 reasons.append("短期限，流动性好")
         
-        # 风险等级适配
-        if risk == "PR1":
-            if score > 50:
-                result["PR1"].append(format_product(p, score, reasons))
-        elif risk == "PR2":
-            if score > 45:
-                result["PR1"].append(format_product(p, score, reasons))
-                result["PR2"].append(format_product(p, score, reasons))
-        elif risk == "PR3":
-            if score > 45:
-                result["PR2"].append(format_product(p, score, reasons))
-                result["PR3"].append(format_product(p, score, reasons))
-        elif risk in ["PR4", "PR5"]:
-            if score > 40:
-                result["PR3"].append(format_product(p, score, reasons))
-                result["PR4"].append(format_product(p, score, reasons))
-                result["PR5"].append(format_product(p, score, reasons))
+        # 风险等级适配（严格不跨级）
+        if risk == "PR1" and score > 50:
+            result["PR1"].append(format_product(p, score, reasons))
+        elif risk == "PR2" and score > 45:
+            result["PR2"].append(format_product(p, score, reasons))
+        elif risk == "PR3" and score > 45:
+            result["PR3"].append(format_product(p, score, reasons))
+        elif risk == "PR4" and score > 40:
+            result["PR4"].append(format_product(p, score, reasons))
+        elif risk == "PR5" and score > 40:
+            result["PR5"].append(format_product(p, score, reasons))
     
     # 按分数排序，每类最多8只
     for level in result:

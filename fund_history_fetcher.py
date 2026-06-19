@@ -57,14 +57,23 @@ def compute_performance(navs):
         return {}
     
     latest = navs[0]['nav']
+    dates = sorted([datetime.strptime(n['date'], '%Y-%m-%d') for n in navs])
+    data_start = dates[0]
+    data_end = dates[-1]
+    now = datetime.now()
+    
     periods = {'1m': 30, '3m': 90, '6m': 180, '1y': 365}
     result = {}
     
     for key, days in periods.items():
-        target = datetime.now() - timedelta(days=days)
-        ts = target.timestamp()
+        target = now - timedelta(days=days)
+        # 检查数据范围是否覆盖目标日期
+        if target < data_start:
+            result[key] = None  # 数据不足
+            continue
+        # 找目标日期前后最近的实际净值
         closest = min(navs, key=lambda n: abs(
-            datetime.strptime(n['date'], '%Y-%m-%d').timestamp() - ts
+            datetime.strptime(n['date'], '%Y-%m-%d') - target
         ))
         if closest:
             ret = (latest - closest['nav']) / closest['nav'] * 100
@@ -72,6 +81,7 @@ def compute_performance(navs):
     
     # 连续涨跌天数
     streak = 0
+    up = None
     if len(navs) >= 2:
         up = navs[0]['nav'] >= navs[1]['nav']
         for i in range(len(navs) - 1):
@@ -81,7 +91,7 @@ def compute_performance(navs):
             else:
                 break
     result['streak'] = streak
-    result['streak_up'] = up if navs and len(navs) >= 2 else None
+    result['streak_up'] = up
     
     return result
 

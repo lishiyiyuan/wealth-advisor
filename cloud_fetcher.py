@@ -13,7 +13,7 @@ from urllib.error import URLError
 import ssl
 
 ssl_context = ssl.create_default_context()
-HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'}
+HEADERS = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36', 'Referer': 'https://data.eastmoney.com/'}
 
 BASE_DIR = os.path.dirname(__file__)
 OUTPUT = os.path.join(BASE_DIR, 'data', 'market_input.json')
@@ -77,7 +77,20 @@ def fetch_fx():
     return '约6.76', '温和震荡'
 
 def fetch_cn_bond():
-    """中国10年期国债收益率"""
+    """中国10年期国债收益率（东方财富国债收益率API）"""
+    try:
+        url = 'https://datacenter-web.eastmoney.com/api/data/v1/get?reportName=RPTA_WEB_TREASURYYIELD&columns=ALL&pageNumber=1&pageSize=1&sortTypes=-1&sortColumns=SOLAR_DATE'
+        data = fetch_json(url, timeout=8)
+        if data:
+            items = data.get('result', {}).get('data', [])
+            if items:
+                val = items[0].get('EMM00166469')  # 10年期国债收益率
+                if val is not None:
+                    yield_val = round(float(val), 2)
+                    trend = '下行' if yield_val < 2.5 else ('上行' if yield_val > 3.0 else '低位运行')
+                    return f'{yield_val}%', trend
+    except Exception as e:
+        print(f'  ⚠ 国债收益率获取失败: {e}')
     return '约1.60%', '低位运行'
 
 def fetch_hotspots():
