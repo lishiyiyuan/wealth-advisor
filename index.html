@@ -599,13 +599,24 @@ function renderMarketTab() {
   let html = '';
 
   // ===== 重要资本市场实时数据 =====
-  html += '<div class="card"><div class="card-title">📊 重要资本市场实时数据</div>';
+  const live = window._livePrices || {};
+  const now = new Date();
+  const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
+  
+  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📊 重要资本市场实时数据<span style="font-size:0.65rem;color:'+(live._ts?'#059669':'#6b7280')+';font-weight:400;">'+(live._ts?'🟢 实时 '+timeStr:'📡 缓存数据')+'</span></div>';
   html += '<table style="width:100%;border-collapse:collapse;font-size:0.85rem;">';
+  
+  // 实时价格优先，fallback 到 MARKET
+  const asharePrice = live.ashare_price ? (live.ashare_price+'点') : ((ap.a_share||{}).level||'—');
+  const ashareTrend = live.ashare_chg ? (live.ashare_chg >= 0 ? '+' : '') + live.ashare_chg.toFixed(2) + '%' : ((ap.a_share||{}).trend||'—');
+  const goldPrice = live.gold ? ('约'+live.gold+'美元/盎司') : ((ap.gold||{}).price||'—');
+  const fxPrice = live.fx ? ('约'+live.fx) : ((ap.fx||{}).usd_cny||'—');
+  
   const dataRows = [
-    ['A股（上证指数）', (ap.a_share||{}).level||'—', (ap.a_share||{}).trend||'—', '🔴 偏多'],
+    ['A股（上证指数）', asharePrice, ashareTrend, '🔴 偏多'],
     ['中国10年期国债收益率', (ap.bond||{}).cn_10y||'—', (ap.bond||{}).trend||'—', '🟢 偏多（债牛）'],
-    ['黄金（美元/盎司）', (ap.gold||{}).price||'—', (ap.gold||{}).trend||'—', '🟡 偏空（高位回落）'],
-    ['人民币汇率（USD/CNY）', (ap.fx||{}).usd_cny||'—', (ap.fx||{}).trend||'—', '🟢 偏多（人民币走强）'],
+    ['黄金（美元/盎司）', goldPrice, (ap.gold||{}).trend||'—', '🟡 偏空（高位回落）'],
+    ['人民币汇率（USD/CNY）', fxPrice, (ap.fx||{}).trend||'—', '🟢 偏多（人民币走强）'],
     ['LPR（1年期 / 5年期）', (mc.lpr_1y||'—')+' / '+(mc.lpr_5y||'—'), '持续下行', '📉 利率走低'],
     ['存款利率', dep.current||'—', dep.trend||'—', '📉 锁定利率正当时'],
   ];
@@ -817,6 +828,39 @@ function judgeBias(market) {
     }
   } catch(e) { console.warn('[资讯] 新闻加载失败:', e.message); }
 })();
+
+// ============================================================
+// 实时行情（浏览器直连免费API，60秒刷新）
+// ============================================================
+async function fetchLivePrices() {
+  try {
+    const [ashareResp, goldResp, fxResp] = await Promise.allSettled([
+      fetch('https://push2.eastmoney.com/api/qt/stock/get?secid=1.000001&fields=f43,f170&_='+Date.now(), {cache:'no-cache'}),
+      fetch('https://api.gold-api.com/price/XAU', {cache:'no-cache'}),
+      fetch('https://open.er-api.com/v6/latest/USD', {cache:'no-cache'}),
+    ]);
+    const live = {};
+    if (ashareResp.status==='fulfilled' && ashareResp.value.ok) {
+      const d = await ashareResp.value.json();
+      if (d&&d.data) { live.ashare_price=Math.round(d.data.f43/100); live.ashare_chg=+(d.data.f170/100).toFixed(2); live._ts=Date.now(); }
+    }
+    if (goldResp.status==='fulfilled' && goldResp.value.ok) {
+      const d = await goldResp.value.json();
+      if (d&&d.price) { live.gold=Math.round(d.price); live._ts=Date.now(); }
+    }
+    if (fxResp.status==='fulfilled' && fxResp.value.ok) {
+      const d = await fxResp.value.json();
+      if (d&&d.rates&&d.rates.CNY) { live.fx=d.rates.CNY.toFixed(3); live._ts=Date.now(); }
+    }
+    if (live.ashare_price||live.gold||live.fx) {
+      window._livePrices=live;
+      console.log('[实时] 上证'+(live.ashare_price||'?')+' 黄金'+(live.gold||'?')+' 汇率'+(live.fx||'?'));
+      const mc=document.getElementById('marketContent');
+      if (mc&&mc.dataset.rendered==='true') { mc.dataset.rendered=''; renderMarketTab(); }
+    }
+  } catch(e) { console.warn('[实时] 失败:', e.message); }
+}
+(function startLivePoll(){ fetchLivePrices(); setInterval(fetchLivePrices, 60000); })();
 
 // ============================================================
 
