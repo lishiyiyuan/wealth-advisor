@@ -2507,8 +2507,11 @@ function quickBtn(text) { return '<button onclick="document.getElementById(\'aiI
 
 async function webSearch(query) {
   try {
-    const resp = await fetch('https://api.search.brave.com/res/v1/web/search?q='+encodeURIComponent(query)+'&count=5',{
-      headers:{'Accept':'application/json','Accept-Encoding':'gzip','X-Subscription-Token':'BSAC-of6EGUNUtyvBEBT5TqrMr97d-2'}
+    // Brave Search 不支持跨域，通过 CORS 代理转发
+    const braveUrl = 'https://api.search.brave.com/res/v1/web/search?q='+encodeURIComponent(query)+'&count=5';
+    const proxyUrl = 'https://proxy.cors.sh/'+encodeURIComponent(braveUrl);
+    const resp = await fetch(proxyUrl,{
+      headers:{'x-cors-api-key':'temp_6c8b7a5f1a3d4e2b9f8c7d6a5b4c3d2e1'}
     });
     if (!resp.ok) return null;
     const data = await resp.json();
@@ -2516,7 +2519,7 @@ async function webSearch(query) {
     if (!results.length) return null;
     let text = '';
     for (const r of results) {
-      const t = (r.title||'').trim(), d = (r.description||'').trim().slice(0,200);
+      const t = (r.title||'').trim(), d = (r.description||'').replace(/<[^>]+>/g,'').trim().slice(0,200);
       if (t) text += '- '+t+'\n  '+d+'\n';
     }
     return text || null;
