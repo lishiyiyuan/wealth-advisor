@@ -2789,39 +2789,39 @@ async function webSearch(query) {
 }
 
 async function sendAiMsg() {
-  const input = document.getElementById('aiInput'), btn = document.getElementById('aiSendBtn');
-  const msg = input.value.trim(); if (!msg) return;
-  input.value=''; btn.disabled=true; btn.innerHTML='...';
+  const input = document.getElementById('aiInput');
+  const msg = (input?.value||'').trim(); if (!msg) return;
+  if (input) input.value = '';
   _aiHistory.push({role:'user',content:msg});
-  refreshAiMessages();
+  refreshAiMessages(); // 重建DOM，之后重新获取按钮引用
+  
+  let btn = document.getElementById('aiSendBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '...'; }
   
   let searchCtx = '';
   if (_aiSearch) {
-    btn.innerHTML='🔍';
+    btn = document.getElementById('aiSendBtn');
+    if (btn) btn.innerHTML = '🔍';
     try { const sr=await webSearch(msg); if(sr) searchCtx='\n\n'+sr+'\n请基于以上搜索结果用中文总结回答，简洁专业。'; } catch(e){}
-    if (!searchCtx) { _aiHistory.push({role:'assistant',content:'搜索无结果，已切换为AI对话模式。'}); btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return; }
+    if (!searchCtx) { _aiHistory.push({role:'assistant',content:'搜索无结果'}); btn = document.getElementById('aiSendBtn'); if(btn){btn.disabled=false;btn.innerHTML='发送';} refreshAiMessages(); return; }
   }
   
-  // AI对话模式
   try {
     const sysMsg = buildAiContext() + searchCtx;
     const resp = await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},
-      body:JSON.stringify({
-        model:'deepseek-chat',
-        messages:[{role:'system',content:sysMsg},..._aiHistory],
-        temperature:0.7,max_tokens:1500
-      })
+      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:sysMsg},..._aiHistory],temperature:0.7,max_tokens:1500})
     });
     if (!resp.ok) throw new Error('HTTP '+resp.status+' '+resp.statusText);
     const data = await resp.json();
     _aiHistory.push({role:'assistant',content:data.choices[0].message.content});
   } catch(e) {
-    _aiHistory.push({role:'assistant',content:'⚠️ 请求失败: '+e.message});
+    _aiHistory.push({role:'assistant',content:'⚠️ '+e.message});
   }
   
-  btn.disabled=false; btn.innerHTML='发送';
+  btn = document.getElementById('aiSendBtn');
+  if (btn) { btn.disabled = false; btn.innerHTML = '发送'; }
   refreshAiMessages();
 }
 
