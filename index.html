@@ -842,8 +842,11 @@ async function renderFundTab() {
   html += '<span style="flex:2;min-width:0;">基金名称 / 代码</span>';
   html += '<span style="flex:0.8;text-align:right;">估值</span>';
   html += '<span style="flex:0.7;text-align:right;">涨跌幅</span>';
-  html += '<span style="flex:0.8;text-align:right;">净值</span>';
-  html += '<span style="flex:0.7;text-align:right;">更新时间</span>';
+  html += '<span style="flex:0.6;text-align:right;">净值</span>';
+  html += '<span style="flex:0.5;text-align:right;">近1月</span>';
+  html += '<span style="flex:0.5;text-align:right;">近3月</span>';
+  html += '<span style="flex:0.5;text-align:right;">近半年</span>';
+  html += '<span style="flex:0.5;text-align:right;">近1年</span>';
   html += '</div>';
   
   for (const f of funds) {
@@ -856,12 +859,23 @@ async function renderFundTab() {
     html += '</span>';
     html += '<span class="fund-gz" style="flex:0.8;text-align:right;color:var(--gray);">点击获取</span>';
     html += '<span class="fund-chg" style="flex:0.7;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-nav" style="flex:0.8;text-align:right;color:var(--gray);">—</span>';
-    html += '<span class="fund-time" style="flex:0.7;text-align:right;font-size:0.65rem;color:var(--gray);">—</span>';
+    html += '<span class="fund-nav" style="flex:0.6;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-1m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-3m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-6m" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
+    html += '<span class="fund-1y" style="flex:0.5;text-align:right;color:var(--gray);">—</span>';
     html += '</div>';
   }
   html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
   container.innerHTML = html;
+
+  // 异步加载历史业绩（从 fund_history.json）
+  loadFundHistory().then(hist => {
+    for (const row of document.querySelectorAll('.fund-row')) {
+      const code = row.dataset.code;
+      if (hist[code]) updateHistRow(code, hist[code]);
+    }
+  });
 }
 
 async function fetchFundEstimates() {
@@ -929,9 +943,39 @@ function updateRow(code, data) {
   row.querySelector('.fund-gz').innerHTML = '<span style="font-weight:700;color:var(--dark);">'+gz+'</span>';
   row.querySelector('.fund-chg').innerHTML = '<span style="font-weight:700;color:'+clr+';">'+arr+(gszzl>0?'+':'')+gszzl.toFixed(2)+'%</span>';
   row.querySelector('.fund-nav').innerHTML = '<span style="color:var(--dark);">'+dwjz+'</span>';
-  row.querySelector('.fund-time').innerHTML = data.gztime ? data.gztime.slice(-8) : '—';
   
   row.style.background = '#f9fafb';
+}
+
+async function loadFundHistory() {
+  try {
+    const resp = await fetch('data/fund_history.json?' + Date.now());
+    if (resp.ok) return await resp.json();
+  } catch(e) {}
+  return {};
+}
+
+function updateHistRow(code, hist) {
+  const row = document.querySelector('.fund-row[data-code="'+code+'"]');
+  if (!row) return;
+  const setVal = (cls, val) => {
+    const el = row.querySelector('.'+cls);
+    if (!el || val == null) return;
+    const isUp = val >= 0, clr = isUp ? '#c41230' : '#059669';
+    el.innerHTML = '<span style="color:'+clr+';">'+(isUp?'+':'')+val.toFixed(2)+'%</span>';
+  };
+  setVal('fund-1m', hist['1m']);
+  setVal('fund-3m', hist['3m']);
+  setVal('fund-6m', hist['6m']);
+  setVal('fund-1y', hist['1y']);
+  if (hist.streak >= 3) {
+    const tag = hist.streak_up ? '🔥连'+hist.streak+'涨' : '❄连'+hist.streak+'跌';
+    const nd = row.querySelector('div');
+    if (nd) {
+      const last = nd.querySelector('div:last-child');
+      if (last) last.innerHTML += ' <span style="font-size:0.55rem;color:'+(hist.streak_up?'#c41230':'#059669')+';">'+tag+'</span>';
+    }
+  }
 }
 
 function judgeBias(market) {
