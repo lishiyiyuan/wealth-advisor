@@ -873,22 +873,23 @@ async function fetchFundEstimates() {
   const codes = funds.map(f => String(f.product_id)).filter(c => c.length >= 6);
   
   function updateProgress(done) {
-    if (btn) btn.innerHTML = '<span class="spinner"></span> ' + done + '/' + Math.min(codes.length, 30);
+    if (btn) btn.innerHTML = '<span class="spinner"></span> ' + done + '/' + codes.length;
   }
   
-  // 只取前30只避免太慢
-  const limit = Math.min(codes.length, 30);
-  
-  for (let i = 0; i < limit; i++) {
+  for (let i = 0; i < codes.length; i++) {
     const code = codes[i];
     updateProgress(i + 1);
     
     // 获取实时估值 (JSONP)
     try {
       const data = await new Promise((resolve) => {
-        const timeout = setTimeout(() => resolve(null), 3000);
+        const timeout = setTimeout(() => resolve(null), 4000);
         const prev = window.jsonpgz;
-        window.jsonpgz = function(d) { clearTimeout(timeout); window.jsonpgz = prev; resolve(d); };
+        window.jsonpgz = function(d) { 
+          clearTimeout(timeout); 
+          window.jsonpgz = prev; 
+          try { resolve(d); } catch(e) { resolve(null); }
+        };
         const s = document.createElement('script');
         s.src = 'https://fundgz.1234567.com.cn/js/' + code + '.js?rt=' + Date.now();
         s.onerror = () => { clearTimeout(timeout); window.jsonpgz = prev; resolve(null); };
@@ -897,9 +898,16 @@ async function fetchFundEstimates() {
       });
       
       if (data && data.fundcode) {
-        updateRow(code, data);
+        try {
+          updateRow(code, data);
+        } catch(e2) {
+          // 单只基金更新失败不影响其他
+          console.warn('更新基金失败:', code, e2.message);
+        }
       }
-    } catch(e) {}
+    } catch(e) {
+      console.warn('基金JSONP失败:', codes[i], e.message);
+    }
     
     if (i > 0 && i % 10 === 0) await new Promise(r => setTimeout(r, 200));
   }
