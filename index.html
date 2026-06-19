@@ -604,31 +604,49 @@ function renderMarketTab() {
   const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0') + ':' + now.getSeconds().toString().padStart(2,'0');
   const isLive = !!live._ts;
   
-  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📊 实时行情<span style="font-size:0.65rem;color:'+(isLive?'#059669':'#6b7280')+';font-weight:400;">'+(isLive?'🟢 实时 '+timeStr:'📡 缓存数据')+'</span></div>';
+  html += '<div class="card"><div class="card-title">📊 实时行情<span style="font-size:0.65rem;color:'+(isLive?'#059669':'#6b7280')+';font-weight:400;margin-left:6px;">'+(isLive?'🟢 实时 '+timeStr:'📡 缓存')+'</span></div>';
   
-  // 股票软件风格紧凑行
-  function stockRow(label, price, chgVal, chgPct) {
+  // 小方块指标
+  function miniCard(label, price, chgVal, chgPct) {
     const isUp = chgPct > 0, isDown = chgPct < 0;
     const color = isUp ? '#c41230' : (isDown ? '#059669' : '#6b7280');
     const arrow = isUp ? '▲' : (isDown ? '▼' : '');
-    const chgStr = chgVal ? arrow+(chgVal>0?'+':'')+chgVal : '';
-    const pctStr = chgPct ? ((chgPct>0?'+':'')+chgPct.toFixed(2)+'%') : '';
-    const hasPrice = price!=='—';
-    return '<div style="display:flex;align-items:baseline;padding:5px 0;line-height:1.3;">' +
-      '<span style="font-size:0.78rem;font-weight:600;color:var(--dark);width:70px;flex-shrink:0;">'+label+'</span>' +
-      '<span style="font-size:0.82rem;font-weight:700;color:var(--dark);width:72px;text-align:right;flex-shrink:0;">'+price+'</span>' +
-      '<span style="font-size:0.78rem;font-weight:600;color:'+color+';width:78px;text-align:right;flex-shrink:0;">'+chgStr+'</span>' +
-      '<span style="font-size:0.82rem;font-weight:700;color:'+color+';text-align:right;flex-shrink:0;">'+pctStr+'</span>' +
+    const chgStr = (chgVal!=null&&chgVal!=='') ? (arrow+(chgVal>0?'+':'')+chgVal+(chgPct!=null?'  '+(chgPct>0?'+':'')+chgPct.toFixed(2)+'%':'')) : '';
+    const bg = isUp ? '#fef2f2' : (isDown ? '#ecfdf5' : '#f9fafb');
+    const hasPrice = price!=='—' && price!=='';
+    return '<div style="background:'+bg+';border-radius:8px;padding:8px 7px;text-align:center;border:1px solid '+(isUp?'#fecaca':isDown?'#d1fae5':'#e5e7eb')+';">' +
+      '<div style="font-size:0.65rem;color:var(--gray);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+label+'</div>' +
+      '<div style="font-size:0.95rem;font-weight:700;color:var(--dark);line-height:1.2;margin-bottom:2px;">'+(hasPrice?price:'—')+'</div>' +
+      '<div style="font-size:0.7rem;font-weight:600;color:'+color+';line-height:1.2;">'+(chgStr||'—')+'</div>' +
     '</div>';
   }
   
-  html += stockRow('上证指数', live.ss_price||'—', live.ss_chg_val||'', live.ss_chg_pct||null);
-  html += stockRow('深证成指', live.sz_price||'—', live.sz_chg_val||'', live.sz_chg_pct||null);
-  html += stockRow('创业板指', live.cy_price||'—', live.cy_chg_val||'', live.cy_chg_pct||null);
-  html += '<div style="border-bottom:1px dashed #e5e7eb;margin:4px 0;"></div>';
-  html += stockRow('黄金XAU', live.gold?('$'+live.gold):'—', live.gold_chg_val||'', live.gold_chg_pct||null);
-  html += stockRow('USD/CNY', live.fx||'—', live.fx_chg_val||'', live.fx_chg_pct||null);
-  html += stockRow('10年国债', (ap.bond||{}).cn_10y||'—', '', null);
+  // 指数网格 3列
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;">';
+  html += miniCard('上证指数', live.ss_price||'—', live.ss_chg_val, live.ss_chg_pct);
+  html += miniCard('深证成指', live.sz_price||'—', live.sz_chg_val, live.sz_chg_pct);
+  html += miniCard('创业板指', live.cy_price||'—', live.cy_chg_val, live.cy_chg_pct);
+  html += miniCard('科创50', live.kc_price||'—', live.kc_chg_val, live.kc_chg_pct);
+  html += miniCard('北证50', live.bj_price||'—', live.bj_chg_val, live.bj_chg_pct);
+  html += miniCard('黄金XAU', live.gold?('$'+live.gold):'—', live.gold_chg_val, live.gold_chg_pct);
+  html += miniCard('USD/CNY', live.fx||'—', live.fx_chg_val, live.fx_chg_pct);
+  html += miniCard('10年国债', (ap.bond||{}).cn_10y||'—', null, null);
+  html += '</div>';
+  
+  // 行业板块涨幅前六
+  const sectors = live.sectors || [];
+  if (sectors.length > 0) {
+    html += '<div style="margin-top:10px;font-size:0.75rem;font-weight:600;color:var(--dark);">📈 行业涨幅榜</div>';
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:6px;">';
+    for (const s of sectors) {
+      const sUp = (s.chg||0) >= 0, sColor = sUp ? '#c41230' : '#059669';
+      html += '<div style="background:'+(sUp?'#fef2f2':'#ecfdf5')+';border-radius:8px;padding:6px 7px;text-align:center;border:1px solid '+(sUp?'#fecaca':'#d1fae5')+';">' +
+        '<div style="font-size:0.62rem;color:var(--gray);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+s.name+'</div>' +
+        '<div style="font-size:0.78rem;font-weight:700;color:'+sColor+';">'+(sUp?'+':'')+(s.chg||0).toFixed(2)+'%</div>' +
+      '</div>';
+    }
+    html += '</div>';
+  }
   
   html += '</div>'; // end card
 
@@ -831,54 +849,39 @@ function judgeBias(market) {
 // ============================================================
 async function fetchLivePrices() {
   try {
-    // 东方财富：上证/深证/创业板 + 黄金 + 汇率
-    const idxUrl = (secid) => 'https://push2.eastmoney.com/api/qt/stock/get?secid='+secid+'&fields=f43,f44,f169,f170&_='+Date.now();
-    const [s1, s2, s3, g1, f1] = await Promise.allSettled([
-      fetch(idxUrl('1.000001'), {cache:'no-cache'}),   // 上证
-      fetch(idxUrl('0.399001'), {cache:'no-cache'}),   // 深证
-      fetch(idxUrl('0.399006'), {cache:'no-cache'}),   // 创业板
-      fetch('https://api.gold-api.com/price/XAU', {cache:'no-cache'}),
-      fetch('https://open.er-api.com/v6/latest/USD', {cache:'no-cache'}),
+    const idxUrl = (secid) => 'https://push2.eastmoney.com/api/qt/stock/get?secid='+secid+'&fields=f43,f169,f170&_='+Date.now();
+    const [s1,s2,s3,s4,s5,g1,f1,sec1] = await Promise.allSettled([
+      fetch(idxUrl('1.000001'),{cache:'no-cache'}),  // 上证
+      fetch(idxUrl('0.399001'),{cache:'no-cache'}),  // 深证
+      fetch(idxUrl('0.399006'),{cache:'no-cache'}),  // 创业板
+      fetch(idxUrl('1.000688'),{cache:'no-cache'}),  // 科创50
+      fetch(idxUrl('0.899050'),{cache:'no-cache'}),  // 北证50
+      fetch('https://api.gold-api.com/price/XAU',{cache:'no-cache'}),
+      fetch('https://open.er-api.com/v6/latest/USD',{cache:'no-cache'}),
+      // 行业板块涨幅前6
+      fetch('https://push2.eastmoney.com/api/qt/clist/get?pn=1&pz=6&po=1&np=1&fltt=2&invt=2&fid=f3&fs=m:90+t:2&fields=f12,f14,f3&_='+Date.now(),{cache:'no-cache'}),
     ]);
     const live = {};
-    const parseIdx = (r) => { if(r.status!=='fulfilled'||!r.value.ok) return null; return r.value.json().then(d=>d?.data||null).catch(()=>null); };
+    const parseIdx = async (r) => { if(r.status!=='fulfilled'||!r.value.ok) return null; try{const d=await r.value.json();return d?.data||null;}catch(e){return null;} };
     
-    const dSS = await parseIdx(s1);
-    if (dSS) { live.ss_price = Math.round(dSS.f43/100); live.ss_chg_val = Math.round(dSS.f169/100); live.ss_chg_pct = +(dSS.f170/100).toFixed(2); live._ts=Date.now(); }
+    const dSS=await parseIdx(s1); if(dSS){live.ss_price=Math.round(dSS.f43/100);live.ss_chg_val=Math.round(dSS.f169/100);live.ss_chg_pct=+(dSS.f170/100).toFixed(2);live._ts=Date.now();}
+    const dSZ=await parseIdx(s2); if(dSZ){live.sz_price=Math.round(dSZ.f43/100);live.sz_chg_val=Math.round(dSZ.f169/100);live.sz_chg_pct=+(dSZ.f170/100).toFixed(2);live._ts=Date.now();}
+    const dCY=await parseIdx(s3); if(dCY){live.cy_price=Math.round(dCY.f43/100);live.cy_chg_val=Math.round(dCY.f169/100);live.cy_chg_pct=+(dCY.f170/100).toFixed(2);live._ts=Date.now();}
+    const dKC=await parseIdx(s4); if(dKC){live.kc_price=Math.round(dKC.f43/100);live.kc_chg_val=Math.round(dKC.f169/100);live.kc_chg_pct=+(dKC.f170/100).toFixed(2);live._ts=Date.now();}
+    const dBJ=await parseIdx(s5); if(dBJ){live.bj_price=Math.round(dBJ.f43/100);live.bj_chg_val=Math.round(dBJ.f169/100);live.bj_chg_pct=+(dBJ.f170/100).toFixed(2);live._ts=Date.now();}
     
-    const dSZ = await parseIdx(s2);
-    if (dSZ) { live.sz_price = Math.round(dSZ.f43/100); live.sz_chg_val = Math.round(dSZ.f169/100); live.sz_chg_pct = +(dSZ.f170/100).toFixed(2); live._ts=Date.now(); }
+    if(g1.status==='fulfilled'&&g1.value.ok){try{const d=await g1.value.json();if(d?.price){const p=window._livePrices?.gold;live.gold=Math.round(d.price);if(p){live.gold_chg_val=live.gold-p;live.gold_chg_pct=+((live.gold-p)/p*100).toFixed(2);}live._ts=Date.now();}}catch(e){}}
+    if(f1.status==='fulfilled'&&f1.value.ok){try{const d=await f1.value.json();if(d?.rates?.CNY){const p=window._livePrices?.fx;live.fx=d.rates.CNY.toFixed(3);if(p){live.fx_chg_val=+(live.fx-p).toFixed(4);live.fx_chg_pct=+((live.fx-p)/p*100).toFixed(3);}live._ts=Date.now();}}catch(e){}}
     
-    const dCY = await parseIdx(s3);
-    if (dCY) { live.cy_price = Math.round(dCY.f43/100); live.cy_chg_val = Math.round(dCY.f169/100); live.cy_chg_pct = +(dCY.f170/100).toFixed(2); live._ts=Date.now(); }
+    if(sec1.status==='fulfilled'&&sec1.value.ok){try{const d=await sec1.value.json();if(d?.data?.diff){live.sectors=d.data.diff.map(x=>({name:x.f14||'',chg:+(x.f3||0)}));}}catch(e){}}
     
-    if (g1.status==='fulfilled' && g1.value.ok) {
-      const d = await g1.value.json();
-      if (d?.price) {
-        const prevGold = window._livePrices?.gold;
-        live.gold = Math.round(d.price);
-        if (prevGold) { live.gold_chg_val = live.gold - prevGold; live.gold_chg_pct = +((live.gold-prevGold)/prevGold*100).toFixed(2); }
-        live._ts=Date.now();
-      }
-    }
-    
-    if (f1.status==='fulfilled' && f1.value.ok) {
-      const d = await f1.value.json();
-      if (d?.rates?.CNY) {
-        const prevFx = window._livePrices?.fx;
-        live.fx = d.rates.CNY.toFixed(3);
-        if (prevFx) { live.fx_chg_val = +(live.fx - prevFx).toFixed(4); live.fx_chg_pct = +((live.fx-prevFx)/prevFx*100).toFixed(3); }
-        live._ts=Date.now();
-      }
-    }
-    
-    if (live.ss_price||live.gold||live.fx) {
-      window._livePrices = live;
-      console.log('[实时] 上证'+live.ss_price+' 深证'+live.sz_price+' 创业板'+live.cy_price+' 黄金'+live.gold+' 汇率'+live.fx);
+    if(live.ss_price||live.gold||live.fx){
+      window._livePrices=live;
+      console.log('[实时]',live.ss_price,live.sz_price,live.cy_price,live.kc_price,live.bj_price,live.gold,live.fx);
       const mc=document.getElementById('marketContent');
-      if (mc&&mc.dataset.rendered==='true') { mc.dataset.rendered=''; renderMarketTab(); }
+      if(mc&&mc.dataset.rendered==='true'){mc.dataset.rendered='';renderMarketTab();}
     }
-  } catch(e) { console.warn('[实时] 失败:', e.message); }
+  }catch(e){console.warn('[实时]',e.message);}
 }
 
 // 动态计算市场偏向（基于实时数据）
