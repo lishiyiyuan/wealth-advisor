@@ -2530,13 +2530,17 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
-  // 联网搜索：先搜再喂给AI
-  let searchCtx = '';
+  // 联网搜索：直接返回搜索结果
   if (_aiSearch) {
     try {
       btn.innerHTML='🔍';
       const sr = await webSearch(msg);
-      if (sr) searchCtx = '\n\n【联网搜索结果】\n'+sr;
+      if (sr) {
+        _aiHistory.push({role:'assistant',content:'🔍 搜索结果：\n\n'+sr+'\n---\n如需AI解读，请关闭🌐联网后重新提问。'});
+      } else {
+        _aiHistory.push({role:'assistant',content:'🔍 未找到相关结果'});
+      }
+      btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return;
     } catch(e) {}
   }
   
@@ -2579,7 +2583,6 @@ function buildAiContext() {
   const clients = loadClients();
   if (clients.length>0) { ctx += '【客户】'+clients.map(c=>c.name+'('+c.riskLevel+','+c.totalAssets+'万)').join(' ')+'\n'; }
   ctx += '【日期】'+new Date().toISOString().slice(0,10);
-  if (_aiSearch) ctx += '\n【联网搜索】已开启，可以使用实时信息回答。';
   return ctx;
 }
 
