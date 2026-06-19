@@ -2527,19 +2527,16 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
+  let searchCtx = '';
   if (_aiSearch) {
     btn.innerHTML='🔍';
-    try { const sr=await webSearch(msg);
-      _aiHistory.push({role:'assistant',content: sr||'未搜到结果。关闭🌐用AI对话。'});
-    } catch(e) { _aiHistory.push({role:'assistant',content:'搜索出错:'+e.message}); }
-    btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages();
-    setTimeout(()=>{const m=document.getElementById('aiMessages');if(m)m.scrollTop=99999;},50);
-    return;
+    try { const sr=await webSearch(msg); if(sr) searchCtx='\n\n'+sr+'\n请基于以上搜索结果用中文总结回答，简洁专业。'; } catch(e){}
+    if (!searchCtx) { _aiHistory.push({role:'assistant',content:'搜索无结果，已切换为AI对话模式。'}); btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages(); return; }
   }
   
   // AI对话模式
   try {
-    const sysMsg = buildAiContext();
+    const sysMsg = buildAiContext() + searchCtx;
     const resp = await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},
