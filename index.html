@@ -2509,14 +2509,33 @@ async function sendAiMsg() {
   const input = document.getElementById('aiInput'), btn = document.getElementById('aiSendBtn');
   const msg = input.value.trim(); if (!msg) return;
   input.value=''; btn.disabled=true; btn.innerHTML='...';
-  _aiHistory.push({role:'user',content:msg}); renderChatUI();
+  _aiHistory.push({role:'user',content:msg});
+  refreshAiMessages();
+  
   try {
-    const resp = await fetch('https://api.deepseek.com/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},body:JSON.stringify({model:'deepseek-chat',messages:[{role:'system',content:buildAiContext()},..._aiHistory],temperature:0.7,max_tokens:1500})});
-    if (!resp.ok) throw new Error('API '+resp.status);
+    const resp = await fetch('https://api.deepseek.com/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},
+      body:JSON.stringify({
+        model:'deepseek-chat',
+        messages:[{role:'system',content:buildAiContext()},..._aiHistory],
+        temperature:0.7,max_tokens:1500
+      })
+    });
+    if (!resp.ok) throw new Error('HTTP '+resp.status+' '+resp.statusText);
     const data = await resp.json();
     _aiHistory.push({role:'assistant',content:data.choices[0].message.content});
-  } catch(e) { _aiHistory.push({role:'assistant',content:'⚠️ '+e.message}); }
-  btn.disabled=false; btn.innerHTML='发送'; renderChatUi();
+  } catch(e) {
+    _aiHistory.push({role:'assistant',content:'⚠️ 请求失败: '+e.message+'\n可能是网络问题或API Key无效'});
+  }
+  
+  btn.disabled=false; btn.innerHTML='发送';
+  refreshAiMessages();
+}
+
+function refreshAiMessages() {
+  const container = document.getElementById('aiContent');
+  container.innerHTML = '<div style="font-weight:700;margin-bottom:12px;">🤖 AI 助手</div>' + renderChatUI();
   setTimeout(()=>{const m=document.getElementById('aiMessages');if(m)m.scrollTop=99999;},100);
 }
 
