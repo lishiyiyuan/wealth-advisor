@@ -2527,18 +2527,19 @@ async function sendAiMsg() {
   _aiHistory.push({role:'user',content:msg});
   refreshAiMessages();
   
-  // 联网搜索：搜索结果喂给DeepSeek智能回答
-  let searchCtx = '';
   if (_aiSearch) {
-    try {
-      btn.innerHTML='🔍';
-      const sr = await webSearch(msg);
-      if (sr) searchCtx = '\n\n'+sr+'\n请基于以上搜索结果回答问题。';
-    } catch(e) {}
+    btn.innerHTML='🔍';
+    try { const sr=await webSearch(msg);
+      _aiHistory.push({role:'assistant',content: sr||'未搜到结果。关闭🌐用AI对话。'});
+    } catch(e) { _aiHistory.push({role:'assistant',content:'搜索出错:'+e.message}); }
+    btn.disabled=false; btn.innerHTML='发送'; refreshAiMessages();
+    setTimeout(()=>{const m=document.getElementById('aiMessages');if(m)m.scrollTop=99999;},50);
+    return;
   }
   
+  // AI对话模式
   try {
-    const sysMsg = buildAiContext() + searchCtx;
+    const sysMsg = buildAiContext();
     const resp = await fetch('https://api.deepseek.com/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+getAiKey()},
