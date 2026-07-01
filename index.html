@@ -757,6 +757,42 @@ function renderMarketTab() {
   
   html += '</div>'; // end card
 
+  // ===== 市场→基金联动推荐 =====
+  const allFunds = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p => p.product_category === '基金');
+  if (allFunds.length > 0) {
+    const fHist = window._fundHistory || {};
+    const equityBias = (dynBias.equity || bias.equity || '').includes('偏多');
+    const bondBias = (dynBias.bond || bias.bond || '').includes('偏多');
+    const hotNames = hotspots.map(h => h.sector);
+    
+    let recFunds = [];
+    for (const f of allFunds) {
+      const sc = (f.sub_category||'') + (f.tags||'');
+      let score = 0;
+      if (equityBias && sc.includes('主动权益')) score += 10;
+      if (bondBias && sc.includes('债基')) score += 10;
+      for (const h of hotNames) {
+        if (sc.includes(h)) score += 5;
+      }
+      if (score > 0) recFunds.push({...f, _score: score});
+    }
+    recFunds.sort((a,b) => b._score - a._score);
+    
+    if (recFunds.length > 0) {
+      html += '<div class="card"><div class="card-title">🎯 '+(equityBias?'权益偏多 ':'')+(bondBias?'债券偏多 ':'')+'推荐关注基金 ('+recFunds.length+'只)<span style="font-size:0.65rem;color:var(--gray);font-weight:400;margin-left:6px;">市场联动</span></div>';
+      for (const f of recFunds.slice(0, 5)) {
+        const perf = fHist[f.product_id] || {};
+        const m1 = perf.one_month;
+        const cl = m1>0?'#c41230':m1<0?'#059669':'var(--gray)';
+        html += '<div onclick="switchTab(\'fund\')" style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:0.78rem;">';
+        html += '<div style="flex:1;"><span style="font-weight:500;">'+(f.product_name||'').slice(0,22)+'</span><span style="font-size:0.65rem;color:var(--gray);margin-left:4px;">'+(f.sub_category||'').slice(0,8)+'</span></div>';
+        html += '<span style="color:'+cl+';font-weight:600;">'+(m1!=null?(m1>=0?'+':'')+m1+'%':'—')+'</span>';
+        html += '</div>';
+      }
+      html += '</div>';
+    }
+  }
+
   // ===== 每日展望 =====
   const outlook = (window._dailyOutlook) || {};
   if (Object.keys(outlook).length > 0) {
