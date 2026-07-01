@@ -926,6 +926,20 @@ function anyKw(text, keywords) {
 // ============================================================
 let _compareMode = false, _compareList = [];
 
+
+function switchFundFilter(el) {
+  document.querySelectorAll('span.fund-filter').forEach(function(e) { e.classList.remove('active'); });
+  el.classList.add('active');
+  renderFundTab();
+}
+
+function switchFundSort(el) {
+  document.querySelectorAll('span.fund-sort').forEach(function(e) { e.classList.remove('active'); });
+  el.classList.add('active');
+  var sort = el.dataset.sort || '';
+  renderFundTab(sort);
+}
+
 async function renderFundTab(sortKey) {
   const container = document.getElementById('fundContent');
   if (!container) return;
@@ -977,7 +991,7 @@ async function renderFundTab(sortKey) {
   html += '<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;">';
   const filters = ['全部','债券型','混合型','指数型','主动权益'];
   for (const fl of filters) {
-    html += '<span class="fund-filter'+(fl===activeFilter?' active':'')+'" data-filter="'+fl+'" onclick="document.querySelectorAll('.fund-filter').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderFundTab();" style="font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;'+(fl===activeFilter?'background:var(--red);color:#fff;':'background:#f3f4f6;color:var(--gray);')+'">'+fl+'</span>';
+    html += '<span class="fund-filter'+(fl===activeFilter?' active':'')+'" data-filter="'+fl+'" onclick="switchFundFilter(this)" style="font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;'+(fl===activeFilter?'background:var(--red);color:#fff;':'background:#f3f4f6;color:var(--gray);')+'">'+fl+'</span>';
   }
   html += '</div>';
   
@@ -986,7 +1000,7 @@ async function renderFundTab(sortKey) {
   html += '<input id="fundSearch" oninput="renderFundTab()" placeholder="🔍 搜索基金..." style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;">';
   const sorts = [['','默认'],['1m','涨跌幅↓'],['risk','风险低→高']];
   for (const [k,v] of sorts) {
-    html += '<span class="fund-sort'+(sort===k||(!sort&&!k)?' active':'')+'" data-sort="'+k+'" onclick="document.querySelectorAll('.fund-sort').forEach(e=>e.classList.remove('active'));this.classList.add('active');renderFundTab(''+k+'');" style="font-size:0.7rem;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;white-space:nowrap;'+(sort===k||(!sort&&!k)?'background:var(--dark);color:#fff;':'background:#fff;')+'">'+v+'</span>';
+    html += '<span class="fund-sort'+(sort===k||(!sort&&!k)?' active':'')+'" data-sort="'+k+'" onclick="switchFundSort(this)" style="font-size:0.7rem;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;white-space:nowrap;'+(sort===k||(!sort&&!k)?'background:var(--dark);color:#fff;':'background:#fff;')+'">'+v+'</span>';
   }
   html += '</div>';
   
