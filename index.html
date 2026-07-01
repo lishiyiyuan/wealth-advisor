@@ -957,6 +957,74 @@ function anyKw(text, keywords) {
   return keywords.some(w => text.includes(w));
 }
 
+function loadMyFunds() { try { return JSON.parse(localStorage.getItem('wf_myfunds')||'[]'); } catch(e) { return []; } }
+function saveMyFunds(data) { localStorage.setItem('wf_myfunds', JSON.stringify(data)); }
+
+function addMyFund(fund) {
+  const my = loadMyFunds();
+  if (my.find(f => f.product_id === fund.product_id)) { toast('已在自选列表中'); return; }
+  if (my.length >= 50) { toast('自选最多50只'); return; }
+  my.push(fund);
+  saveMyFunds(my);
+  toast('已添加：'+fund.product_name);
+  renderFundTab();
+}
+
+function removeMyFund(code) {
+  let my = loadMyFunds();
+  my = my.filter(f => f.product_id !== code);
+  saveMyFunds(my);
+  renderFundTab();
+}
+
+function clearMyFunds() { saveMyFunds([]); renderFundTab(); }
+
+async function searchAllFunds() {
+  const kw = (document.getElementById('fundSearch')?.value||'').trim();
+  if (!kw) { toast('请输入基金名称或代码'); return; }
+  
+  const resultsDiv = document.getElementById('fundSearchResults');
+  resultsDiv.innerHTML = '<div style="font-size:0.7rem;color:var(--gray);padding:8px;text-align:center;">🔍 搜索中...</div>';
+  
+  try {
+    const resp = await fetch('https://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key='+encodeURIComponent(kw)+'&_='+Date.now());
+    const text = await resp.text();
+    // Parse JSONP: jQuery1234567890(...)
+    const json = text.replace(/^[^(]*\(/, '').replace(/\)$/, '');
+    const data = JSON.parse(json);
+    const datas = data.Datas || [];
+    
+    if (!datas.length) {
+      resultsDiv.innerHTML = '<div style="font-size:0.7rem;color:var(--gray);padding:8px;text-align:center;">未找到匹配基金</div>';
+      return;
+    }
+    
+    let html = '<div style="background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:8px;margin-bottom:8px;max-height:250px;overflow-y:auto;">';
+    html += '<div style="font-weight:600;font-size:0.75rem;margin-bottom:4px;">🔍 全网搜索结果 ('+datas.length+'条) <span onclick="document.getElementById(\'fundSearchResults\').innerHTML=\'\'" style="color:var(--red);cursor:pointer;float:right;">✕</span></div>';
+    
+    for (const f of datas.slice(0, 15)) {
+      const code = f.CODE || f.code || '';
+      const name = (f.NAME || f.name || '').replace(/<[^>]+>/g, '');
+      const type = f.FundType || f.TYPE || '';
+      const myFunds = loadMyFunds();
+      const isAdded = myFunds.some(mf => mf.product_id === code);
+      
+      html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid #f0f0f0;">';
+      html += '<div style="flex:1;min-width:0;"><span style="font-weight:500;font-size:0.78rem;">'+name+'</span><span style="font-size:0.65rem;color:var(--gray);margin-left:6px;">'+code+' · '+type+'</span></div>';
+      if (isAdded) {
+        html += '<button onclick="removeMyFund(\''+code+'\')" style="font-size:0.65rem;padding:2px 8px;border:1px solid #fecaca;border-radius:4px;background:#fef2f2;color:#c41230;cursor:pointer;">取消</button>';
+      } else {
+        html += '<button onclick="addMyFund({product_id:\''+code+'\',product_name:\''+name.replace(/'/g,'\\\\\'')+'\',product_category:\'基金\',sub_category:\''+type+'\',risk_level:\'PR3\',issuer:\'自选\',min_investment:1})" style="font-size:0.65rem;padding:2px 8px;border:1px solid var(--red);border-radius:4px;background:#fef2f2;color:var(--red);cursor:pointer;">+ 加自选</button>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    resultsDiv.innerHTML = html;
+  } catch(e) {
+    resultsDiv.innerHTML = '<div style="font-size:0.7rem;color:#c41230;padding:8px;">搜索失败: '+e.message+'</div>';
+  }
+}
+
 // ============================================================
 // 基金估值Tab（JSONP方案，顺序加载）
 // ============================================================
@@ -1032,13 +1100,26 @@ async function renderFundTab(sortKey) {
   html += '</div>';
   
   // 排序 + 搜索
-  html += '<div style="display:flex;gap:6px;margin-bottom:8px;">';
-  html += '<input id="fundSearch" oninput="renderFundTab()" placeholder="🔍 搜索基金..." style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;">';
+  html += '<div style="display:flex;gap:6px;margin-bottom:6px;">';
+  html += '<input id="fundSearch" oninput="renderFundTab()" placeholder="🔍 搜索基金（名称或代码）" style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;">';
+  html += '<button onclick="searchAllFunds()" id="btnFundSearch" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;white-space:nowrap;">🔍 全网搜索</button>';
   const sorts = [['','默认'],['1m','涨跌幅↓'],['risk','风险低→高']];
   for (const [k,v] of sorts) {
     html += '<span class="fund-sort'+(sort===k||(!sort&&!k)?' active':'')+'" data-sort="'+k+'" onclick="switchFundSort(this)" style="font-size:0.7rem;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;white-space:nowrap;'+(sort===k||(!sort&&!k)?'background:var(--dark);color:#fff;':'background:#fff;')+'">'+v+'</span>';
   }
   html += '</div>';
+  
+  // 全网搜索结果展示区
+  html += '<div id="fundSearchResults"></div>';
+  
+  // 自选基金区
+  const myFunds = loadMyFunds();
+  if (myFunds.length > 0) {
+    html += '<div style="margin-bottom:8px;font-size:0.7rem;color:var(--gray);">⭐ 我的自选 ('+myFunds.length+'只) · <span onclick="clearMyFunds()" style="color:var(--red);cursor:pointer;">清空</span></div>';
+    // 合并自选基金到列表头部
+    const extraFunds = myFunds.filter(mf => !funds.some(f => f.product_id === mf.product_id));
+    funds = [...extraFunds, ...funds];
+  }
   
   // 对比表
   if (_compareMode && _compareList.length > 1) {
@@ -1075,7 +1156,7 @@ async function renderFundTab(sortKey) {
     html += '<div class="fund-card" data-code="'+code+'" style="background:'+(isSel?'#fef3c7':'#fff')+';border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isSel?'#f59e0b':'#e5e7eb')+';cursor:'+(_compareMode?'pointer':'default')+';" onclick="'+(_compareMode?'toggleCompareFund(\''+code+'\')':'showFundDetail(\''+code+'\')')+'">';
     html += '<div style="display:flex;align-items:center;margin-bottom:4px;">';
     html += '<div style="flex:1;">';
-    html += '<div style="font-size:0.82rem;font-weight:600;">'+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:#6b7280;padding:1px 5px;border-radius:3px;">'+tag+'</span></div>';
+    html += '<div style="font-size:0.82rem;font-weight:600;">'+(f.issuer==='自选'?'⭐ ':'')+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:var(--red);padding:1px 5px;border-radius:3px;">'+(f.issuer==='自选'?'自选':tag)+'</span></div>';
     html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(f.risk_level||'')+' · '+(f.issuer||'').slice(0,8)+'</div>';
     html += '</div>';
     html += '<span class="fund-gz" style="font-size:0.85rem;font-weight:700;color:var(--gray);min-width:55px;text-align:right;">—</span>';
