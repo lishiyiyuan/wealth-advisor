@@ -275,6 +275,7 @@ input:focus, select:focus { border-color: var(--red); }
       <div>
         <button class="btn btn-outline" onclick="switchTab('input')" style="font-size:0.8rem;padding:6px 14px;">← 返回修改</button>
         <button class="btn btn-outline" onclick="viewReport()" style="font-size:0.8rem;padding:6px 14px;">📝 查看报告</button>
+        <button class="btn btn-outline" onclick="generateAiReport()" id="btnAiReport" style="font-size:0.8rem;padding:6px 14px;color:var(--red);border-color:var(--red);">🤖 AI报告</button>
         <button class="btn btn-primary" onclick="exportPPT()" id="btnExportPPT" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
         <button class="btn btn-outline" onclick="showClientSummary()" style="font-size:0.8rem;padding:6px 14px;color:#059669;border-color:#059669;">📱 客户摘要</button>
       </div>
@@ -2552,6 +2553,61 @@ function runMatch() {
   }, 50);
 }
 
+async function generateAiReport() {
+  if (!lastResult || !lastProfile) { toast('请先完成产品匹配'); return; }
+  const btn = document.getElementById('btnAiReport');
+  if (btn) { btn.disabled = true; btn.textContent = '🤖 生成中...'; }
+  
+  // 构建上下文
+  const profile = lastProfile;
+  const result = lastResult;
+  const market = MARKET || {};
+  const ap = (market.asset_prices) || {};
+  
+  let prompt = '你是专业理财顾问，请基于以下信息生成一份客户资产配置方案。要求：语言专业但亲切，有投资逻辑，有市场背景，有配置理由，2000字以内。\n\n';
+  prompt += '【客户画像】\n';
+  prompt += '风险等级：'+profile.riskLevel+' | 可投资产：'+(profile.assets||'')+'万 | 期限：'+(profile.horizon||'')+' | 流动性：'+(profile.liquidity||'')+'\n';
+  prompt += '私银客户：'+(profile.isPrivate?'是':'否')+'\n\n';
+  
+  prompt += '【市场环境】\n';
+  const ss = ap.a_share || {};
+  prompt += '上证：'+(ss.level||'—')+' | 黄金：'+(ap.gold||{}).level+' | 汇率：'+(ap.fx||{}).level+' | 10年国债：'+(ap.bond||{}).cn_10y+'\n';
+  const sr = market.sector_rotation || {};
+  prompt += '热点板块：'+(sr.current_hotspots||[]).map(h=>h.sector).join('、')+'\n\n';
+  
+  prompt += '【推荐产品】\n';
+  for (const [cat, prods] of Object.entries(result.by_category || {})) {
+    prompt += cat + '：';
+    for (const p of prods.slice(0,3)) {
+      prompt += (p.product_name||'')+'('+(p.risk_level||'PR3')+') ';
+    }
+    prompt += '\n';
+  }
+  
+  prompt += '\n请输出格式：\n## 一、市场背景\n## 二、配置逻辑\n## 三、产品推荐\n## 四、预期表现与风险\n## 五、下一步建议';
+  
+  try {
+    const aiKey = getAiKey();
+    if (!aiKey) { toast('请先在AI助手设置DeepSeek Key'); if(btn){btn.disabled=false;btn.textContent='🤖 AI报告';} return; }
+    
+    const resp = await fetch('https://api.deepseek.com/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+aiKey},
+      body:JSON.stringify({model:'deepseek-chat',messages:[{role:'user',content:prompt}],temperature:0.7,max_tokens:2000})
+    });
+    if (!resp.ok) throw new Error('HTTP '+resp.status);
+    const data = await resp.json();
+    const aiReport = data.choices[0].message.content;
+    
+    document.getElementById('reportArea').innerHTML = renderMarkdown(aiReport);
+    switchTab('report');
+    toast('AI报告已生成');
+  } catch(e) {
+    toast('AI报告生成失败: '+e.message);
+  }
+  if (btn) { btn.disabled = false; btn.textContent = '🤖 AI报告'; }
+}
+
 function viewReport() {
   if (!lastResult || !lastProfile) { toast('请先完成产品匹配'); return; }
   try {
@@ -2680,10 +2736,33 @@ function renderDashboard() {
   const clients = loadClients();
   const totalPnl = clients.reduce((s,c)=>s+(c.holdings||[]).reduce((ss,h)=>ss+(h.pnl||0),0),0);
   
+  // 智能预警
+  const alerts = [];
+  const alertCfg = loadAlertConfig();
+  const now = new Date();
+  for (const c of clients) {
+    for (const h of (c.holdings||[])) {
+      // 持有天数预警
+      if (h.buyDate && alertCfg.holding_days > 0) {
+        const buy = new Date(h.buyDate);
+        const days = Math.floor((now-buy)/86400000);
+        if (days >= alertCfg.holding_days) alerts.push({icon:'📆',text:c.name+' '+(h.fundName||h.fundCode)+' 已持'+days+'天',type:'info'});
+      }
+      // 亏损预警
+      if (h.pnl < -Math.abs(alertCfg.loss_threshold)) alerts.push({icon:'⚠',text:c.name+' '+(h.fundName||h.fundCode)+' 亏损'+(h.pnl||0).toFixed(0)+'元',type:'warn'});
+      // 净值连续下跌
+      if (h._downDays >= (alertCfg.down_days||3)) alerts.push({icon:'📉',text:c.name+' '+(h.fundName||h.fundCode)+' 连跌'+h._downDays+'天',type:'warn'});
+    }
+    // 到期提醒
+    const totalHold = (c.holdings||[]).reduce((s,h)=>s+(h.buyAmount||0),0);
+    if (totalHold >= alertCfg.big_client_threshold) alerts.push({icon:'💎',text:c.name+' 大客户 '+totalHold.toFixed(0)+'元持仓',type:'info'});
+  }
+  if (alerts.length > 10) alerts.length = 10;
+  
   let html = '';
   // 市场快照
   html += '<div style="background:linear-gradient(135deg,#1a1a2e,#16213e);color:#fff;border-radius:12px;padding:14px;margin-bottom:12px;">';
-  html += '<div style="font-size:0.75rem;opacity:0.7;">'+new Date().toLocaleDateString('zh-CN',{weekday:'long',month:'long',day:'numeric'})+'</div>';
+  html += '<div style="font-size:0.75rem;opacity:0.7;">'+now.toLocaleDateString('zh-CN',{weekday:'long',month:'long',day:'numeric'})+'</div>';
   html += '<div style="display:flex;gap:12px;font-size:0.78rem;margin-top:4px;flex-wrap:wrap;">';
   html += '<span>上证<b> '+(ss.level||'—')+'</b> <span style="color:#c41230;font-size:0.65rem;">'+(ss.change||'')+'</span></span>';
   html += '<span>黄金<b> '+(g.level||'—')+'</b></span><span>汇率<b> '+(fx.level||'—')+'</b></span><span>10年国债<b> '+(bond.cn_10y||'—')+'</b></span>';
@@ -2695,16 +2774,26 @@ function renderDashboard() {
   html += '<div style="background:#fef2f2;border-radius:10px;padding:10px;text-align:center;"><div style="font-size:0.65rem;color:var(--gray);">持仓盈亏</div><div style="font-size:1.3rem;font-weight:700;color:'+(totalPnl>=0?'#c41230':'#059669')+';">'+(totalPnl>=0?'+':'')+totalPnl.toFixed(0)+'</div></div>';
   html += '</div>';
   
+  // 预警区
+  if (alerts.length > 0) {
+    html += '<div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:10px;margin-bottom:10px;">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-weight:600;font-size:0.8rem;">⚠ 提醒 ('+alerts.length+'条)</span><span onclick="showAlertConfig()" style="font-size:0.65rem;color:var(--red);cursor:pointer;">⚙ 阈值设置</span></div>';
+    for (const a of alerts.slice(0,5)) {
+      html += '<div style="font-size:0.7rem;padding:3px 0;border-bottom:1px solid #fef3c7;"><span style="margin-right:4px;">'+a.icon+'</span>'+a.text+'</div>';
+    }
+    html += '</div>';
+  }
+  
   // 功能卡片
   const cards = [
     {icon:'📰',title:'实时资讯',desc:'最新财经新闻',tab:'news'},
     {icon:'📡',title:'市场行情',desc:'指数/黄金/汇率',tab:'market'},
-    {icon:'📈',title:'基金估值',desc:'45只+对比器',tab:'fund'},
+    {icon:'📈',title:'基金估值',desc:'全网搜索+自选',tab:'fund'},
     {icon:'👥',title:'客户管理',desc:'档案+持仓',tab:'clients'},
     {icon:'🤖',title:'AI助手',desc:'DeepSeek+联网',tab:'ai'},
     {icon:'📋',title:'客户画像',desc:'分析→匹配',tab:'input'},
     {icon:'📊',title:'推荐结果',desc:'产品匹配',tab:'result'},
-    {icon:'📝',title:'配置报告',desc:'方案+导出',tab:'report'},
+    {icon:'📝',title:'配置报告',desc:'AI生成方案',tab:'report'},
   ];
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
   for (const c of cards) {
@@ -2716,6 +2805,31 @@ function renderDashboard() {
   html += '</div>';
   
   container.innerHTML = html;
+}
+
+function loadAlertConfig() {
+  try { return JSON.parse(localStorage.getItem('wf_alerts')||'{"loss_threshold":500,"holding_days":180,"down_days":3,"big_client_threshold":100000}'); }
+  catch(e) { return {loss_threshold:500,holding_days:180,down_days:3,big_client_threshold:100000}; }
+}
+
+function saveAlertConfig(cfg) { localStorage.setItem('wf_alerts', JSON.stringify(cfg)); }
+
+function showAlertConfig() {
+  const cfg = loadAlertConfig();
+  let d = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;justify-content:center;align-items:flex-end;">';
+  d += '<div style="background:#fff;border-radius:16px 16px 0 0;width:100%;max-width:500px;max-height:85vh;overflow-y:auto;padding:20px;">';
+  d += '<div style="font-weight:700;font-size:1.1rem;margin-bottom:12px;">⚙ 预警阈值设置</div>';
+  d += '<div style="display:grid;gap:10px;">';
+  d += '<div><label style="font-size:0.75rem;color:var(--gray);">亏损提醒（元）</label><input id="cfgLoss" type="number" value="'+cfg.loss_threshold+'" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></div>';
+  d += '<div><label style="font-size:0.75rem;color:var(--gray);">持有天数提醒</label><input id="cfgDays" type="number" value="'+cfg.holding_days+'" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></div>';
+  d += '<div><label style="font-size:0.75rem;color:var(--gray);">连跌天数提醒</label><input id="cfgDown" type="number" value="'+cfg.down_days+'" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></div>';
+  d += '<div><label style="font-size:0.75rem;color:var(--gray);">大客户阈值（元）</label><input id="cfgBig" type="number" value="'+cfg.big_client_threshold+'" style="width:100%;padding:8px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.85rem;"></div>';
+  d += '</div>';
+  d += '<div style="display:flex;gap:8px;margin-top:12px;">';
+  d += '<button onclick="closeModal()" style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.85rem;cursor:pointer;">取消</button>';
+  d += '<button onclick="var c={loss_threshold:parseInt(document.getElementById(\'cfgLoss\').value)||500,holding_days:parseInt(document.getElementById(\'cfgDays\').value)||180,down_days:parseInt(document.getElementById(\'cfgDown\').value)||3,big_client_threshold:parseInt(document.getElementById(\'cfgBig\').value)||100000};saveAlertConfig(c);closeModal();renderDashboard();toast(\'预警设置已保存\')" style="flex:1;padding:10px;border:none;border-radius:8px;background:var(--red);color:#fff;font-size:0.85rem;cursor:pointer;">保存</button>';
+  d += '</div></div></div>';
+  document.getElementById('modalHost').innerHTML = d;
 }
 
 function loadClients() { try { return JSON.parse(localStorage.getItem('wm_clients')||'[]'); } catch(e) { return []; } }
