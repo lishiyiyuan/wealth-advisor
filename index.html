@@ -1098,34 +1098,6 @@ async function renderFundTab(sortKey) {
   }
   
   // 基金卡片列表（竖排，每只基金独立）
-  for (const f of funds) {
-    const code = f.product_id || '';
-    const industry = f.sub_category || f.issuer || '';
-    const isSel = _compareList.includes(code);
-    html += '<div class="fund-card" data-code="'+code+'" style="background:'+(isSel?'#fef3c7':'#fff')+';border-radius:8px;padding:10px 12px;margin-bottom:8px;border:1px solid '+(isSel?'#f59e0b':'#e5e7eb')+';cursor:'+(_compareMode?'pointer':'default')+';" onclick="'+(_compareMode?'toggleCompareFund(\''+code+'\')':'')+'">';
-    // 第一行：名称 + 估值 + 涨跌
-    html += '<div style="display:flex;align-items:center;margin-bottom:6px;">';
-    html += '<div style="flex:1;min-width:0;">';
-    html += '<div style="font-size:0.85rem;font-weight:600;color:var(--dark);">'+(f.product_name||'')+'</div>';
-    html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(industry.slice(0,10))+'</div>';
-    html += '</div>';
-    html += '<span class="fund-gz" style="font-size:0.9rem;font-weight:700;color:var(--gray);text-align:right;min-width:60px;">点击获取</span>';
-    html += '<span class="fund-chg" style="font-size:0.8rem;font-weight:600;min-width:60px;text-align:right;color:var(--gray);">—</span>';
-    html += '</div>';
-    // 第二行：净值+更新+历史业绩（可左右滑动）
-    html += '<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">';
-    html += '<div style="display:flex;gap:10px;font-size:0.7rem;min-width:340px;">';
-    html += '<span class="fund-nav" style="color:var(--gray);white-space:nowrap;">净值 —</span>';
-    html += '<span class="fund-1m" style="color:var(--gray);white-space:nowrap;">近1月 —</span>';
-    html += '<span class="fund-3m" style="color:var(--gray);white-space:nowrap;">近3月 —</span>';
-    html += '<span class="fund-6m" style="color:var(--gray);white-space:nowrap;">近半年 —</span>';
-    html += '<span class="fund-1y" style="color:var(--gray);white-space:nowrap;">近1年 —</span>';
-    html += '</div></div>';
-    html += '</div>';
-  }
-  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
-  container.innerHTML = html;
-
 function toggleCompare() {
   _compareMode = !_compareMode; _compareList = [];
   const btn = document.getElementById('btnCompare');
