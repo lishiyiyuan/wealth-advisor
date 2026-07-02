@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1031</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1130</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -201,7 +201,7 @@ input:focus, select:focus { border-color: var(--red); }
     <div class="tab active" onclick="switchTab('dashboard')">📊 仪表盘</div>
     <div class="tab" onclick="switchTab('news')">📡 基金监控</div>
     <div class="tab" onclick="switchTab('market')">📡 市场</div>
-    <div class="tab" onclick="switchTab('fund')">📈 基金估值</div>
+    <div class="tab" onclick="switchTab('fund')">⭐ 自选</div>
     <div class="tab" onclick="switchTab('clients')">👥 客户管理</div>
     <div class="tab" onclick="switchTab('ai')">🤖 AI助手</div>
     <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
@@ -312,7 +312,7 @@ input:focus, select:focus { border-color: var(--red); }
     <div id="aiContent"></div>
   </div>
 
-  <!-- Tab: 基金估值 -->
+  <!-- Tab: 自选 -->
   <div id="tab-fund" style="display:none;">
     <div id="fundContent"></div>
   </div>
@@ -339,7 +339,7 @@ input:focus, select:focus { border-color: var(--red); }
     <span class="nav-icon">📝</span>报告
   </div>
   <div class="mobile-nav-item" onclick="switchTab('fund')" data-tab="fund">
-    <span class="nav-icon">📈</span>估值
+    <span class="nav-icon">⭐</span>自选
   </div>
   <div class="mobile-nav-item" onclick="switchTab('clients')" data-tab="clients">
     <span class="nav-icon">👥</span>客户
@@ -514,6 +514,7 @@ setInterval(async function() {
 
 // 页面加载后自动渲染首页（资讯Tab）
 document.addEventListener('DOMContentLoaded', function() {
+  initDefaultMyFunds();
   setTimeout(function() { renderDashboard(); }, 300);
 });
 
@@ -766,7 +767,7 @@ function renderMarketTab() {
   html += '</div>'; // end card
 
   // ===== 市场→基金联动推荐 =====
-  const allFunds = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p => p.product_category === '基金');
+  const allFunds = loadMyFunds();
   if (allFunds.length > 0) {
     const fHist = window._fundHistory || {};
     const equityBias = (dynBias.equity || bias.equity || '').includes('偏多');
@@ -936,14 +937,10 @@ async function renderFundMonitor() {
   if (!container) return;
   
   const myFunds = loadMyFunds();
-  const preloaded = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p => p.product_category === '基金');
   const funds = [...myFunds];
-  for (const f of preloaded) {
-    if (!funds.some(mf => mf.product_id === f.product_id)) funds.push(f);
-  }
   
   if (!funds.length) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">去基金估值Tab添加自选</span></p>';
+    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">去自选Tab搜索添加基金</span></p>';
     return;
   }
 
@@ -1126,6 +1123,25 @@ function anyKw(text, keywords) {
 function loadMyFunds() { try { return JSON.parse(localStorage.getItem('wf_myfunds')||'[]'); } catch(e) { return []; } }
 function saveMyFunds(data) { localStorage.setItem('wf_myfunds', JSON.stringify(data)); }
 
+// 首次使用时，将 PRODUCTS 中的 45 只基金预填到自选列表
+function initDefaultMyFunds() {
+  if (localStorage.getItem('wf_myfunds_inited')) return;
+  const existing = loadMyFunds();
+  if (existing.length > 0) { localStorage.setItem('wf_myfunds_inited', '1'); return; }
+  const prods = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
+  const defaultFunds = prods.filter(p => p.product_category === '基金');
+  if (defaultFunds.length > 0) {
+    saveMyFunds(defaultFunds.map(f => ({
+      product_id: f.product_id, product_name: f.product_name,
+      product_category: '基金', sub_category: f.sub_category || '',
+      risk_level: f.risk_level || 'PR3', issuer: f.issuer || '',
+      min_investment: f.min_investment || 1,
+      expected_return_low: f.expected_return_low, expected_return_high: f.expected_return_high
+    })));
+    localStorage.setItem('wf_myfunds_inited', '1');
+  }
+}
+
 function addMyFund(fund) {
   const my = loadMyFunds();
   if (my.find(f => f.product_id === fund.product_id)) { toast('已在自选列表中'); return; }
@@ -1143,7 +1159,12 @@ function removeMyFund(code) {
   renderFundTab();
 }
 
-function clearMyFunds() { saveMyFunds([]); renderFundTab(); }
+function clearMyFunds() {
+  localStorage.removeItem('wf_myfunds_inited');
+  saveMyFunds([]);
+  initDefaultMyFunds();
+  renderFundTab();
+}
 
 function searchAllFunds() {
   const kw = (document.getElementById('fundSearch')?.value||'').trim();
@@ -1209,7 +1230,7 @@ function searchAllFunds() {
 }
 
 // ============================================================
-// 基金估值Tab（JSONP方案，顺序加载）
+// 自选Tab（JSONP方案，顺序加载）
 // ============================================================
 let _compareMode = false, _compareList = [];
 
@@ -1237,15 +1258,13 @@ async function renderFundTab(sortKey) {
   const activeFilter = (document.querySelector('.fund-filter.active')?.dataset?.filter) || '全部';
   const sort = _fundSortKey || (document.querySelector('.fund-sort.active')?.dataset?.sort) || '';
   const myFunds = loadMyFunds();
-  const allProds = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
-  const prodFunds = allProds.filter(p => p.product_category === '基金');
-  const allFunds = [...myFunds.filter(mf => !prodFunds.some(f => f.product_id === mf.product_id)), ...prodFunds];
+  const allFunds = myFunds;
   const savedKw = (document.getElementById('fundSearch')?.value || '');
 
   // ---------- 静态头部 ----------
   let html = '<div id="fundHeader">';
   html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-  html += '<div style="font-weight:700;">📈 基金估值 <span id="fundCount" style="font-weight:400;font-size:0.78rem;color:var(--gray);">('+allFunds.length+'只)</span></div>';
+  html += '<div style="font-weight:700;">⭐ 自选 <span id="fundCount" style="font-weight:400;font-size:0.78rem;color:var(--gray);">('+allFunds.length+'只)</span></div>';
   html += '<div style="display:flex;gap:6px;">';
   html += '<button onclick="toggleCompare()" id="btnCompare" style="font-size:0.75rem;padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;">📊 对比</button>';
   html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 估值</button>';
@@ -1270,10 +1289,6 @@ async function renderFundTab(sortKey) {
   // 全网搜索结果区
   html += '<div id="fundSearchResults"></div>';
 
-  // 自选指示
-  if (myFunds.length > 0) {
-    html += '<div style="margin-bottom:6px;font-size:0.7rem;color:var(--gray);">⭐ 我的自选 ('+myFunds.length+'只) · <span onclick="clearMyFunds()" style="color:var(--red);cursor:pointer;">清空</span></div>';
-  }
   html += '</div>'; // end fundHeader
 
   // ---------- 动态列表容器 ----------
@@ -1288,9 +1303,7 @@ async function renderFundList() {
   if (!container) return;
 
   const myFunds = loadMyFunds();
-  const allProds = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
-  const prodFunds = allProds.filter(p => p.product_category === '基金');
-  let funds = [...myFunds.filter(mf => !prodFunds.some(f => f.product_id === mf.product_id)), ...prodFunds];
+  let funds = [...myFunds];
 
   const activeFilter = (document.querySelector('.fund-filter.active')?.dataset?.filter) || '全部';
   if (activeFilter !== '全部') {
@@ -1329,7 +1342,7 @@ async function renderFundList() {
     html += '<div style="display:flex;gap:6px;font-size:0.7rem;border-bottom:1px solid #fde68a;padding-bottom:3px;">';
     html += '<div style="min-width:60px;font-weight:600;">指标</div>';
     for (const c of _compareList) {
-      const f = allProds.find(x=>x.product_id===c) || myFunds.find(x=>x.product_id===c);
+      const f = myFunds.find(x=>x.product_id===c);
       html += '<div style="min-width:80px;font-weight:600;">'+(f?f.product_name.slice(0,7):c)+'</div>';
     }
     html += '</div>';
@@ -1357,12 +1370,11 @@ async function renderFundList() {
   for (const f of funds) {
     const code = f.product_id || '', sc = f.sub_category || '';
     const isSel = _compareList.includes(code);
-    const isMy = myFunds.some(mf => mf.product_id === code);
     const tag = sc.includes('债基')?'债券型':sc.includes('混合')?'混合型':sc.includes('指数')?'指数型':sc.includes('主动权益')?'主动权益':(f.issuer||'');
     html += '<div class="fund-card" data-code="'+code+'" style="background:'+(isSel?'#fef3c7':'#fff')+';border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isSel?'#f59e0b':'#e5e7eb')+';cursor:'+(_compareMode?'pointer':'default')+';" onclick="'+(_compareMode?'toggleCompareFund(\''+code+'\')':'showFundDetail(\''+code+'\')')+'">';
     html += '<div style="display:flex;align-items:center;margin-bottom:4px;">';
     html += '<div style="flex:1;">';
-    html += '<div style="font-size:0.82rem;font-weight:600;">'+(isMy?'⭐ ':'')+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:var(--red);padding:1px 5px;border-radius:3px;">'+(isMy?'自选':(tag||'—'))+'</span></div>';
+    html += '<div style="font-size:0.82rem;font-weight:600;">'+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:var(--red);padding:1px 5px;border-radius:3px;">'+(tag||'—')+'</span></div>';
     html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(f.risk_level||'')+' · '+(f.issuer||'').slice(0,8)+'</div>';
     html += '</div>';
     html += '<span class="fund-gz" style="font-size:0.85rem;font-weight:700;color:var(--gray);min-width:55px;text-align:right;">—</span>';
@@ -1403,8 +1415,7 @@ function toggleCompareFund(code) {
 }
 
 function showFundDetail(code) {
-  const f = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p => p.product_id === code)
-         || loadMyFunds().find(p => p.product_id === code);
+  const f = loadMyFunds().find(p => p.product_id === code);
   if (!f) return;
   const hist = (window._fundHistory||{})[code] || {};
   
@@ -1467,8 +1478,7 @@ async function fetchFundEstimates() {
   const btn = document.getElementById('btnEstimate');
   if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> 获取中...'; }
   
-  const allProds = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
-  const funds = allProds.filter(p => p.product_category === '基金');
+  const funds = loadMyFunds();
   const codes = funds.map(f => String(f.product_id)).filter(c => c.length >= 6);
   
   function updateProgress(done) {
@@ -2933,7 +2943,7 @@ function renderDashboard() {
   const cards = [
     {icon:'📰',title:'实时资讯',desc:'最新财经新闻',tab:'news'},
     {icon:'📡',title:'市场行情',desc:'指数/黄金/汇率',tab:'market'},
-    {icon:'📈',title:'基金估值',desc:'全网搜索+自选',tab:'fund'},
+    {icon:'⭐',title:'我的自选',desc:'全网搜索+自选管理',tab:'fund'},
     {icon:'👥',title:'客户管理',desc:'档案+持仓',tab:'clients'},
     {icon:'🤖',title:'AI助手',desc:'DeepSeek+联网',tab:'ai'},
     {icon:'📋',title:'客户画像',desc:'分析→匹配',tab:'input'},
@@ -3208,7 +3218,8 @@ function showAddHolding(clientId) {
 
 function autoFillFund() {
   const code = document.getElementById('hCode').value.trim();
-  const fund = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p=>p.product_id===code&&p.product_category==='基金');
+  const fund = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p=>p.product_id===code&&p.product_category==='基金')
+           || loadMyFunds().find(p=>p.product_id===code);
   if (fund) document.getElementById('hName').value = fund.product_name||'';
   previewCalc();
 }
@@ -3384,7 +3395,7 @@ function refreshAiMessages() {
 function buildAiContext() {
   const ap = (typeof MARKET!=='undefined'&&MARKET.asset_prices)?MARKET.asset_prices:{};
   const ss = ap.a_share?.level||'未知', g=ap.gold?.level||'未知', fx=ap.fx?.level||'未知', b=ap.bond?.cn_10y||'未知';
-  const funds = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p=>p.product_category==='基金');
+  const funds = loadMyFunds();
   const fl = funds.slice(0,8).map(f=>f.product_id+' '+f.product_name).join(', ');
   let ctx = '你是工商银行广州分行资深理财经理的AI助手。帮助理财经理分析市场、推荐产品、撰写客户话术。回答简洁专业，控制在500字内。\n\n';
   ctx += '【市场】上证'+ss+' | 黄金'+g+' | 汇率'+fx+' | 国债'+b+'\n';
