@@ -103,62 +103,6 @@ input:focus, select:focus { border-color: var(--red); }
 .reminder-box .reminder-title { font-weight: 700; color: var(--red); margin-bottom: 6px; }
 .reminder-box li { margin-bottom: 4px; color: var(--gray); }
 
-/* ===== 面客模式 ===== */
-body.presentation { background: #f0f2f5; }
-body.presentation .container { max-width: 560px; margin: 0 auto; }
-body.presentation .card { border-radius: 16px; padding: 20px 22px; margin-bottom: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
-body.presentation .card-title { font-size: 1.15rem; }
-body.presentation .header { padding: 16px 20px; }
-body.presentation .header h1 { font-size: 1.15rem; }
-body.presentation .tabs { display: none; }
-body.presentation #tab-clients > div:first-child { display: none; }
-body.presentation .btn-outline, body.presentation button[onclick*="edit"], body.presentation button[onclick*="delete"], 
-body.presentation button[onclick*="showAdd"], body.presentation button[onclick*="switchClient"] { display: none !important; }
-body.presentation .prod-card { font-size: 0.95rem; padding: 16px; }
-body.presentation .prod-card .name { font-size: 1rem; }
-body.presentation .prod-card .ret { font-size: 1.2rem; }
-body.presentation .report { font-size: 0.95rem; line-height: 1.8; }
-body.presentation .report h2 { font-size: 1.1rem; }
-body.presentation .report h3 { font-size: 1rem; }
-body.presentation label, body.presentation input, body.presentation select { font-size: 1rem; }
-body.presentation .fund-card { font-size: 0.9rem; padding: 14px; }
-body.presentation .fund-card .fund-1m, body.presentation .fund-card .fund-3m,
-body.presentation .fund-card .fund-6m, body.presentation .fund-card .fund-1y,
-body.presentation .fund-card .fund-nav, body.presentation .fund-card .fund-gz,
-body.presentation .fund-card .fund-chg { font-size: 0.82rem; }
-body.presentation .cmp-row { font-size: 0.82rem; }
-body.presentation .cmp-label { font-size: 0.78rem; }
-body.presentation #compareArea .card { padding: 16px 18px; }
-body.presentation .pres-toggle { background: var(--red) !important; color: #fff !important; font-weight: 700; animation: presPulse 2s infinite; }
-@keyframes presPulse { 0%,100%{box-shadow:0 0 0 0 rgba(196,18,48,.4)} 50%{box-shadow:0 0 0 6px rgba(196,18,48,0)} }
-body.presentation .mobile-bottom-nav { display: none !important; }
-body.presentation .pres-watermark { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) rotate(-25deg); font-size: 4rem; color: rgba(0,0,0,0.03); pointer-events: none; z-index: -1; font-weight: 900; white-space: nowrap; }
-
-/* ===== 产品对比增强 ===== */
-.compare-card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 14px; margin-bottom: 8px; position: relative; overflow: hidden; }
-.compare-card.selected { border-color: #f59e0b; background: #fefce8; box-shadow: 0 0 0 1px #f59e0b; }
-.compare-card .cmp-name { font-weight: 700; font-size: 0.82rem; margin-bottom: 2px; }
-.compare-card .cmp-sub { font-size: 0.65rem; color: var(--gray); margin-bottom: 8px; }
-.compare-metrics { display: grid; gap: 4px; }
-.cmp-row { display: flex; align-items: center; gap: 6px; font-size: 0.7rem; }
-.cmp-label { min-width: 48px; color: var(--gray); font-size: 0.68rem; }
-.cmp-bar-wrap { flex: 1; height: 14px; background: #f3f4f6; border-radius: 7px; overflow: hidden; position: relative; }
-.cmp-bar { height: 100%; border-radius: 7px; transition: width .5s ease; min-width: 2px; }
-.cmp-bar.up { background: linear-gradient(90deg, #fecaca, #c41230); }
-.cmp-bar.down { background: linear-gradient(90deg, #bbf7d0, #059669); }
-.cmp-bar.neutral { background: #d1d5db; }
-.cmp-val { min-width: 50px; text-align: right; font-weight: 700; font-size: 0.72rem; }
-.cmp-risk-L { background: #d1fae5; color: #065f46; padding: 1px 6px; border-radius: 3px; font-size: 0.6rem; font-weight: 600; }
-.cmp-risk-M { background: #fef3c7; color: #92400e; padding: 1px 6px; border-radius: 3px; font-size: 0.6rem; font-weight: 600; }
-.cmp-risk-H { background: #fecaca; color: #991b1b; padding: 1px 6px; border-radius: 3px; font-size: 0.6rem; font-weight: 600; }
-.compare-grid { display: grid; gap: 8px; }
-.compare-actions { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
-.compare-actions button { font-size: 0.72rem; padding: 5px 12px; border-radius: 6px; cursor: pointer; border: 1px solid #e5e7eb; background: #fff; transition: all .15s; }
-.compare-actions button:active { transform: scale(0.96); }
-.compare-header-row { display: flex; gap: 6px; align-items: flex-end; margin-bottom: 10px; }
-.compare-empty { text-align: center; padding: 40px 20px; color: var(--gray); }
-.compare-empty .icon { font-size: 2.5rem; margin-bottom: 8px; }
-
 /* ===== 移动端响应式 ===== */
 @media (max-width: 768px) {
   .header { padding: calc(12px + env(safe-area-inset-top, 0px)) 14px 10px; }
@@ -265,11 +209,10 @@ body.dark .skeleton { background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#
 <div class="header">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
-      <h1>🏦 智能投顾系统 <span class="ver">v3.1</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1800</p>
+      <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1245</p>
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
-      <button onclick="togglePresentation()" class="pres-toggle" id="presToggle" title="面客模式" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.75rem;transition:all .2s;">🎤 面客</button>
       <button onclick="toggleDarkMode()" class="dark-toggle" id="darkToggle" title="切换深色/浅色模式">🌙</button>
       <button onclick="exportAllData()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.7rem;">📤</button>
       <button onclick="document.getElementById('importFile').click()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.7rem;">📥</button>
@@ -692,22 +635,6 @@ function toggleDarkMode() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('wm_dark', isDark ? '1' : '0');
   document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
-}
-
-function togglePresentation() {
-  const isPres = document.body.classList.toggle('presentation');
-  const btn = document.getElementById('presToggle');
-  if (isPres) {
-    btn.textContent = '🎤 退出面客';
-    btn.classList.add('pres-toggle');
-    toast('已进入面客模式 — 大字体 · 隐藏编辑 · 聚焦呈现');
-    // 自动切换到客户管理 Tab
-    switchTab('clients');
-  } else {
-    btn.textContent = '🎤 面客';
-    btn.classList.remove('pres-toggle');
-    toast('已退出面客模式');
-  }
 }
 
 // 键盘快捷键
@@ -1556,10 +1483,31 @@ async function renderFundList() {
   const cntEl = document.getElementById('fundCount');
   if (cntEl) cntEl.textContent = '('+funds.length+'只)';
 
-  // 对比占位区
+  // 对比表
   let html = '';
   if (_compareMode && _compareList.length > 1) {
-    html += '<div id="compareArea" style="margin-bottom:10px;"><div style="text-align:center;padding:20px;color:var(--gray);font-size:0.7rem;">📊 加载对比数据...</div></div>';
+    html += '<div style="overflow-x:auto;margin-bottom:10px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px;">';
+    html += '<div style="font-weight:600;font-size:0.8rem;margin-bottom:6px;">📊 对比 ('+_compareList.length+'只)</div>';
+    html += '<div style="display:flex;gap:6px;font-size:0.7rem;border-bottom:1px solid #fde68a;padding-bottom:3px;">';
+    html += '<div style="min-width:60px;font-weight:600;">指标</div>';
+    for (const c of _compareList) {
+      const f = myFunds.find(x=>x.product_id===c);
+      html += '<div style="min-width:80px;font-weight:600;">'+(f?f.product_name.slice(0,7):c)+'</div>';
+    }
+    html += '</div>';
+    for (const [label,key] of [['近1月','one_month'],['近3月','three_month'],['近半年','six_month'],['近1年','one_year']]) {
+      html += '<div style="display:flex;gap:6px;font-size:0.7rem;margin-top:2px;">';
+      html += '<div style="min-width:60px;color:var(--gray);">'+label+'</div>';
+      for (const c of _compareList) {
+        const perf = hist[c];
+        let val = '—';
+        if (perf && perf[key] != null) val = (perf[key]>=0?'+':'')+perf[key]+'%';
+        const cl = val.startsWith('+') ? '#c41230' : (val.startsWith('-') ? '#059669' : 'var(--gray)');
+        html += '<div style="min-width:80px;color:'+cl+';">'+val+'</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
   }
 
   if (funds.length === 0) {
@@ -1596,138 +1544,7 @@ async function renderFundList() {
       const c = card.dataset.code;
       if (hist[c]) updateHistRow(c, hist[c]);
     }
-    renderCompareView(hist);
   });
-}
-
-// ===== 产品对比增强 =====
-function renderCompareView(hist) {
-  const area = document.getElementById('compareArea');
-  if (!area || !_compareMode || _compareList.length < 2) return;
-
-  const myFunds = loadMyFunds();
-  const funds = _compareList.map(c => myFunds.find(f => f.product_id === c)).filter(Boolean);
-  if (funds.length < 2) return;
-
-  // 计算条形图的最大值基准（取所有回报的最大绝对值）
-  const perfKeys = [['近1月','1m'],['近3月','3m'],['近半年','6m'],['近1年','1y']];
-  let maxAbs = 0;
-  for (const c of _compareList) {
-    const h = hist[c] || {};
-    for (const [, k] of perfKeys) { const v = Math.abs(h[k] || 0); if (v > maxAbs) maxAbs = v; }
-  }
-  maxAbs = Math.max(maxAbs, 5); // 最小5%
-
-  let html = '<div class="card" style="border:2px solid var(--red);background:linear-gradient(135deg,#fff5f5 0%,#fff 100%);">';
-  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">';
-  html += '<div style="font-weight:700;font-size:0.9rem;">📊 产品对比 (' + funds.length + '只)</div>';
-  html += '<div style="font-size:0.65rem;color:var(--gray);">红=正向 · 绿=负向 · 条长=相对幅度</div>';
-  html += '</div>';
-
-  // 表头
-  html += '<div class="compare-header-row" style="padding:0 0 6px;border-bottom:2px solid #e5e7eb;margin-bottom:8px;">';
-  html += '<div style="min-width:52px;font-size:0.65rem;color:var(--gray);"></div>';
-  for (const f of funds) {
-    html += '<div style="flex:1;text-align:center;">';
-    html += '<div style="font-size:0.72rem;font-weight:700;line-height:1.2;">' + escHtml(f.product_name).slice(0,10) + '</div>';
-    html += '<div style="font-size:0.58rem;color:var(--gray);">' + (f.product_id||'') + '</div>';
-    html += '</div>';
-  }
-  html += '</div>';
-
-  // 阶段收益（条形图）
-  html += '<div style="font-weight:600;font-size:0.72rem;color:var(--gray);margin:8px 0 4px;">📈 阶段回报</div>';
-  for (const [label, key] of perfKeys) {
-    html += '<div class="cmp-row" style="margin-bottom:3px;">';
-    html += '<div class="cmp-label" style="font-weight:600;">' + label + '</div>';
-    for (const f of funds) {
-      const h = hist[f.product_id] || {};
-      const v = h[key];
-      if (v != null) {
-        const pct = Math.min(Math.abs(v) / maxAbs * 100, 100);
-        const dir = v >= 0 ? 'up' : 'down';
-        const color = v >= 0 ? '#c41230' : '#059669';
-        html += '<div style="flex:1;padding:0 2px;">';
-        html += '<div class="cmp-bar-wrap">';
-        html += '<div class="cmp-bar ' + dir + '" style="width:' + pct + '%;"></div>';
-        html += '</div>';
-        html += '<div style="font-size:0.68rem;font-weight:700;color:' + color + ';text-align:center;margin-top:1px;">' + (v>=0?'+':'') + v + '%</div>';
-        html += '</div>';
-      } else {
-        html += '<div style="flex:1;text-align:center;font-size:0.65rem;color:var(--gray);">—</div>';
-      }
-    }
-    html += '</div>';
-  }
-
-  // 产品基本属性对比
-  html += '<div style="font-weight:600;font-size:0.72rem;color:var(--gray);margin:10px 0 4px;">📋 产品属性</div>';
-
-  // 风险等级
-  html += '<div class="cmp-row" style="margin-bottom:3px;">';
-  html += '<div class="cmp-label" style="font-weight:600;">风险</div>';
-  for (const f of funds) {
-    const rl = (f.risk_level||'PR3').replace('PR','');
-    const rc = parseInt(rl) <= 2 ? 'L' : parseInt(rl) <= 3 ? 'M' : 'H';
-    html += '<div style="flex:1;text-align:center;"><span class="cmp-risk-' + rc + '">PR' + rl + '</span></div>';
-  }
-  html += '</div>';
-
-  // 预期收益
-  html += '<div class="cmp-row" style="margin-bottom:3px;">';
-  html += '<div class="cmp-label" style="font-weight:600;">预期收益</div>';
-  for (const f of funds) {
-    const lo = f.expected_return_low, hi = f.expected_return_high;
-    const v = (lo != null && hi != null) ? (lo + '%~' + hi + '%') : '—';
-    html += '<div style="flex:1;text-align:center;font-size:0.68rem;font-weight:600;color:var(--red);">' + v + '</div>';
-  }
-  html += '</div>';
-
-  // 起投金额
-  html += '<div class="cmp-row" style="margin-bottom:3px;">';
-  html += '<div class="cmp-label" style="font-weight:600;">起投</div>';
-  for (const f of funds) {
-    const v = f.min_investment != null ? (f.min_investment >= 1 ? f.min_investment + '万' : (f.min_investment*10000) + '元') : '—';
-    html += '<div style="flex:1;text-align:center;font-size:0.68rem;">' + v + '</div>';
-  }
-  html += '</div>';
-
-  // 费率
-  html += '<div class="cmp-row" style="margin-bottom:3px;">';
-  html += '<div class="cmp-label" style="font-weight:600;">佣金</div>';
-  for (const f of funds) {
-    const v = f.commission_rate != null ? f.commission_rate + '%' : '—';
-    html += '<div style="flex:1;text-align:center;font-size:0.68rem;">' + v + '</div>';
-  }
-  html += '</div>';
-
-  // 发行方 / 类别
-  html += '<div class="cmp-row" style="margin-bottom:3px;">';
-  html += '<div class="cmp-label" style="font-weight:600;">发行方</div>';
-  for (const f of funds) {
-    html += '<div style="flex:1;text-align:center;font-size:0.68rem;">' + escHtml(f.issuer||'—').slice(0,8) + '</div>';
-  }
-  html += '</div>';
-
-  // 连涨连跌
-  html += '<div style="font-weight:600;font-size:0.72rem;color:var(--gray);margin:10px 0 4px;">🔥 趋势信号</div>';
-  html += '<div class="cmp-row">';
-  html += '<div class="cmp-label" style="font-weight:600;">近期</div>';
-  for (const f of funds) {
-    const h = hist[f.product_id] || {};
-    if (h.streak >= 3) {
-      const tag = h.streak_up ? '🔥连' + h.streak + '涨' : '❄连' + h.streak + '跌';
-      const clr = h.streak_up ? '#c41230' : '#059669';
-      html += '<div style="flex:1;text-align:center;font-size:0.68rem;font-weight:600;color:' + clr + ';">' + tag + '</div>';
-    } else {
-      html += '<div style="flex:1;text-align:center;font-size:0.65rem;color:var(--gray);">—</div>';
-    }
-  }
-  html += '</div>';
-
-  html += '</div>'; // end card
-
-  area.innerHTML = html;
 }
 
 function toggleCompare() {
@@ -1801,57 +1618,9 @@ function showFundDetail(code) {
     d += '</div>';
   }
   
-  d += '<div style="display:flex;gap:8px;margin-top:10px;">';
-  d += '<button onclick="shareProduct(\''+code+'\')" style="flex:1;padding:10px;border:1px solid #059669;border-radius:8px;background:#f0faf5;color:#059669;font-size:0.85rem;cursor:pointer;font-weight:600;">📤 微信分享</button>';
-  d += '<button onclick="closeModal()" style="flex:1;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.85rem;cursor:pointer;">关闭</button>';
-  d += '</div>';
+  d += '<button onclick="closeModal()" style="width:100%;padding:10px;border:1px solid #e5e7eb;border-radius:8px;background:#fff;font-size:0.85rem;cursor:pointer;">关闭</button>';
   d += '</div></div>';
   document.getElementById('modalHost').innerHTML = d;
-}
-
-// ===== 微信快捷分享 =====
-function shareProduct(code) {
-  const f = loadMyFunds().find(p => p.product_id === code);
-  if (!f) return toast('未找到产品信息');
-
-  const info = [];
-  info.push('📊 ' + (f.product_name || code));
-  info.push('');
-  info.push('代码：' + code + ' | ' + (f.issuer || '') + ' | ' + (f.risk_level || ''));
-  info.push('类别：' + (f.sub_category || '—') + ' | 起投：' + (f.min_investment||'—') + '万');
-  
-  if (f.expected_return_low != null) {
-    info.push('预期收益：' + f.expected_return_low + '% ~ ' + f.expected_return_high + '%');
-  }
-  if (f.commission_rate != null) {
-    info.push('佣金费率：' + f.commission_rate + '%');
-  }
-  
-  // 历史业绩
-  const hist = (window._fundHistory||{})[code];
-  if (hist) {
-    const perfs = [];
-    if (hist['1m'] != null) perfs.push('近1月：' + (hist['1m']>=0?'+':'')+hist['1m']+'%');
-    if (hist['3m'] != null) perfs.push('近3月：' + (hist['3m']>=0?'+':'')+hist['3m']+'%');
-    if (hist['6m'] != null) perfs.push('近半年：' + (hist['6m']>=0?'+':'')+hist['6m']+'%');
-    if (hist['1y'] != null) perfs.push('近1年：' + (hist['1y']>=0?'+':'')+hist['1y']+'%');
-    if (perfs.length) info.push('阶段回报：' + perfs.join(' | '));
-  }
-
-  info.push('');
-  info.push('⚠ 风险提示：过往业绩不预示未来表现，投资需谨慎。详询您的理财经理。');
-  info.push('📅 ' + new Date().toISOString().slice(0,10));
-
-  const text = info.join('\n');
-  if (navigator.clipboard?.writeText) {
-    navigator.clipboard.writeText(text).then(() => toast('✅ 已复制到剪贴板，可直接粘贴到微信'));
-  } else {
-    const ta = document.createElement('textarea');
-    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    document.execCommand('copy'); document.body.removeChild(ta);
-    toast('✅ 已复制到剪贴板');
-  }
 }
 
 async function fetchFundEstimates() {
@@ -3686,48 +3455,8 @@ function copyBriefing() {
   });
 }
 
-// ===== AI嵌入客户详情 =====
-function clientAiQuick(clientId, mode) {
-  var c = loadClients().find(function(x){return x.id===clientId;});
-  if (!c) return;
-  var prompts = {
-    analyze: '请分析这位客户的投资特征、风险偏好和潜在需求，给出200字以内的简明分析：' + (c.name||'') + '，风险等级' + (c.riskLevel||'') + '，总资产' + (c.totalAssets||'') + '万，投资期限' + (c.termMonths||'') + '个月',
-    recommend: '基于客户画像（' + (c.name||'') + '，' + (c.riskLevel||'') + '，' + (c.totalAssets||'') + '万资产），推荐2-3款适合的产品，说明理由，控制在200字内',
-    talk: '为这位客户（' + (c.name||'') + '，' + (c.riskLevel||'') + '，' + (c.totalAssets||'') + '万资产）生成一段150字内的微信跟进话术，语气专业但不生硬'
-  };
-  document.getElementById('clientAiResp').innerHTML = '<span class="spinner" style="border-color:var(--red);border-top-color:transparent;"></span> AI思考中...';
-  clientAiCall(prompts[mode]);
-}
 
-function clientAiAsk(clientId) {
-  var input = document.getElementById('clientAiInput');
-  var q = (input.value||'').trim();
-  if (!q) return;
-  input.value = '';
-  var c = loadClients().find(function(x){return x.id===clientId;});
-  var ctx = c ? ('客户' + (c.name||'') + '，' + (c.riskLevel||'') + '，' + (c.totalAssets||'') + '万资产。') : '';
-  document.getElementById('clientAiResp').innerHTML = '<span class="spinner" style="border-color:var(--red);border-top-color:transparent;"></span> AI思考中...';
-  clientAiCall(ctx + q);
-}
-
-function clientAiCall(prompt) {
-  var el = document.getElementById('clientAiResp');
-  var dsKey = localStorage.getItem('wm_ds_key') || '';
-  if (!dsKey) { el.innerHTML = '⚠ 请先在AI助手Tab设置DeepSeek API Key'; return; }
-  fetch('https://api.deepseek.com/chat/completions', {
-    method: 'POST', headers: {'Content-Type':'application/json','Authorization':'Bearer '+dsKey},
-    body: JSON.stringify({model:'deepseek-chat',messages:[
-      {role:'system',content:'你是银行理财经理的AI助手。回答简洁专业，200字以内。'},
-      {role:'user',content:prompt}
-    ],max_tokens:500,temperature:0.7})
-  }).then(function(r){return r.json()}).then(function(d){
-    if (d.error) { el.innerHTML = '❌ ' + (d.error.message||'API调用失败，请检查Key'); return; }
-    var ans = (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content) || '无回复';
-    el.innerHTML = '<div style="background:#f9fafb;border-radius:8px;padding:10px;line-height:1.7;margin-top:4px;">' + renderMarkdown(ans) + '</div>';
-  }).catch(function(e){
-    el.innerHTML = '❌ 请求失败: ' + (e.message||'网络错误');
-  });
-}
+const RISK_OPTIONS = ['PR1','PR2','PR3','PR4','PR5'];
 
 function showBatchImport() {
   let html = '<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1000;display:flex;justify-content:center;align-items:flex-end;">';
@@ -3967,17 +3696,6 @@ function viewClient(id) {
     html += '<div style="margin-top:12px;padding:10px;background:#f9fafb;border-radius:8px;display:flex;justify-content:space-between;"><span style="font-size:0.8rem;">总投入</span><span style="font-weight:700;">'+totalCost.toFixed(0)+'元</span><span style="font-size:0.8rem;color:'+(totalPnl>=0?'#c41230':'#059669')+';">总盈亏</span><span style="font-weight:700;color:'+(totalPnl>=0?'#c41230':'#059669')+';">'+(totalPnl>=0?'+':'')+totalPnl.toFixed(0)+'元</span></div>';
   } else { html += '<p style="text-align:center;color:var(--gray);padding:30px;">暂未录入持仓<br><span style="font-size:0.75rem;">点击上方按钮录入基金/存款/保险等</span></p>'; }
   html += renderTimeline(id);
-  // AI 嵌入客户详情
-  html += '<div style="margin-top:14px;border:1px solid #bfdbfe;border-radius:10px;background:linear-gradient(135deg,#eff6ff,#fff);padding:14px;">';
-  html += '<div style="font-weight:700;font-size:0.82rem;margin-bottom:8px;">🤖 AI 客户助手</div>';
-  html += '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">';
-  html += '<button onclick="clientAiQuick(\''+id+'\',\'analyze\')" style="font-size:0.68rem;padding:5px 10px;border:1px solid #bfdbfe;border-radius:6px;background:#fff;cursor:pointer;">📊 分析这个客户</button>';
-  html += '<button onclick="clientAiQuick(\''+id+'\',\'recommend\')" style="font-size:0.68rem;padding:5px 10px;border:1px solid #bfdbfe;border-radius:6px;background:#fff;cursor:pointer;">💡 推荐什么产品</button>';
-  html += '<button onclick="clientAiQuick(\''+id+'\',\'talk\')" style="font-size:0.68rem;padding:5px 10px;border:1px solid #bfdbfe;border-radius:6px;background:#fff;cursor:pointer;">💬 生成跟进话术</button>';
-  html += '</div>';
-  html += '<div style="display:flex;gap:6px;"><input id="clientAiInput" placeholder="输入自定义问题..." style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;" onkeydown="if(event.key===\'Enter\')clientAiAsk(\''+id+'\')"><button onclick="clientAiAsk(\''+id+'\')" style="font-size:0.75rem;padding:7px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">发送</button></div>';
-  html += '<div id="clientAiResp" style="margin-top:8px;font-size:0.75rem;color:var(--gray);min-height:16px;"></div>';
-  html += '</div>';
   container.innerHTML = html;
   refreshHoldingPnL(id);
 }
@@ -4267,12 +3985,10 @@ function buildAiContext() {
 </script>
 
 <script>
-// 注册 Service Worker 实现 PWA 离线缓存
+// 彻底注销所有 Service Worker 避免缓存问题
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(function(reg) {
-    console.log('SW registered:', reg.scope);
-  }).catch(function(e) {
-    console.log('SW registration failed:', e);
+  navigator.serviceWorker.getRegistrations().then(function(regs) {
+    regs.forEach(function(r) { r.unregister(); });
   });
 }
 </script>
