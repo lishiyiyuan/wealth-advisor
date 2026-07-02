@@ -31,7 +31,18 @@ export default {
       return json({ error: '缺少 q 参数' }, 400);
     }
 
+    // 缓存策略：相同查询 60 秒内直接返回缓存
+    const cacheKey = new Request(url.toString(), request);
+    const cache = caches.default;
+
     try {
+      // 1. 优先读缓存
+      let cached = await cache.match(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      // 2. 缓存未命中，请求 Bing
       const bingUrl = `https://cn.bing.com/search?format=rss&q=${encodeURIComponent(q)}&count=${count}`;
       const resp = await fetch(bingUrl, {
         headers: { 'User-Agent': 'Mozilla/5.0 (compatible; SearchProxy/1.0)' }
@@ -44,7 +55,12 @@ export default {
       const xml = await resp.text();
       const results = parseRSS(xml, count);
 
-      return json({ results, source: 'bing', count: results.length });
+      const response = json({ results, source: 'bing', count: results.length });
+
+      // 3. 写入缓存（60 秒 TTL）
+      ctx.waitUntil(cache.put(cacheKey, response.clone()));
+
+      return response;
     } catch (e) {
       return json({ error: e.message || '搜索异常' }, 500);
     }
