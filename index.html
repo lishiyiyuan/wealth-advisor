@@ -180,6 +180,28 @@ input:focus, select:focus { border-color: var(--red); }
 
 /* 桌面端保证隐藏 */
 @media (min-width: 769px) { .mobile-bottom-nav { display: none !important; } }
+
+/* 暗色模式 */
+body.dark { --bg:#111827; --card:#1f2937; --text:#f3f4f6; --sub:#9ca3af; --dark:#111827; --light:#1f2937; --border:#374151; }
+body.dark .card { background:var(--card); border-color:var(--border); box-shadow:0 1px 3px rgba(0,0,0,.3); }
+body.dark .header { background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%); }
+body.dark input, body.dark select { background:#374151; color:#f3f4f6; border-color:#4b5563; }
+body.dark .tab { background:#1f2937; color:#9ca3af; border-color:#374151; }
+body.dark .tab.active { background:var(--red); color:#fff; }
+body.dark button.btn-outline { background:#1f2937; }
+body.dark .news-cat.macro { background:#78350f; color:#fbbf24; }
+body.dark .news-cat.industry { background:#1e3a5f; color:#60a5fa; }
+body.dark .mini-table th { background:#374151; color:#d1d5db; }
+.dark-toggle { font-size:1.1rem; cursor:pointer; padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#fff; transition:all 0.2s; }
+.dark-toggle:hover { background:rgba(255,255,255,0.1); }
+
+/* 骨架屏动画 */
+@keyframes shimmer { 0%{background-position:-200px 0} 100%{background-position:calc(200px + 100%) 0} }
+.skeleton { background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%); background-size:200px 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
+body.dark .skeleton { background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#374151 75%); background-size:200px 100%; }
+.skeleton-text { height:14px; margin-bottom:8px; }
+.skeleton-card { height:60px; margin-bottom:8px; }
+.skeleton-circle { border-radius:50%; }
 </style>
 </head>
 <body>
@@ -188,25 +210,27 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1204</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1245</p>
     </div>
-    <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
-      <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
-    </button>
+    <div style="display:flex;gap:6px;align-items:center;">
+      <button onclick="toggleDarkMode()" class="dark-toggle" id="darkToggle" title="切换深色/浅色模式">🌙</button>
+      <button onclick="exportAllData()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.7rem;">📤</button>
+      <button onclick="document.getElementById('importFile').click()" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.7rem;">📥</button>
+      <input type="file" id="importFile" onchange="importAllData(event)" accept=".json" style="display:none;">
+      <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
+        <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
+      </button>
+    </div>
   </div>
 </div>
 
 <div class="container">
   <div class="tabs">
     <div class="tab active" onclick="switchTab('dashboard')">📊 仪表盘</div>
-    <div class="tab" onclick="switchTab('news')">📡 基金监控</div>
+    <div class="tab" onclick="switchTab('fund')">⭐ 自选监控</div>
     <div class="tab" onclick="switchTab('market')">📡 市场</div>
-    <div class="tab" onclick="switchTab('fund')">⭐ 自选</div>
     <div class="tab" onclick="switchTab('clients')">👥 客户管理</div>
     <div class="tab" onclick="switchTab('ai')">🤖 AI助手</div>
-    <div class="tab" onclick="switchTab('input')">📋 客户画像</div>
-    <div class="tab" onclick="switchTab('result')">📊 推荐结果</div>
-    <div class="tab" onclick="switchTab('report')">📝 配置报告</div>
   </div>
 
   <!-- Tab 0: 仪表盘 -->
@@ -221,9 +245,9 @@ input:focus, select:focus { border-color: var(--red); }
     </div>
   </div>
 
-  <!-- Tab 1: 基金监控 -->
-  <div id="tab-news">
-    <div id="newsContent" style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;">点击上方"基金监控"标签查看自选基金实时监控</div>
+  <!-- Tab 1: 自选监控 -->
+  <div id="tab-fund" style="display:none;">
+    <div id="fundContent" style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;">点击上方"自选监控"标签查看自选基金实时监控</div>
   </div>
 
   <!-- Tab 2: 市场 -->
@@ -231,90 +255,83 @@ input:focus, select:focus { border-color: var(--red); }
     <div id="marketContent"></div>
   </div>
 
-  <!-- Tab 2: 输入 -->
-  <div id="tab-input" style="display:none;">
-    <div class="card">
-      <div class="card-title">客户基本信息</div>
-      <div class="grid-2">
-        <div><label>风险等级</label><select id="riskLevel"><option>PR1</option><option>PR2</option><option selected>PR3</option><option>PR4</option><option>PR5</option></select></div>
-        <div><label>可投资资产（万元）</label><input type="number" id="assets" value="100" min="1" max="99999"></div>
-        <div><label>投资期限</label><select id="horizon"><option value="90">短期（3个月内）</option><option value="365" selected>中期（1年内）</option><option value="1095">中长期（1-3年）</option><option value="3650">长期（3年以上）</option></select></div>
-        <div><label>流动性需求</label><select id="liquidity"><option>低</option><option selected>中</option><option>高</option></select></div>
-      </div>
-      <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:0;">
-          <input type="checkbox" id="isPrivateBank" style="width:auto;"> 私银客户
-        </label>
-      </div>
-      <div style="margin-top:12px;">
-        <label style="font-size:0.8rem;color:var(--gray);font-weight:600;margin-bottom:8px;display:block;">每类产品数量（可分别设置）</label>
-        <div class="grid-2" id="perCatSelectors">
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">🛡 保险</label><select class="per-cat-sel" data-cat="保险" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">📈 基金</label><select class="per-cat-sel" data-cat="基金" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">💼 理财</label><select class="per-cat-sel" data-cat="理财" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">💰 存款</label><select class="per-cat-sel" data-cat="存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">📐 结构性</label><select class="per-cat-sel" data-cat="结构性存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-          <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">🌍 外币</label><select class="per-cat-sel" data-cat="外币存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
-        </div>
-      </div>
-      <div style="margin-top:14px;">
-        <label style="font-size:0.8rem;color:var(--gray);font-weight:600;margin-bottom:6px;display:block;">产品偏好品类（点击切换，至少保留一个）</label>
-        <div id="catPicker" class="flex flex-wrap gap-2"></div>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">自定义产品（可选）</div>
-      <p style="font-size:0.75rem;color:var(--gray);margin-bottom:10px;">添加行内特色产品或客户指定产品，每品类最多3个</p>
-      <div id="customProducts"></div>
-      <button class="btn btn-outline" onclick="addCustomProduct()" style="margin-top:10px;font-size:0.8rem;">+ 添加自定义产品</button>
-    </div>
-
-    <button class="btn btn-primary" onclick="runMatch()" style="width:100%;padding:14px;font-size:1rem;" id="btnMatch">
-      🔍 开始智能匹配推荐
-    </button>
-  </div>
-
-  <!-- Tab 2: 推荐结果 -->
-  <div id="tab-result" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-weight:700;">匹配产品 <span id="resultTotal" style="color:var(--red);">0</span> 款 | 已选 <span id="resultCount" style="color:#059669;">0</span> 款</div>
-      <div>
-        <button class="btn btn-outline" onclick="switchTab('input')" style="font-size:0.8rem;padding:6px 14px;">← 返回修改</button>
-        <button class="btn btn-outline" onclick="viewReport()" style="font-size:0.8rem;padding:6px 14px;">📝 查看报告</button>
-        <button class="btn btn-outline" onclick="generateAiReport()" id="btnAiReport" style="font-size:0.8rem;padding:6px 14px;color:var(--red);border-color:var(--red);">🤖 AI报告</button>
-        <button class="btn btn-primary" onclick="exportPPT()" id="btnExportPPT" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
-        <button class="btn btn-outline" onclick="showClientSummary()" style="font-size:0.8rem;padding:6px 14px;color:#059669;border-color:#059669;">📱 客户摘要</button>
-      </div>
-    </div>
-    <div id="resultArea"></div>
-  </div>
-
-  <!-- Tab 3: 报告 -->
-  <div id="tab-report" style="display:none;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-      <div style="font-weight:700;">📝 配置建议书</div>
-      <div>
-        <button class="btn btn-outline" onclick="switchTab('result')" style="font-size:0.8rem;padding:6px 14px;">← 返回产品</button>
-        <button class="btn btn-primary" onclick="exportPPT()" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
-      </div>
-    </div>
-    <div class="card report" id="reportArea"></div>
-  </div>
-
   <!-- Tab: 客户管理 -->
   <div id="tab-clients" style="display:none;">
     <div id="clientsContent"></div>
+    
+    <!-- 内部子Tab: 客户画像 -->
+    <div id="clients-input" style="display:none;">
+      <div class="card">
+        <div class="card-title">客户基本信息</div>
+        <div class="grid-2">
+          <div><label>风险等级</label><select id="riskLevel"><option>PR1</option><option>PR2</option><option selected>PR3</option><option>PR4</option><option>PR5</option></select></div>
+          <div><label>可投资资产（万元）</label><input type="number" id="assets" value="100" min="1" max="99999"></div>
+          <div><label>投资期限</label><select id="horizon"><option value="90">短期（3个月内）</option><option value="365" selected>中期（1年内）</option><option value="1095">中长期（1-3年）</option><option value="3650">长期（3年以上）</option></select></div>
+          <div><label>流动性需求</label><select id="liquidity"><option>低</option><option selected>中</option><option>高</option></select></div>
+        </div>
+        <div style="margin-top:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;margin-bottom:0;">
+            <input type="checkbox" id="isPrivateBank" style="width:auto;"> 私银客户
+          </label>
+        </div>
+        <div style="margin-top:12px;">
+          <label style="font-size:0.8rem;color:var(--gray);font-weight:600;margin-bottom:8px;display:block;">每类产品数量（可分别设置）</label>
+          <div class="grid-2" id="perCatSelectors">
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">🛡 保险</label><select class="per-cat-sel" data-cat="保险" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">📈 基金</label><select class="per-cat-sel" data-cat="基金" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">💼 理财</label><select class="per-cat-sel" data-cat="理财" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">💰 存款</label><select class="per-cat-sel" data-cat="存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">📐 结构性</label><select class="per-cat-sel" data-cat="结构性存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+            <div style="display:flex;align-items:center;gap:6px;"><label style="font-size:0.78rem;color:var(--dark);font-weight:600;margin-bottom:0;min-width:60px;">🌍 外币</label><select class="per-cat-sel" data-cat="外币存款" style="width:auto;padding:6px 28px 6px 10px;font-size:0.82rem;"><option value="1" selected>1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option></select></div>
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <label style="font-size:0.8rem;color:var(--gray);font-weight:600;margin-bottom:6px;display:block;">产品偏好品类（点击切换，至少保留一个）</label>
+          <div id="catPicker" class="flex flex-wrap gap-2"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">自定义产品（可选）</div>
+        <p style="font-size:0.75rem;color:var(--gray);margin-bottom:10px;">添加行内特色产品或客户指定产品，每品类最多3个</p>
+        <div id="customProducts"></div>
+        <button class="btn btn-outline" onclick="addCustomProduct()" style="margin-top:10px;font-size:0.8rem;">+ 添加自定义产品</button>
+      </div>
+      <button class="btn btn-primary" onclick="runMatch()" style="width:100%;padding:14px;font-size:1rem;" id="btnMatch">
+        🔍 开始智能匹配推荐
+      </button>
+    </div>
+
+    <!-- 内部子Tab: 推荐结果 -->
+    <div id="clients-result" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700;">匹配产品 <span id="resultTotal" style="color:var(--red);">0</span> 款 | 已选 <span id="resultCount" style="color:#059669;">0</span> 款</div>
+        <div>
+          <button class="btn btn-outline" onclick="switchClientSection('input')" style="font-size:0.8rem;padding:6px 14px;">← 返回修改</button>
+          <button class="btn btn-outline" onclick="viewReport()" style="font-size:0.8rem;padding:6px 14px;">📝 查看报告</button>
+          <button class="btn btn-outline" onclick="generateAiReport()" id="btnAiReport" style="font-size:0.8rem;padding:6px 14px;color:var(--red);border-color:var(--red);">🤖 AI报告</button>
+          <button class="btn btn-primary" onclick="exportPPT()" id="btnExportPPT" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
+          <button class="btn btn-outline" onclick="showClientSummary()" style="font-size:0.8rem;padding:6px 14px;color:#059669;border-color:#059669;">📱 客户摘要</button>
+        </div>
+      </div>
+      <div id="resultArea"></div>
+    </div>
+
+    <!-- 内部子Tab: 配置报告 -->
+    <div id="clients-report" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="font-weight:700;">📝 配置建议书</div>
+        <div>
+          <button class="btn btn-outline" onclick="switchClientSection('result')" style="font-size:0.8rem;padding:6px 14px;">← 返回产品</button>
+          <button class="btn btn-primary" onclick="exportPPT()" style="font-size:0.8rem;padding:6px 14px;">📥 导出PPT</button>
+        </div>
+      </div>
+      <div class="card report" id="reportArea"></div>
+    </div>
   </div>
 
   <!-- Tab: AI助手 -->
   <div id="tab-ai" style="display:none;">
     <div id="aiContent"></div>
-  </div>
-
-  <!-- Tab: 自选 -->
-  <div id="tab-fund" style="display:none;">
-    <div id="fundContent"></div>
   </div>
 </div>
 
@@ -323,23 +340,11 @@ input:focus, select:focus { border-color: var(--red); }
   <div class="mobile-nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
     <span class="nav-icon">📊</span>仪表盘
   </div>
-  <div class="mobile-nav-item" onclick="switchTab('news')" data-tab="news">
-    <span class="nav-icon">📡</span>监控
+  <div class="mobile-nav-item" onclick="switchTab('fund')" data-tab="fund">
+    <span class="nav-icon">⭐</span>自选
   </div>
   <div class="mobile-nav-item" onclick="switchTab('market')" data-tab="market">
     <span class="nav-icon">📡</span>市场
-  </div>
-  <div class="mobile-nav-item" onclick="switchTab('input')" data-tab="input">
-    <span class="nav-icon">📋</span>画像
-  </div>
-  <div class="mobile-nav-item" onclick="switchTab('result')" data-tab="result">
-    <span class="nav-icon">📊</span>推荐
-  </div>
-  <div class="mobile-nav-item" onclick="switchTab('report')" data-tab="report">
-    <span class="nav-icon">📝</span>报告
-  </div>
-  <div class="mobile-nav-item" onclick="switchTab('fund')" data-tab="fund">
-    <span class="nav-icon">⭐</span>自选
   </div>
   <div class="mobile-nav-item" onclick="switchTab('clients')" data-tab="clients">
     <span class="nav-icon">👥</span>客户
@@ -489,6 +494,63 @@ async function refreshData(showToast) {
   btn.disabled = false;
 }
 
+// ============================================================
+// 数据导出/导入
+// ============================================================
+function exportAllData() {
+  const data = {
+    version: 2,
+    exportedAt: new Date().toISOString(),
+    myFunds: loadMyFunds(),
+    clients: loadClients(),
+    aiKey: getAiKey(),
+    searchUrl: getSearchUrl()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'wealth-advisor-backup-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click(); URL.revokeObjectURL(url);
+  toast('✅ 数据已导出 (自选'+data.myFunds.length+'只, 客户'+data.clients.length+'人)');
+}
+
+function importAllData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (!confirm('⚠️ 导入将覆盖当前的：自选基金、客户数据、AI Key、搜索代理URL。确定继续？')) {
+    event.target.value = ''; return;
+  }
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data.myFunds) saveMyFunds(data.myFunds);
+      if (data.clients) saveClients(data.clients);
+      if (data.aiKey) setAiKey(data.aiKey);
+      if (data.searchUrl) saveSearchUrl(data.searchUrl);
+      toast('✅ 导入成功！(自选'+(data.myFunds||[]).length+'只, 客户'+(data.clients||[]).length+'人)');
+      initDefaultMyFunds();
+      renderDashboard();
+    } catch(err) {
+      toast('❌ 导入失败：文件格式错误');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+// ============================================================
+// 工具函数：防抖
+// ============================================================
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
 // 每 30 分钟自动检测数据更新
 let _lastDataDate = '';
 setInterval(async function() {
@@ -512,10 +574,39 @@ setInterval(async function() {
   } catch(e) { /* 静默失败 */ }
 }, 30 * 60 * 1000);
 
-// 页面加载后自动渲染首页（资讯Tab）
+// 页面加载后自动渲染首页
 document.addEventListener('DOMContentLoaded', function() {
   initDefaultMyFunds();
+  initDarkMode();
   setTimeout(function() { renderDashboard(); }, 300);
+});
+
+// 暗色模式
+function initDarkMode() {
+  if (localStorage.getItem('wm_dark') === '1') {
+    document.body.classList.add('dark');
+    document.getElementById('darkToggle').textContent = '☀️';
+  }
+}
+function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('wm_dark', isDark ? '1' : '0');
+  document.getElementById('darkToggle').textContent = isDark ? '☀️' : '🌙';
+}
+
+// 键盘快捷键
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+  if ((e.metaKey || e.ctrlKey) && e.key >= '1' && e.key <= '5') {
+    e.preventDefault();
+    const tabs = ['dashboard','fund','market','clients','ai'];
+    switchTab(tabs[parseInt(e.key)-1]);
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    switchTab('fund');
+    setTimeout(() => { const el = document.getElementById('fundSearch'); if (el) { el.focus(); el.scrollIntoView({behavior:'smooth'}); } }, 200);
+  }
 });
 
 // ============================================================
@@ -623,24 +714,22 @@ let sids = new Set();
 // UI 逻辑
 // ============================================================
 function switchTab(tab) {
-  ['input','result','report','market','news','fund','clients','ai','dashboard'].forEach(t => {
+  const allTabs = ['dashboard','fund','market','clients','ai'];
+  allTabs.forEach(t => {
     document.getElementById('tab-'+t).style.display = (t===tab)?'block':'none';
   });
   document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['dashboard','news','market','fund','clients','ai','input','result','report'][i]===tab);
+    el.classList.toggle('active', allTabs[i]===tab);
   });
   // 同步移动端底部导航
   document.querySelectorAll('.mobile-nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tab);
   });
-  // 市场 tab 自动渲染
   if (tab === 'market') renderMarketTab();
-  if (tab === 'news') renderNewsTab();
-  if (tab === 'fund') renderFundTab();
+  if (tab === 'fund') renderFundMonitor();
   if (tab === 'dashboard') renderDashboard();
   if (tab === 'clients') renderClientsTab();
   if (tab === 'ai') renderAiTab();
-  // 滚动到顶部
   window.scrollTo({top:0, behavior:'smooth'});
 }
 
@@ -817,7 +906,7 @@ function renderMarketTab() {
   }
 
   // 市场Tab不再渲染资讯，改为独立Tab
-  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📡 基金监控速览<span><button onclick="switchTab(\'news\')" style="font-size:0.75rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button></span></div>';
+  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📡 基金监控速览<span><button onclick="switchTab(\'fund\')" style="font-size:0.75rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button></span></div>';
   html += '<p style="font-size:0.82rem;color:var(--gray);">点击上方按钮或底部导航切换到「📡 基金监控」标签查看自选基金实时监控。</p>';
   html += '</div>';
 
@@ -852,10 +941,6 @@ function copyOutlook() {
 // ============================================================
 // 基金监控Tab（原资讯Tab）
 // ============================================================
-function renderNewsTab() {
-  renderFundMonitor();
-}
-
 // 基金状态缓存
 var _fundInfoCache = {};
 
@@ -933,14 +1018,14 @@ function parseSgStatus(info) {
 }
 
 async function renderFundMonitor() {
-  const container = document.getElementById('newsContent');
+  const container = document.getElementById('fundContent');
   if (!container) return;
   
   const myFunds = loadMyFunds();
   const funds = [...myFunds];
   
   if (!funds.length) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">去自选Tab搜索添加基金</span></p>';
+    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">使用下方全网搜索添加基金</span></p>';
     return;
   }
 
@@ -1177,10 +1262,12 @@ function removeMyFund(code) {
 }
 
 function clearMyFunds() {
+  const myFunds = loadMyFunds();
+  if (myFunds.length > 0 && !confirm('⚠️ 确定清空全部自选基金（'+myFunds.length+'只）？清空后将恢复默认45只。')) return;
   localStorage.removeItem('wf_myfunds_inited');
   saveMyFunds([]);
   initDefaultMyFunds();
-  renderFundTab();
+  renderFundMonitor();
 }
 
 function searchAllFunds() {
@@ -1251,6 +1338,7 @@ function searchAllFunds() {
 // ============================================================
 let _compareMode = false, _compareList = [];
 let _monitorFilter = null; // null|'deviation'|'volatility'|'pause'
+let _clientSection = 'list'; // 'list'|'input'|'result'|'report'
 
 
 function switchFundFilter(el) {
@@ -2713,7 +2801,7 @@ function runMatch() {
       }
 
       runMatchRender();
-      switchTab('result');
+      switchTab('clients'); _clientSection='result'; switchClientSection('result');
     } catch(e) {
       console.error(e);
       toast('❌ 匹配失败: '+e.message);
@@ -2770,7 +2858,7 @@ async function generateAiReport() {
     const aiReport = data.choices[0].message.content;
     
     document.getElementById('reportArea').innerHTML = renderMarkdown(aiReport);
-    switchTab('report');
+    switchTab('clients'); _clientSection='report'; switchClientSection('report');
     toast('AI报告已生成');
   } catch(e) {
     toast('AI报告生成失败: '+e.message);
@@ -2791,7 +2879,7 @@ function viewReport() {
     }
     const report = buildReport(lastProfile, filteredResult, filteredCustoms);
     document.getElementById('reportArea').innerHTML = renderMarkdown(report);
-    switchTab('report');
+    switchTab('clients'); _clientSection='report'; switchClientSection('report');
   } catch(e) {
     console.error('报告生成失败:', e);
     toast('报告生成出错: ' + e.message);
@@ -2959,14 +3047,10 @@ function renderDashboard() {
   
   // 功能卡片
   const cards = [
-    {icon:'📰',title:'实时资讯',desc:'最新财经新闻',tab:'news'},
+    {icon:'⭐',title:'自选监控',desc:'实时估值+异动',tab:'fund'},
     {icon:'📡',title:'市场行情',desc:'指数/黄金/汇率',tab:'market'},
-    {icon:'⭐',title:'我的自选',desc:'全网搜索+自选管理',tab:'fund'},
-    {icon:'👥',title:'客户管理',desc:'档案+持仓',tab:'clients'},
+    {icon:'👥',title:'客户管理',desc:'画像+推荐+报告',tab:'clients'},
     {icon:'🤖',title:'AI助手',desc:'DeepSeek+联网',tab:'ai'},
-    {icon:'📋',title:'客户画像',desc:'分析→匹配',tab:'input'},
-    {icon:'📊',title:'推荐结果',desc:'产品匹配',tab:'result'},
-    {icon:'📝',title:'配置报告',desc:'AI生成方案',tab:'report'},
   ];
   html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
   for (const c of cards) {
@@ -3148,11 +3232,31 @@ function processImportLines(raw) {
 }
 
 function renderClientsTab() {
+  // 渲染子导航 + 列表
+  let html = '<div style="display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap;">';
+  const subTabs = [
+    {id:'list',label:'📋 客户列表'},
+    {id:'input',label:'📝 客户画像'},
+    {id:'result',label:'📊 推荐结果'},
+    {id:'report',label:'📄 配置报告'}
+  ];
+  html += subTabs.map(t => 
+    '<div class="client-sub-tab" data-section="'+t.id+'" onclick="switchClientSection(\''+t.id+'\')" style="flex-shrink:0;padding:6px 12px;border-radius:16px;font-size:0.75rem;font-weight:600;cursor:pointer;border:1px solid '+(t.id===_clientSection?'var(--red)':'#e5e7eb')+';background:'+(t.id===_clientSection?'#fef2f2':'#fff')+';color:'+(t.id===_clientSection?'var(--red)':'var(--gray)')+';">'+t.label+'</div>'
+  ).join('');
+  html += '</div>';
+  
   const container = document.getElementById('clientsContent');
+  if (!container) return;
+  
+  // 根据子Tab显示对应子内容
+  if (_clientSection !== 'list') { switchClientSection(_clientSection); return; }
+  
+  // 显示客户列表
   const clients = loadClients();
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="font-weight:700;">👥 客户管理 ('+clients.length+'人)</div><div style="display:flex;gap:6px;"><button onclick="showBatchImport()" style="font-size:0.75rem;padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;">📥 批量导入</button><button onclick="showAddClient()" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">+ 新增客户</button></div></div>';
-  html += '<input id="clientSearch" oninput="renderClientsTab()" placeholder="🔍 搜索客户姓名/手机..." style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.82rem;margin-bottom:10px;">';
-  const q = (document.getElementById('clientSearch')?.value||'').toLowerCase();
+  const savedSearch = (document.getElementById('clientSearch')?.value||'').toLowerCase();
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;"><div style="font-weight:700;">👥 客户管理 ('+clients.length+'人)</div><div style="display:flex;gap:6px;"><button onclick="showBatchImport()" style="font-size:0.75rem;padding:5px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;">📥 批量导入</button><button onclick="showAddClient()" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">+ 新增客户</button></div></div>';
+  html += '<input id="clientSearch" oninput="renderClientsTab()" placeholder="🔍 搜索客户姓名/手机..." value="'+savedSearch.replace(/"/g,'&quot;')+'" style="width:100%;padding:8px 12px;border:1px solid #e5e7eb;border-radius:8px;font-size:0.82rem;margin-bottom:10px;">';
+  const q = savedSearch;
   const filtered = q ? clients.filter(c => (c.name||'').includes(q) || (c.phone||'').includes(q)) : clients;
   if (filtered.length === 0) { html += '<p style="text-align:center;color:var(--gray);padding:40px;">'+(clients.length?'没有匹配的客户':'暂无客户，点击上方按钮新增')+'</p>'; }
   else {
@@ -3166,6 +3270,20 @@ function renderClientsTab() {
     }
   }
   container.innerHTML = html;
+}
+
+// 客户管理子Tab切换
+function switchClientSection(section) {
+  _clientSection = section;
+  ['list','input','result','report'].forEach(s => {
+    const el = document.getElementById(s==='list'?'clientsContent':'clients-'+s);
+    if (el) el.style.display = (s===section)?'block':'none';
+  });
+  document.querySelectorAll('.client-sub-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.section === section);
+  });
+  if (section === 'input') renderCatPicker();
+  if (section === 'list') renderClientsTab();
 }
 
 function showAddClient(editId) {
@@ -3293,15 +3411,34 @@ async function refreshHoldingPnL(clientId) {
   if (changed) { saveClients(clients); viewClient(clientId); }
 }
 
-function fetchFundGz(code) {
+function fetchFundGz(code, retries = 2) {
   return new Promise((resolve) => {
-    const timeout = setTimeout(()=>resolve(null),4000), prev = window.jsonpgz;
-    window.jsonpgz = function(d) { clearTimeout(timeout); window.jsonpgz=prev; resolve(d); };
-    const s = document.createElement('script');
-    s.src='https://fundgz.1234567.com.cn/js/'+code+'.js?rt='+Date.now();
-    s.onerror = () => { clearTimeout(timeout); window.jsonpgz=prev; resolve(null); };
-    document.head.appendChild(s);
-    s.onload = () => { if(s.parentNode)s.parentNode.removeChild(s); };
+    const doFetch = (attempt) => {
+      const backoff = Math.min(2000 * Math.pow(2, attempt), 6000);
+      const timeout = setTimeout(() => {
+        if (attempt < retries) doFetch(attempt + 1);
+        else resolve(null);
+      }, 4000 + backoff), prev = window.jsonpgz;
+      window.jsonpgz = function(d) {
+        clearTimeout(timeout);
+        if (window.jsonpgz === prev) delete window.jsonpgz;
+        else window.jsonpgz = prev;
+        resolve(d);
+      };
+      const s = document.createElement('script');
+      s.src = 'https://fundgz.1234567.com.cn/js/'+code+'.js?rt='+Date.now();
+      s.onerror = () => {
+        clearTimeout(timeout);
+        if (window.jsonpgz === prev) delete window.jsonpgz;
+        else window.jsonpgz = prev;
+        if (attempt < retries) {
+          setTimeout(() => doFetch(attempt + 1), backoff);
+        } else resolve(null);
+      };
+      document.head.appendChild(s);
+      s.onload = () => { if(s.parentNode)s.parentNode.removeChild(s); };
+    };
+    doFetch(0);
   });
 }
 
