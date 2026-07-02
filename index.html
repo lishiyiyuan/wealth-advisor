@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1140</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1146</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -3335,7 +3335,23 @@ function saveAiKey() {
 }
 
 function renderChatUI() {
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:0.75rem;color:var(--gray);">Key: '+getAiKey().slice(0,8)+'***</div><div style="display:flex;align-items:center;gap:8px;"><label style="font-size:0.7rem;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:3px;"><input type="checkbox" id="aiSearchToggle" '+(_aiSearch?'checked':'')+' onchange="_aiSearch=this.checked" style="width:14px;height:14px;">🌐 联网</label><button onclick="setAiKey(\'\');_aiHistory=[];renderAiTab();" style="font-size:0.7rem;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">更换</button></div></div>';
+  const searchUrl = getSearchUrl();
+  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-size:0.75rem;color:var(--gray);">Key: '+getAiKey().slice(0,8)+'***</div><div style="display:flex;align-items:center;gap:8px;"><label style="font-size:0.7rem;color:var(--gray);cursor:pointer;display:flex;align-items:center;gap:3px;"><input type="checkbox" id="aiSearchToggle" '+(_aiSearch?'checked':'')+' onchange="toggleAiSearch(this.checked)" style="width:14px;height:14px;">🌐 联网</label><button onclick="setAiKey(\'\');_aiHistory=[];renderAiTab();" style="font-size:0.7rem;padding:3px 8px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">更换</button></div></div>';
+  
+  // 联网搜索配置区
+  if (_aiSearch) {
+    if (!searchUrl) {
+      html += '<div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:10px;margin-bottom:8px;font-size:0.7rem;">';
+      html += '<div style="font-weight:600;margin-bottom:4px;">🔧 配置搜索代理地址</div>';
+      html += '<div style="color:var(--gray);margin-bottom:6px;">部署 Worker 后粘贴你的搜索代理 URL（末尾不含 /）</div>';
+      html += '<div style="display:flex;gap:6px;"><input id="searchUrlInput" placeholder="https://xxx.workers.dev" style="flex:1;padding:6px;border:1px solid #e5e7eb;border-radius:4px;font-size:0.7rem;"><button onclick="saveSearchUrl()" style="padding:6px 12px;background:var(--red);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:0.7rem;">保存</button></div>';
+      html += '<div style="margin-top:4px;color:var(--gray);font-size:0.6rem;">💡 点击"保存"后将自动测试搜索连接</div>';
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:0.65rem;color:#059669;margin-bottom:6px;">✅ 搜索代理已连接 · <span onclick="setSearchUrl(\'\');_aiSearch=false;renderAiTab()" style="color:var(--red);cursor:pointer;">断开</span></div>';
+    }
+  }
+  
   html += '<div id="aiMessages" style="max-height:60vh;overflow-y:auto;margin-bottom:10px;">';
   if (_aiHistory.length===0) {
     html += '<div style="text-align:center;color:var(--gray);padding:20px;"><div style="font-size:2rem;margin-bottom:8px;">🤖</div><div style="font-size:0.85rem;">我是你的AI投资助手</div><div style="font-size:0.7rem;margin-top:4px;">试试问我：</div><div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;">'+quickBtn('对比000184和000218')+quickBtn('今天市场怎么样')+quickBtn('帮我推荐PR3客户的产品')+quickBtn('客户亏了15%怎么安抚')+'</div></div>';
@@ -3352,16 +3368,51 @@ function renderChatUI() {
 
 function quickBtn(text) { return '<button onclick="document.getElementById(\'aiInput\').value=\''+text+'\';sendAiMsg()" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;cursor:pointer;white-space:nowrap;">'+text+'</button>'; }
 
+function toggleAiSearch(on) {
+  _aiSearch = on;
+  if (!on) { renderAiTab(); return; }
+  const url = getSearchUrl();
+  if (url) {
+    // 已有配置，测试连通性
+    webSearch('test').then(r => {
+      if (r) { toast('搜索代理连接正常'); renderAiTab(); }
+      else { toast('搜索代理无响应，请检查地址'); }
+    });
+  } else {
+    renderAiTab(); // 显示配置输入框
+  }
+}
+
+function saveSearchUrl() {
+  const inp = document.getElementById('searchUrlInput');
+  const url = (inp?.value||'').trim();
+  if (!url) { toast('请输入搜索代理地址'); return; }
+  if (!url.startsWith('https://')) { toast('地址需以 https:// 开头'); return; }
+  setSearchUrl(url);
+  toast('已保存，测试连接...');
+  webSearch('test').then(r => {
+    if (r) { toast('✅ 搜索代理连接正常'); }
+    else { toast('⚠️ 搜索代理无响应，请检查'); }
+    renderAiTab();
+  });
+}
+
+function getSearchUrl() { return localStorage.getItem('wm_search_url')||''; }
+function setSearchUrl(u) { localStorage.setItem('wm_search_url', u); }
+
 async function webSearch(query) {
+  const url = getSearchUrl();
+  if (!url) return null;
+  
   try {
-    const resp = await fetch('https://brave-search-proxy.8fjzgjv4nw.workers.dev/search?q='+encodeURIComponent(query)+'&count=5');
+    const resp = await fetch(url.replace(/\/?$/, '/search?q=')+encodeURIComponent(query)+'&count=5');
     if (!resp.ok) return null;
     const data = await resp.json();
     const results = data.results||[];
     if (!results.length) return null;
-    let text = '【来自Brave搜索引擎】\n';
+    let text = '【联网搜索结果】\n';
     for (const r of results) {
-      text += '- '+(r.title||'')+'\n  '+(r.description||'').slice(0,200)+'\n';
+      text += '- '+(r.title||'')+'\n  '+(r.desc||r.description||'').slice(0,200)+'\n';
     }
     return text;
   } catch(e) { return null; }
@@ -3379,10 +3430,15 @@ async function sendAiMsg() {
   
   let searchCtx = '';
   if (_aiSearch) {
+    if (!getSearchUrl()) {
+      _aiHistory.push({role:'assistant',content:'⚠️ 请先配置搜索代理地址（勾选联网后输入 Worker URL）'});
+      btn = document.getElementById('aiSendBtn'); if(btn){btn.disabled=false;btn.innerHTML='发送';}
+      refreshAiMessages(); return;
+    }
     btn = document.getElementById('aiSendBtn');
     if (btn) btn.innerHTML = '🔍';
     try { const sr=await webSearch(msg); if(sr) searchCtx='\n\n'+sr+'\n请基于以上搜索结果用中文总结回答，简洁专业。'; } catch(e){}
-    if (!searchCtx) { _aiHistory.push({role:'assistant',content:'搜索无结果'}); btn = document.getElementById('aiSendBtn'); if(btn){btn.disabled=false;btn.innerHTML='发送';} refreshAiMessages(); return; }
+    if (!searchCtx) { _aiHistory.push({role:'assistant',content:'⚠️ 搜索无结果，请检查搜索代理是否正常运行'}); btn = document.getElementById('aiSendBtn'); if(btn){btn.disabled=false;btn.innerHTML='发送';} refreshAiMessages(); return; }
   }
   
   try {

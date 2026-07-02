@@ -1,0 +1,6 @@
+name = "wealth-advisor-search"
+main = "worker.js"
+compatibility_date = "2025-07-01"
+
+# 免费计划自动分配 *.workers.dev 域名
+# 部署: npx wrangler deploy
