@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1015</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1025</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -1210,19 +1210,71 @@ function switchFundSort(el) {
   renderFundTab(sort);
 }
 
+let _fundSortKey = '';
+
 async function renderFundTab(sortKey) {
+  _fundSortKey = sortKey || '';
   const container = document.getElementById('fundContent');
   if (!container) return;
-  
+
+  const activeFilter = (document.querySelector('.fund-filter.active')?.dataset?.filter) || '全部';
+  const sort = _fundSortKey || (document.querySelector('.fund-sort.active')?.dataset?.sort) || '';
+  const myFunds = loadMyFunds();
   const allProds = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
-  let funds = allProds.filter(p => p.product_category === '基金');
-  
-  if (funds.length === 0) {
-    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">未找到基金产品</p>';
-    return;
-  }
+  const prodFunds = allProds.filter(p => p.product_category === '基金');
+  const allFunds = [...myFunds.filter(mf => !prodFunds.some(f => f.product_id === mf.product_id)), ...prodFunds];
+  const savedKw = (document.getElementById('fundSearch')?.value || '');
+
+  // ---------- 静态头部 ----------
+  let html = '<div id="fundHeader">';
+  html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
+  html += '<div style="font-weight:700;">📈 基金估值 <span id="fundCount" style="font-weight:400;font-size:0.78rem;color:var(--gray);">('+allFunds.length+'只)</span></div>';
+  html += '<div style="display:flex;gap:6px;">';
+  html += '<button onclick="toggleCompare()" id="btnCompare" style="font-size:0.75rem;padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;">📊 对比</button>';
+  html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 估值</button>';
+  html += '</div></div>';
 
   // 分类筛选
+  html += '<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;">';
+  for (const fl of ['全部','债券型','混合型','指数型','主动权益']) {
+    html += '<span class="fund-filter'+(fl===activeFilter?' active':'')+'" data-filter="'+fl+'" onclick="switchFundFilter(this)" style="font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;'+(fl===activeFilter?'background:var(--red);color:#fff;':'background:#f3f4f6;color:var(--gray);')+'">'+fl+'</span>';
+  }
+  html += '</div>';
+
+  // 搜索 + 排序
+  html += '<div style="display:flex;gap:6px;margin-bottom:6px;">';
+  html += '<input id="fundSearch" oninput="renderFundList()" placeholder="🔍 搜索基金名称或代码" value="'+savedKw.replace(/"/g,'&quot;')+'" style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;">';
+  html += '<button onclick="searchAllFunds()" id="btnFundSearch" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;white-space:nowrap;">🔍 全网搜索</button>';
+  for (const [k,v] of [['','默认'],['1m','涨跌幅↓'],['risk','风险低→高']]) {
+    html += '<span class="fund-sort'+(sort===k||(!sort&&!k)?' active':'')+'" data-sort="'+k+'" onclick="switchFundSort(this)" style="font-size:0.7rem;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;white-space:nowrap;'+(sort===k||(!sort&&!k)?'background:var(--dark);color:#fff;':'background:#fff;')+'">'+v+'</span>';
+  }
+  html += '</div>';
+
+  // 全网搜索结果区
+  html += '<div id="fundSearchResults"></div>';
+
+  // 自选指示
+  if (myFunds.length > 0) {
+    html += '<div style="margin-bottom:6px;font-size:0.7rem;color:var(--gray);">⭐ 我的自选 ('+myFunds.length+'只) · <span onclick="clearMyFunds()" style="color:var(--red);cursor:pointer;">清空</span></div>';
+  }
+  html += '</div>'; // end fundHeader
+
+  // ---------- 动态列表容器 ----------
+  html += '<div id="fundListContainer"></div>';
+  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:6px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
+  container.innerHTML = html;
+  renderFundList();
+}
+
+async function renderFundList() {
+  const container = document.getElementById('fundListContainer');
+  if (!container) return;
+
+  const myFunds = loadMyFunds();
+  const allProds = typeof PRODUCTS !== 'undefined' ? PRODUCTS : [];
+  const prodFunds = allProds.filter(p => p.product_category === '基金');
+  let funds = [...myFunds.filter(mf => !prodFunds.some(f => f.product_id === mf.product_id)), ...prodFunds];
+
   const activeFilter = (document.querySelector('.fund-filter.active')?.dataset?.filter) || '全部';
   if (activeFilter !== '全部') {
     funds = funds.filter(f => {
@@ -1234,67 +1286,33 @@ async function renderFundTab(sortKey) {
       return true;
     });
   }
-  
-  // 搜索过滤
+
   const kw = (document.getElementById('fundSearch')?.value||'').toLowerCase();
   if (kw) {
     funds = funds.filter(f => (f.product_name||'').toLowerCase().includes(kw) || (f.product_id||'').toLowerCase().includes(kw));
   }
-  
-  // 排序
+
   const hist = window._fundHistory || {};
-  const sort = sortKey || (document.querySelector('.fund-sort.active')?.dataset?.sort) || '';
+  const sort = _fundSortKey || (document.querySelector('.fund-sort.active')?.dataset?.sort) || '';
   if (sort === '1m') {
     funds.sort((a,b) => ((hist[b.product_id]||{}).one_month||0) - ((hist[a.product_id]||{}).one_month||0));
   } else if (sort === 'risk') {
     funds.sort((a,b) => (parseInt((a.risk_level||'PR3').replace('PR','')) - parseInt((b.risk_level||'PR3').replace('PR',''))));
   }
 
-  let html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">';
-  html += '<div style="font-weight:700;">📈 基金估值 ('+funds.length+'只)</div>';
-  html += '<div style="display:flex;gap:6px;">';
-  html += '<button onclick="toggleCompare()" id="btnCompare" style="font-size:0.75rem;padding:6px 12px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;">📊 对比</button>';
-  html += '<button onclick="fetchFundEstimates()" id="btnEstimate" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 估值</button>';
-  html += '</div></div>';
-  
-  // 分类筛选标签
-  html += '<div style="display:flex;gap:4px;margin-bottom:6px;flex-wrap:wrap;">';
-  const filters = ['全部','债券型','混合型','指数型','主动权益'];
-  for (const fl of filters) {
-    html += '<span class="fund-filter'+(fl===activeFilter?' active':'')+'" data-filter="'+fl+'" onclick="switchFundFilter(this)" style="font-size:0.7rem;padding:3px 8px;border-radius:10px;cursor:pointer;'+(fl===activeFilter?'background:var(--red);color:#fff;':'background:#f3f4f6;color:var(--gray);')+'">'+fl+'</span>';
-  }
-  html += '</div>';
-  
-  // 排序 + 搜索
-  html += '<div style="display:flex;gap:6px;margin-bottom:6px;">';
-  html += '<input id="fundSearch" oninput="renderFundTab()" placeholder="🔍 搜索基金（名称或代码）" style="flex:1;padding:7px 10px;border:1px solid #e5e7eb;border-radius:6px;font-size:0.78rem;">';
-  html += '<button onclick="searchAllFunds()" id="btnFundSearch" style="font-size:0.7rem;padding:4px 10px;border:1px solid #e5e7eb;border-radius:6px;background:#fff;cursor:pointer;white-space:nowrap;">🔍 全网搜索</button>';
-  const sorts = [['','默认'],['1m','涨跌幅↓'],['risk','风险低→高']];
-  for (const [k,v] of sorts) {
-    html += '<span class="fund-sort'+(sort===k||(!sort&&!k)?' active':'')+'" data-sort="'+k+'" onclick="switchFundSort(this)" style="font-size:0.7rem;padding:4px 8px;border-radius:6px;border:1px solid #e5e7eb;cursor:pointer;white-space:nowrap;'+(sort===k||(!sort&&!k)?'background:var(--dark);color:#fff;':'background:#fff;')+'">'+v+'</span>';
-  }
-  html += '</div>';
-  
-  // 全网搜索结果展示区
-  html += '<div id="fundSearchResults"></div>';
-  
-  // 自选基金区
-  const myFunds = loadMyFunds();
-  if (myFunds.length > 0) {
-    html += '<div style="margin-bottom:8px;font-size:0.7rem;color:var(--gray);">⭐ 我的自选 ('+myFunds.length+'只) · <span onclick="clearMyFunds()" style="color:var(--red);cursor:pointer;">清空</span></div>';
-    // 合并自选基金到列表头部
-    const extraFunds = myFunds.filter(mf => !funds.some(f => f.product_id === mf.product_id));
-    funds = [...extraFunds, ...funds];
-  }
-  
+  // 更新计数
+  const cntEl = document.getElementById('fundCount');
+  if (cntEl) cntEl.textContent = '('+funds.length+'只)';
+
   // 对比表
+  let html = '';
   if (_compareMode && _compareList.length > 1) {
     html += '<div style="overflow-x:auto;margin-bottom:10px;background:#fefce8;border:1px solid #fde68a;border-radius:8px;padding:10px;">';
     html += '<div style="font-weight:600;font-size:0.8rem;margin-bottom:6px;">📊 对比 ('+_compareList.length+'只)</div>';
     html += '<div style="display:flex;gap:6px;font-size:0.7rem;border-bottom:1px solid #fde68a;padding-bottom:3px;">';
     html += '<div style="min-width:60px;font-weight:600;">指标</div>';
     for (const c of _compareList) {
-      const f = allProds.find(x=>x.product_id===c);
+      const f = allProds.find(x=>x.product_id===c) || myFunds.find(x=>x.product_id===c);
       html += '<div style="min-width:80px;font-weight:600;">'+(f?f.product_name.slice(0,7):c)+'</div>';
     }
     html += '</div>';
@@ -1312,17 +1330,22 @@ async function renderFundTab(sortKey) {
     }
     html += '</div>';
   }
-  
-  if (funds.length === 0) { html += '<p style="text-align:center;color:var(--gray);padding:30px;">没有匹配的基金</p>'; container.innerHTML = html; return; }
-  
+
+  if (funds.length === 0) {
+    html += '<p style="text-align:center;color:var(--gray);padding:30px;">没有匹配的基金<br><span style="font-size:0.7rem;">试试「🔍 全网搜索」按钮查找更多基金</span></p>';
+    container.innerHTML = html;
+    return;
+  }
+
   for (const f of funds) {
     const code = f.product_id || '', sc = f.sub_category || '';
     const isSel = _compareList.includes(code);
-    const tag = sc.includes('债基')?'债券型':sc.includes('混合')?'混合型':sc.includes('指数')?'指数型':sc.includes('主动权益')?'主动权益':sc;
+    const isMy = myFunds.some(mf => mf.product_id === code);
+    const tag = sc.includes('债基')?'债券型':sc.includes('混合')?'混合型':sc.includes('指数')?'指数型':sc.includes('主动权益')?'主动权益':(f.issuer||'');
     html += '<div class="fund-card" data-code="'+code+'" style="background:'+(isSel?'#fef3c7':'#fff')+';border-radius:8px;padding:10px 12px;margin-bottom:6px;border:1px solid '+(isSel?'#f59e0b':'#e5e7eb')+';cursor:'+(_compareMode?'pointer':'default')+';" onclick="'+(_compareMode?'toggleCompareFund(\''+code+'\')':'showFundDetail(\''+code+'\')')+'">';
     html += '<div style="display:flex;align-items:center;margin-bottom:4px;">';
     html += '<div style="flex:1;">';
-    html += '<div style="font-size:0.82rem;font-weight:600;">'+(f.issuer==='自选'?'⭐ ':'')+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:var(--red);padding:1px 5px;border-radius:3px;">'+(f.issuer==='自选'?'自选':tag)+'</span></div>';
+    html += '<div style="font-size:0.82rem;font-weight:600;">'+(isMy?'⭐ ':'')+(f.product_name||'')+' <span style="font-size:0.6rem;color:#fff;background:var(--red);padding:1px 5px;border-radius:3px;">'+(isMy?'自选':(tag||'—'))+'</span></div>';
     html += '<div style="font-size:0.65rem;color:var(--gray);">'+code+' · '+(f.risk_level||'')+' · '+(f.issuer||'').slice(0,8)+'</div>';
     html += '</div>';
     html += '<span class="fund-gz" style="font-size:0.85rem;font-weight:700;color:var(--gray);min-width:55px;text-align:right;">—</span>';
@@ -1336,7 +1359,6 @@ async function renderFundTab(sortKey) {
     html += '<span class="fund-1y" style="color:var(--gray);white-space:nowrap;">近1年 —</span>';
     html += '</div></div></div>';
   }
-  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:6px;">数据来源：天天基金 · 东方财富 | 估值仅供参考</div>';
   container.innerHTML = html;
 
   loadFundHistory().then(hist => {
@@ -1364,7 +1386,8 @@ function toggleCompareFund(code) {
 }
 
 function showFundDetail(code) {
-  const f = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p => p.product_id === code);
+  const f = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).find(p => p.product_id === code)
+         || loadMyFunds().find(p => p.product_id === code);
   if (!f) return;
   const hist = (window._fundHistory||{})[code] || {};
   
@@ -1491,12 +1514,7 @@ function updateRow(code, data) {
   card.style.background = '#f9fafb';
 }
 
-function filterFunds() {
-  const q = (document.getElementById('fundSearch')?.value||'').toLowerCase();
-  document.querySelectorAll('.fund-card').forEach(c => {
-    c.style.display = q ? ((c.textContent||'').toLowerCase().includes(q) ? '' : 'none') : '';
-  });
-}
+function filterFunds() { renderFundList(); }
 
 async function loadFundHistory() {
   try {
