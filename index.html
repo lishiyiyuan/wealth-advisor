@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1146</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1204</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -3397,7 +3397,7 @@ function saveSearchUrl() {
   });
 }
 
-function getSearchUrl() { return localStorage.getItem('wm_search_url')||''; }
+function getSearchUrl() { return localStorage.getItem('wm_search_url')||'https://wealth-advisor-search.8fjzgjv4nw.workers.dev'; }
 function setSearchUrl(u) { localStorage.setItem('wm_search_url', u); }
 
 async function webSearch(query) {
