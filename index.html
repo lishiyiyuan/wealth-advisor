@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1130</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1140</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -995,16 +995,33 @@ async function renderFundMonitor() {
   
   let html = headerHtml;
   
-  // 四格统计
+  // 四格统计（可点击筛选）
+  const f_active = '2px solid var(--red)';
   html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px;">';
-  html += '<div style="background:'+(bigDev>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">偏离>1%</div><div style="font-size:1.1rem;font-weight:700;color:'+(bigDev>0?'var(--red)':'#059669')+';">'+bigDev+'</div></div>';
-  html += '<div style="background:'+(highVol>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">波动>3%</div><div style="font-size:1.1rem;font-weight:700;color:'+(highVol>0?'var(--red)':'#059669')+';">'+highVol+'</div></div>';
-  html += '<div style="background:'+(pauseCnt>0?'#fefce8':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">申赎异常</div><div style="font-size:1.1rem;font-weight:700;color:'+(pauseCnt>0?'#92400e':'#059669')+';">'+pauseCnt+'</div></div>';
-  html += '<div style="background:#f0fdf4;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">监控总数</div><div style="font-size:1.1rem;font-weight:700;">'+results.length+'</div></div>';
+  html += '<div onclick="_monitorFilter=_monitorFilter===\'deviation\'?null:\'deviation\';renderFundMonitor()" style="cursor:pointer;background:'+(bigDev>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;border:'+(_monitorFilter==='deviation'?f_active:'1px solid transparent')+';transition:all 0.15s;"><div style="font-size:0.6rem;color:var(--gray);">偏离>1%</div><div style="font-size:1.1rem;font-weight:700;color:'+(bigDev>0?'var(--red)':'#059669')+';">'+bigDev+'</div></div>';
+  html += '<div onclick="_monitorFilter=_monitorFilter===\'volatility\'?null:\'volatility\';renderFundMonitor()" style="cursor:pointer;background:'+(highVol>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;border:'+(_monitorFilter==='volatility'?f_active:'1px solid transparent')+';transition:all 0.15s;"><div style="font-size:0.6rem;color:var(--gray);">波动>3%</div><div style="font-size:1.1rem;font-weight:700;color:'+(highVol>0?'var(--red)':'#059669')+';">'+highVol+'</div></div>';
+  html += '<div onclick="_monitorFilter=_monitorFilter===\'pause\'?null:\'pause\';renderFundMonitor()" style="cursor:pointer;background:'+(pauseCnt>0?'#fefce8':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;border:'+(_monitorFilter==='pause'?f_active:'1px solid transparent')+';transition:all 0.15s;"><div style="font-size:0.6rem;color:var(--gray);">申赎异常</div><div style="font-size:1.1rem;font-weight:700;color:'+(pauseCnt>0?'#92400e':'#059669')+';">'+pauseCnt+'</div></div>';
+  html += '<div onclick="_monitorFilter=null;renderFundMonitor()" style="cursor:pointer;background:#f0fdf4;border-radius:8px;padding:8px;text-align:center;border:'+(!_monitorFilter?f_active:'1px solid transparent')+';transition:all 0.15s;"><div style="font-size:0.6rem;color:var(--gray);">监控总数</div><div style="font-size:1.1rem;font-weight:700;">'+results.length+'</div></div>';
   html += '</div>';
   
+  // 筛选提示
+  if (_monitorFilter) {
+    const labels = {deviation:'偏离>1%', volatility:'波动>3%', pause:'申赎异常'};
+    html += '<div style="font-size:0.7rem;color:var(--red);margin-bottom:6px;">🔍 当前筛选：'+labels[_monitorFilter]+' · <span onclick="_monitorFilter=null;renderFundMonitor()" style="cursor:pointer;text-decoration:underline;">清除筛选</span></div>';
+  }
+  
+  // 按筛选条件过滤
+  let filtered = results;
+  if (_monitorFilter === 'deviation') filtered = results.filter(r => r.deviation > 1.0);
+  else if (_monitorFilter === 'volatility') filtered = results.filter(r => Math.abs(r.estPct) > 3);
+  else if (_monitorFilter === 'pause') filtered = results.filter(r => { const s = parseSgStatus(r.info); return s.text==='暂停申购'||s.text==='限额申购'; });
+  
+  if (!filtered.length) {
+    html += '<p style="text-align:center;color:var(--gray);padding:20px;">当前筛选条件下无匹配基金</p>';
+  }
+  
   // 基金卡片
-  for (const r of results) {
+  for (const r of filtered) {
     const statusBg = r.deviation > 1.0 ? '#fef2f2' : (Math.abs(r.estPct) > 3 ? '#fefce8' : '#fff');
     const statusBorder = r.deviation > 1.0 ? '#fecaca' : (Math.abs(r.estPct) > 3 ? '#fde68a' : '#e5e7eb');
     const chgColor = r.estPct > 0 ? '#c41230' : (r.estPct < 0 ? '#059669' : 'var(--gray)');
@@ -1233,6 +1250,7 @@ function searchAllFunds() {
 // 自选Tab（JSONP方案，顺序加载）
 // ============================================================
 let _compareMode = false, _compareList = [];
+let _monitorFilter = null; // null|'deviation'|'volatility'|'pause'
 
 
 function switchFundFilter(el) {
