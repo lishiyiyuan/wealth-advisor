@@ -251,6 +251,15 @@ body.dark .mini-table th { background:#374151; color:#d1d5db; }
 .dark-toggle { font-size:1.1rem; cursor:pointer; padding:4px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); background:transparent; color:#fff; transition:all 0.2s; }
 .dark-toggle:hover { background:rgba(255,255,255,0.1); }
 
+/* ===== 通用动画 ===== */
+@keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.fade-in { animation: fadeIn .3s ease; }
+.fade-in-up { animation: fadeInUp .35s ease; }
+.fade-in-up-d1 { animation: fadeInUp .35s ease .05s both; }
+.fade-in-up-d2 { animation: fadeInUp .35s ease .1s both; }
+.fade-in-up-d3 { animation: fadeInUp .35s ease .15s both; }
+
 /* 骨架屏动画 */
 @keyframes shimmer { 0%{background-position:-200px 0} 100%{background-position:calc(200px + 100%) 0} }
 .skeleton { background:linear-gradient(90deg,#e5e7eb 25%,#f3f4f6 50%,#e5e7eb 75%); background-size:200px 100%; animation:shimmer 1.5s infinite; border-radius:6px; }
@@ -265,8 +274,8 @@ body.dark .skeleton { background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#
 <div class="header">
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
-      <h1>🏦 智能投顾系统 <span class="ver">v3.2</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1805</p>
+      <h1>🏦 智能投顾系统 <span class="ver">v3.2.1</span></h1>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1815</p>
     </div>
     <div style="display:flex;gap:6px;align-items:center;">
       <button onclick="togglePresentation()" class="pres-toggle" id="presToggle" title="面客模式" style="background:rgba(255,255,255,0.12);color:#fff;border:1px solid rgba(255,255,255,0.25);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:0.75rem;transition:all .2s;">🎤 面客</button>
@@ -395,7 +404,7 @@ body.dark .skeleton { background:linear-gradient(90deg,#374151 25%,#4b5563 50%,#
 <!-- 移动端底部导航 -->
 <div class="mobile-bottom-nav" id="mobileNav">
   <div class="mobile-nav-item active" onclick="switchTab('dashboard')" data-tab="dashboard">
-    <span class="nav-icon">📊</span>仪表盘
+    <span class="nav-icon">📋</span>工作台
   </div>
   <div class="mobile-nav-item" onclick="switchTab('fund')" data-tab="fund">
     <span class="nav-icon">⭐</span>自选
@@ -700,9 +709,7 @@ function togglePresentation() {
   if (isPres) {
     btn.textContent = '🎤 退出面客';
     btn.classList.add('pres-toggle');
-    toast('已进入面客模式 — 大字体 · 隐藏编辑 · 聚焦呈现');
-    // 自动切换到客户管理 Tab
-    switchTab('clients');
+    toast('已进入面客模式 — 大字体 · 聚焦呈现');
   } else {
     btn.textContent = '🎤 面客';
     btn.classList.remove('pres-toggle');
@@ -1592,6 +1599,7 @@ async function renderFundList() {
   container.innerHTML = html;
 
   loadFundHistory().then(hist => {
+    window._fundHistory = hist;
     for (const card of document.querySelectorAll('.fund-card')) {
       const c = card.dataset.code;
       if (hist[c]) updateHistRow(c, hist[c]);
@@ -1764,10 +1772,10 @@ function showFundDetail(code) {
   d += '</div>';
   
   // 历史业绩
-  if (hist.one_month !== undefined) {
+  if (hist['1m'] !== undefined) {
     d += '<div style="font-weight:600;font-size:0.8rem;margin-bottom:4px;">📊 阶段收益</div>';
     d += '<div style="display:flex;gap:6px;margin-bottom:8px;">';
-    for (const [label, key] of [['近1月','one_month'],['近3月','three_month'],['近半年','six_month'],['近1年','one_year']]) {
+    for (const [label, key] of [['近1月','1m'],['近3月','3m'],['近半年','6m'],['近1年','1y']]) {
       const v = hist[key];
       const cl = v>0?'#c41230':v<0?'#059669':'var(--gray)';
       d += '<div style="flex:1;text-align:center;background:#f9fafb;border-radius:6px;padding:6px;"><div style="font-size:0.6rem;color:var(--gray);">'+label+'</div><div style="font-size:0.8rem;font-weight:700;color:'+cl+';">'+(v!=null?(v>=0?'+':'')+v+'%':'—')+'</div></div>';
