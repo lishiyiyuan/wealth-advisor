@@ -845,41 +845,99 @@ function copyOutlook() {
 // 资讯Tab渲染（独立Tab）
 // ============================================================
 function renderNewsTab() {
+  // 已重命名为基金监控
+  renderFundMonitor();
+}
+
+async function renderFundMonitor() {
   const container = document.getElementById('newsContent');
-  const dailyNews = (window._dailyNews) || [];
+  if (!container) return;
   
-  let html = '';
-  if (dailyNews.length === 0) {
-    html += '<div class="card"><div class="card-title">📰 今日资讯</div>';
-    html += '<p style="font-size:0.82rem;color:var(--gray);">暂无实时资讯，等待数据管道更新后显示。</p>';
-    html += '<p style="font-size:0.75rem;color:var(--gray);">每天早晨数据管道会自动爬取最新财经要闻。</p>';
-    html += '</div>';
-  } else {
-    // 去重显示
-    const seen = window._renderedNewsIds || new Set();
-    const fresh = dailyNews.filter(n => !seen.has(n.title));
-    
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">';
-    html += '<div style="font-weight:700;">📰 今日资讯（' + fresh.length + '条）</div>';
-    html += '<button onclick="refreshNewsTab()" id="btnRefreshNews" style="font-size:0.8rem;padding:6px 14px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">🔄 刷新资讯</button>';
-    html += '</div>';
-    
-    for (const n of fresh) {
-      const catCls = {宏观经济:'macro', 行业动态:'industry', 上市公司:'company', 国际地缘:'geopolitics'}[n.category] || 'macro';
-      html += '<div class="news-card">';
-      html += '<span class="news-cat ' + catCls + '">' + (n.category||'资讯') + '</span>';
-      html += '<div class="news-title">' + (n.title||'') + '</div>';
-      if (n.summary) html += '<div class="news-summary">' + n.summary + '</div>';
-      if (n.capital_view) html += '<div class="news-capital">💰 资本视角：' + n.capital_view + '</div>';
-      if (n.plain_text) html += '<div class="news-plain">💬 人话版：' + n.plain_text + '</div>';
-      html += '</div>';
-    }
-    
-    // 标记已显示
-    dailyNews.forEach(n => seen.add(n.title));
-    window._renderedNewsIds = seen;
+  const myFunds = loadMyFunds();
+  const preloaded = (typeof PRODUCTS!=='undefined'?PRODUCTS:[]).filter(p => p.product_category === '基金');
+  const funds = [...myFunds];
+  for (const f of preloaded) {
+    if (!funds.some(mf => mf.product_id === f.product_id)) funds.push(f);
   }
   
+  if (!funds.length) {
+    container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">去基金估值Tab添加自选</span></p>';
+    return;
+  }
+  
+  container.innerHTML = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只)</div><div style="text-align:center;padding:20px;color:var(--gray);">⏳ 正在获取实时数据...</div>';
+  
+  let html = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只) <button onclick="renderFundMonitor()" style="font-size:0.7rem;padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">🔄 刷新</button></div>';
+  
+  const alerts = [];
+  let checked = 0;
+  
+  for (const f of funds) {
+    const code = f.product_id;
+    try {
+      const gz = await fetchFundGz(code);
+      checked++;
+      if (!gz) continue;
+      
+      const dn = parseFloat(gz.dwjz) || 0;
+      const gs = parseFloat(gz.gsz) || 0;
+      const gszzl = parseFloat(gz.gszzl) || 0;
+      
+      let deviation = null;
+      if (dn > 0 && gs > 0) {
+        const actualChg = (gs / dn - 1) * 100;
+        deviation = Math.abs(actualChg - gszzl);
+      }
+      
+      let status = '正常';
+      if (deviation !== null && deviation > 1.0) status = '偏离较大';
+      if (Math.abs(gszzl) > 3) status = '波动剧烈';
+      
+      container.innerHTML = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只) <button onclick="renderFundMonitor()" style="font-size:0.7rem;padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">🔄 刷新</button></div><div style="text-align:center;padding:10px;color:var(--gray);font-size:0.7rem;">正在检查 '+checked+'/'+funds.length+'...</div>';
+      
+      alerts.push({
+        code, name: gz.name || f.product_name,
+        nav: dn, est: gs, estPct: gszzl,
+        navDate: gz.jzrq, time: gz.gztime,
+        deviation, status
+      });
+    } catch(e) {}
+  }
+  
+  alerts.sort((a,b) => (b.deviation||0) - (a.deviation||0));
+  
+  if (!alerts.length) {
+    html += '<p style="text-align:center;color:var(--gray);padding:20px;">数据获取失败，请重试</p>';
+  } else {
+    const bigDev = alerts.filter(a => a.deviation > 1.0).length;
+    const highVol = alerts.filter(a => Math.abs(a.estPct) > 3).length;
+    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">';
+    html += '<div style="background:'+(bigDev>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">偏离>1%</div><div style="font-size:1.1rem;font-weight:700;color:'+(bigDev>0?'var(--red)':'#059669')+';">'+bigDev+'</div></div>';
+    html += '<div style="background:'+(highVol>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">波动>3%</div><div style="font-size:1.1rem;font-weight:700;color:'+(highVol>0?'var(--red)':'#059669')+';">'+highVol+'</div></div>';
+    html += '<div style="background:#f0fdf4;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">监控总数</div><div style="font-size:1.1rem;font-weight:700;">'+alerts.length+'</div></div>';
+    html += '</div>';
+    
+    for (const a of alerts) {
+      const statusBg = a.deviation > 1.0 ? '#fef2f2' : (Math.abs(a.estPct) > 3 ? '#fefce8' : '#fff');
+      const statusBorder = a.deviation > 1.0 ? '#fecaca' : (Math.abs(a.estPct) > 3 ? '#fde68a' : '#e5e7eb');
+      const chgColor = a.estPct > 0 ? '#c41230' : (a.estPct < 0 ? '#059669' : 'var(--gray)');
+      const arrow = a.estPct > 0 ? '▲' : (a.estPct < 0 ? '▼' : '');
+      
+      html += '<div style="background:'+statusBg+';border:1px solid '+statusBorder+';border-radius:8px;padding:10px;margin-bottom:6px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
+      html += '<span style="font-weight:600;font-size:0.82rem;">'+a.name+'</span>';
+      html += '<span style="font-size:0.65rem;background:'+(a.deviation>1.0?'#fecaca':Math.abs(a.estPct)>3?'#fde68a':'#d1fae5')+';padding:2px 6px;border-radius:4px;color:'+(a.deviation>1.0?'#c41230':'var(--dark)')+';">'+a.status+'</span>';
+      html += '</div>';
+      html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;">';
+      html += '<span>净值 '+a.nav.toFixed(4)+'（'+a.navDate+'）</span>';
+      html += '<span>估算 '+a.est.toFixed(4)+' <span style="color:'+chgColor+';">'+arrow+(a.estPct>0?'+':'')+a.estPct.toFixed(2)+'%</span></span>';
+      html += '</div>';
+      html += '<div style="font-size:0.65rem;color:'+(a.deviation>1.0?'#c41230':'var(--gray)')+';margin-top:2px;">估值偏离度：'+(a.deviation!=null?a.deviation.toFixed(2):'—')+'% | 更新时间：'+a.time+'</div>';
+      html += '</div>';
+    }
+  }
+  
+  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;">数据来源：天天基金 | 估值仅供参考</div>';
   container.innerHTML = html;
 }
 
