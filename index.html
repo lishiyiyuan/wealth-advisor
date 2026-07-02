@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260619-0856</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-2230</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -211,12 +211,19 @@ input:focus, select:focus { border-color: var(--red); }
 
   <!-- Tab 0: 仪表盘 -->
   <div id="tab-dashboard">
-    <div id="dashboardContent"></div>
+    <div id="dashboardContent" style="text-align:center;padding:40px 20px;color:var(--gray);">
+      <div style="font-size:2rem;margin-bottom:12px;">🏦</div>
+      <div style="font-weight:600;font-size:1rem;margin-bottom:8px;">智能投顾系统</div>
+      <div style="font-size:0.8rem;">正在初始化数据...</div>
+      <div style="margin-top:12px;display:flex;justify-content:center;gap:6px;">
+        <div style="width:8px;height:8px;background:var(--red);border-radius:50%;animation:spin 1s linear infinite;"></div>
+      </div>
+    </div>
   </div>
 
   <!-- Tab 1: 资讯 -->
   <div id="tab-news">
-    <div id="newsContent"></div>
+    <div id="newsContent" style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;">点击上方"资讯"标签查看基金实时监控</div>
   </div>
 
   <!-- Tab 2: 市场 -->
@@ -2789,6 +2796,9 @@ renderCatPicker();
 // ============================================================
 function renderDashboard() {
   const container = document.getElementById('dashboardContent');
+  if (!container) { console.error('dashboardContent not found'); return; }
+  
+  try {
   const ap = (typeof MARKET!=='undefined'&&MARKET.asset_prices)?MARKET.asset_prices:{};
   const ss=ap.a_share||{}, g=ap.gold||{}, fx=ap.fx||{}, bond=ap.bond||{};
   const clients = loadClients();
@@ -2863,6 +2873,10 @@ function renderDashboard() {
   html += '</div>';
   
   container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--gray);">⚠️ 加载失败: '+e.message+'<br><button onclick="location.reload()" style="margin-top:12px;padding:8px 16px;background:var(--red);color:#fff;border:none;border-radius:6px;cursor:pointer;">刷新重试</button></div>';
+    console.error('renderDashboard error:', e);
+  }
 }
 
 function loadAlertConfig() {
@@ -3309,30 +3323,13 @@ function buildAiContext() {
 })();
 </script>
 
-
 <script>
+// 彻底注销所有 Service Worker 避免缓存问题
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.getRegistrations().then(function(regs) {
     regs.forEach(function(r) { r.unregister(); });
-  }).then(function() {
-    navigator.serviceWorker.register('./sw.js?v=2');
   });
 }
 </script>
 </body>
 </html>
-
-<script>
-// 注册 PWA Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(function(reg) {
-    console.log('[PWA] Service Worker 已注册');
-    // 检测是否有更新
-    reg.addEventListener('updatefound', function() {
-      console.log('[PWA] 发现新版本，自动更新中...');
-    });
-  }).catch(function(e) {
-    console.warn('[PWA] Service Worker 注册失败:', e);
-  });
-}
-</script>
