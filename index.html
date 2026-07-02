@@ -188,7 +188,7 @@ input:focus, select:focus { border-color: var(--red); }
   <div style="display:flex;justify-content:space-between;align-items:center;">
     <div>
       <h1>🏦 智能投顾系统 <span class="ver">v2.0</span></h1>
-      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-2255</p>
+      <p style="font-size:0.75rem;opacity:0.7;" id="headerBuild">客户资产配置与产品推荐 · 云端版 · build 20260702-1015</p>
     </div>
     <button onclick="refreshData()" id="btnRefresh" style="background:rgba(255,255,255,0.15);color:#fff;border:1px solid rgba(255,255,255,0.3);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:0.8rem;display:flex;align-items:center;gap:6px;white-space:nowrap;">
       <span id="refreshIcon">🔄</span><span id="refreshLabel">刷新</span>
@@ -199,7 +199,7 @@ input:focus, select:focus { border-color: var(--red); }
 <div class="container">
   <div class="tabs">
     <div class="tab active" onclick="switchTab('dashboard')">📊 仪表盘</div>
-    <div class="tab" onclick="switchTab('news')">📰 资讯</div>
+    <div class="tab" onclick="switchTab('news')">📡 基金监控</div>
     <div class="tab" onclick="switchTab('market')">📡 市场</div>
     <div class="tab" onclick="switchTab('fund')">📈 基金估值</div>
     <div class="tab" onclick="switchTab('clients')">👥 客户管理</div>
@@ -221,9 +221,9 @@ input:focus, select:focus { border-color: var(--red); }
     </div>
   </div>
 
-  <!-- Tab 1: 资讯 -->
+  <!-- Tab 1: 基金监控 -->
   <div id="tab-news">
-    <div id="newsContent" style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;">点击上方"资讯"标签查看基金实时监控</div>
+    <div id="newsContent" style="text-align:center;padding:20px;color:var(--gray);font-size:0.85rem;">点击上方"基金监控"标签查看自选基金实时监控</div>
   </div>
 
   <!-- Tab 2: 市场 -->
@@ -324,7 +324,7 @@ input:focus, select:focus { border-color: var(--red); }
     <span class="nav-icon">📊</span>仪表盘
   </div>
   <div class="mobile-nav-item" onclick="switchTab('news')" data-tab="news">
-    <span class="nav-icon">📰</span>资讯
+    <span class="nav-icon">📡</span>监控
   </div>
   <div class="mobile-nav-item" onclick="switchTab('market')" data-tab="market">
     <span class="nav-icon">📡</span>市场
@@ -816,8 +816,8 @@ function renderMarketTab() {
   }
 
   // 市场Tab不再渲染资讯，改为独立Tab
-  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📰 今日资讯速览<span><button onclick="switchTab(\'news\')" style="font-size:0.75rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button></span></div>';
-  html += '<p style="font-size:0.82rem;color:var(--gray);">点击上方按钮或底部导航切换到「📰 资讯」标签查看完整新闻列表。</p>';
+  html += '<div class="card"><div class="card-title" style="display:flex;justify-content:space-between;align-items:center;">📡 基金监控速览<span><button onclick="switchTab(\'news\')" style="font-size:0.75rem;color:var(--red);background:none;border:none;cursor:pointer;font-weight:600;">查看全部 →</button></span></div>';
+  html += '<p style="font-size:0.82rem;color:var(--gray);">点击上方按钮或底部导航切换到「📡 基金监控」标签查看自选基金实时监控。</p>';
   html += '</div>';
 
   container.innerHTML = html;
@@ -849,11 +849,86 @@ function copyOutlook() {
 }
 
 // ============================================================
-// 资讯Tab渲染（独立Tab）
+// 基金监控Tab（原资讯Tab）
 // ============================================================
 function renderNewsTab() {
-  // 已重命名为基金监控
   renderFundMonitor();
+}
+
+// 基金状态缓存
+var _fundInfoCache = {};
+
+async function fetchFundInfo(code) {
+  if (_fundInfoCache[code]) return _fundInfoCache[code];
+  try {
+    const resp = await fetch('https://fundsuggest.eastmoney.com/FundSearch/api/FundSearchAPI.ashx?m=1&key=' + code);
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data.Datas && data.Datas.length) {
+        const f = data.Datas.find(x => x.CODE === code);
+        if (f) {
+          _fundInfoCache[code] = {
+            type: f.FTYPE || '', sgStatus: f.STATUS || '', manager: f.MANAGER || '',
+            star: f.RATING || '', scale: f.ENDNAV || ''
+          };
+          return _fundInfoCache[code];
+        }
+      }
+    }
+  } catch(e) {}
+  try {
+    const resp = await fetch('https://fundmobapi.eastmoney.com/FundMNewApi/FundMNNBasicInformation?FCODE='+code+'&deviceid=monitor&plat=Android&product=EFund&version=6.6.0');
+    if (resp.ok) {
+      const j = await resp.json();
+      if (j.ErrCode===0 && j.Datas) {
+        const d = j.Datas;
+        _fundInfoCache[code] = {
+          type: d.FTYPE||'', sgStatus: d.SGSTATUS||d.SGBZ||'', shStatus: d.SHSTATUS||d.SHBZ||'',
+          manager: d.JJJLMC||'', star: '', scale: d.FundSize||''
+        };
+        return _fundInfoCache[code];
+      }
+    }
+  } catch(e) {}
+  _fundInfoCache[code] = null;
+  return null;
+}
+
+// 微型走势图
+function renderSparkline(code) {
+  const navs = window._fundNavHistory || {};
+  const data = navs[code];
+  if (!data) return '';
+  const entries = Object.entries(data).sort((a,b) => a[0].localeCompare(b[0]));
+  if (entries.length < 3) return '';
+  const lastN = entries.slice(-20);
+  const vals = lastN.map(([_,v]) => v);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 0.001;
+  const w = 80, h = 26, pad = 1;
+  const pts = vals.map((v, i) => {
+    const x = pad + (i/(vals.length-1))*(w-2*pad);
+    const y = h - pad - ((v-min)/range)*(h-2*pad);
+    return x.toFixed(1)+','+y.toFixed(1);
+  });
+  const up = vals[vals.length-1] >= vals[0];
+  const clr = up ? '#c41230' : '#059669';
+  // 渐变填充
+  const areaPts = pts[0] + ' L' + pts.join(' L') + ' L' + pts[pts.length-1].split(',')[0] + ',' + (h-pad) + ' L' + pts[0].split(',')[0] + ',' + (h-pad) + ' Z';
+  return '<svg width="'+w+'" height="'+h+'" style="flex-shrink:0;vertical-align:middle;" viewBox="0 0 '+w+' '+h+'">'
+    + '<defs><linearGradient id="sg_'+code+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+clr+'" stop-opacity="0.15"/><stop offset="100%" stop-color="'+clr+'" stop-opacity="0.02"/></linearGradient></defs>'
+    + '<path d="M'+areaPts+'" fill="url(#sg_'+code+')" stroke="none"/>'
+    + '<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+clr+'" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>'
+    + '</svg>';
+}
+
+function parseSgStatus(info) {
+  if (!info) return {text:'—',color:'#9ca3af',bg:'#f3f4f6'};
+  const s = (info.sgStatus||'').toString();
+  if (/开放|正常|可申购/.test(s)) return {text:'可申购',color:'#059669',bg:'#d1fae5'};
+  if (/暂停|关闭/.test(s)) return {text:'暂停申购',color:'#c41230',bg:'#fecaca'};
+  if (/限额/.test(s)) return {text:'限额申购',color:'#92400e',bg:'#fef3c7'};
+  return {text:s||'—',color:'#6b7280',bg:'#f3f4f6'};
 }
 
 async function renderFundMonitor() {
@@ -871,80 +946,105 @@ async function renderFundMonitor() {
     container.innerHTML = '<p style="text-align:center;color:var(--gray);padding:40px;">暂无自选基金<br><span style="font-size:0.75rem;">去基金估值Tab添加自选</span></p>';
     return;
   }
+
+  const headerHtml = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只) <button onclick="renderFundMonitor()" style="font-size:0.7rem;padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">🔄 刷新</button></div>';
+  container.innerHTML = headerHtml + '<div style="text-align:center;padding:20px;color:var(--gray);">⏳ 正在获取实时数据...</div>';
   
-  container.innerHTML = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只)</div><div style="text-align:center;padding:20px;color:var(--gray);">⏳ 正在获取实时数据...</div>';
-  
-  let html = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只) <button onclick="renderFundMonitor()" style="font-size:0.7rem;padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">🔄 刷新</button></div>';
-  
-  const alerts = [];
+  // 并行获取估值和基金信息
+  const results = [];
   let checked = 0;
+  const total = funds.length;
   
   for (const f of funds) {
     const code = f.product_id;
-    try {
-      const gz = await fetchFundGz(code);
-      checked++;
-      if (!gz) continue;
-      
-      const dn = parseFloat(gz.dwjz) || 0;
-      const gs = parseFloat(gz.gsz) || 0;
-      const gszzl = parseFloat(gz.gszzl) || 0;
-      
-      let deviation = null;
-      if (dn > 0 && gs > 0) {
-        const actualChg = (gs / dn - 1) * 100;
-        deviation = Math.abs(actualChg - gszzl);
-      }
-      
-      let status = '正常';
-      if (deviation !== null && deviation > 1.0) status = '偏离较大';
-      if (Math.abs(gszzl) > 3) status = '波动剧烈';
-      
-      container.innerHTML = '<div style="font-weight:700;margin-bottom:8px;">📡 基金实时监控 ('+funds.length+'只) <button onclick="renderFundMonitor()" style="font-size:0.7rem;padding:3px 10px;border:1px solid #e5e7eb;border-radius:4px;background:#fff;cursor:pointer;">🔄 刷新</button></div><div style="text-align:center;padding:10px;color:var(--gray);font-size:0.7rem;">正在检查 '+checked+'/'+funds.length+'...</div>';
-      
-      alerts.push({
-        code, name: gz.name || f.product_name,
-        nav: dn, est: gs, estPct: gszzl,
-        navDate: gz.jzrq, time: gz.gztime,
-        deviation, status
-      });
-    } catch(e) {}
-  }
-  
-  alerts.sort((a,b) => (b.deviation||0) - (a.deviation||0));
-  
-  if (!alerts.length) {
-    html += '<p style="text-align:center;color:var(--gray);padding:20px;">数据获取失败，请重试</p>';
-  } else {
-    const bigDev = alerts.filter(a => a.deviation > 1.0).length;
-    const highVol = alerts.filter(a => Math.abs(a.estPct) > 3).length;
-    html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px;">';
-    html += '<div style="background:'+(bigDev>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">偏离>1%</div><div style="font-size:1.1rem;font-weight:700;color:'+(bigDev>0?'var(--red)':'#059669')+';">'+bigDev+'</div></div>';
-    html += '<div style="background:'+(highVol>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">波动>3%</div><div style="font-size:1.1rem;font-weight:700;color:'+(highVol>0?'var(--red)':'#059669')+';">'+highVol+'</div></div>';
-    html += '<div style="background:#f0fdf4;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">监控总数</div><div style="font-size:1.1rem;font-weight:700;">'+alerts.length+'</div></div>';
-    html += '</div>';
+    const [gz, info] = await Promise.all([
+      fetchFundGz(code).catch(() => null),
+      fetchFundInfo(code).catch(() => null)
+    ]);
+    checked++;
     
-    for (const a of alerts) {
-      const statusBg = a.deviation > 1.0 ? '#fef2f2' : (Math.abs(a.estPct) > 3 ? '#fefce8' : '#fff');
-      const statusBorder = a.deviation > 1.0 ? '#fecaca' : (Math.abs(a.estPct) > 3 ? '#fde68a' : '#e5e7eb');
-      const chgColor = a.estPct > 0 ? '#c41230' : (a.estPct < 0 ? '#059669' : 'var(--gray)');
-      const arrow = a.estPct > 0 ? '▲' : (a.estPct < 0 ? '▼' : '');
-      
-      html += '<div style="background:'+statusBg+';border:1px solid '+statusBorder+';border-radius:8px;padding:10px;margin-bottom:6px;">';
-      html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">';
-      html += '<span style="font-weight:600;font-size:0.82rem;">'+a.name+'</span>';
-      html += '<span style="font-size:0.65rem;background:'+(a.deviation>1.0?'#fecaca':Math.abs(a.estPct)>3?'#fde68a':'#d1fae5')+';padding:2px 6px;border-radius:4px;color:'+(a.deviation>1.0?'#c41230':'var(--dark)')+';">'+a.status+'</span>';
-      html += '</div>';
-      html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;">';
-      html += '<span>净值 '+a.nav.toFixed(4)+'（'+a.navDate+'）</span>';
-      html += '<span>估算 '+a.est.toFixed(4)+' <span style="color:'+chgColor+';">'+arrow+(a.estPct>0?'+':'')+a.estPct.toFixed(2)+'%</span></span>';
-      html += '</div>';
-      html += '<div style="font-size:0.65rem;color:'+(a.deviation>1.0?'#c41230':'var(--gray)')+';margin-top:2px;">估值偏离度：'+(a.deviation!=null?a.deviation.toFixed(2):'—')+'% | 更新时间：'+a.time+'</div>';
-      html += '</div>';
+    container.innerHTML = headerHtml + '<div style="text-align:center;padding:10px;color:var(--gray);font-size:0.7rem;">正在检查 '+checked+'/'+total+'...</div>';
+    
+    if (!gz) continue;
+    const dn = parseFloat(gz.dwjz) || 0;
+    const gs = parseFloat(gz.gsz) || 0;
+    const gszzl = parseFloat(gz.gszzl) || 0;
+    let deviation = null;
+    if (dn > 0 && gs > 0) {
+      deviation = Math.abs((gs/dn - 1)*100 - gszzl);
     }
+    
+    results.push({
+      code, name: gz.name || f.product_name,
+      nav: dn, est: gs, estPct: gszzl,
+      navDate: gz.jzrq, time: gz.gztime,
+      deviation, info
+    });
   }
   
-  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;">数据来源：天天基金 | 估值仅供参考</div>';
+  results.sort((a,b) => (b.deviation||0) - (a.deviation||0));
+  
+  if (!results.length) {
+    container.innerHTML = headerHtml + '<p style="text-align:center;color:var(--gray);padding:20px;">数据获取失败，请重试</p>';
+    return;
+  }
+  
+  // 统计面板
+  const bigDev = results.filter(r => r.deviation > 1.0).length;
+  const highVol = results.filter(r => Math.abs(r.estPct) > 3).length;
+  const pauseCnt = results.filter(r => {
+    const s = parseSgStatus(r.info); return s.text==='暂停申购'||s.text==='限额申购';
+  }).length;
+  
+  let html = headerHtml;
+  
+  // 四格统计
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px;">';
+  html += '<div style="background:'+(bigDev>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">偏离>1%</div><div style="font-size:1.1rem;font-weight:700;color:'+(bigDev>0?'var(--red)':'#059669')+';">'+bigDev+'</div></div>';
+  html += '<div style="background:'+(highVol>0?'#fef2f2':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">波动>3%</div><div style="font-size:1.1rem;font-weight:700;color:'+(highVol>0?'var(--red)':'#059669')+';">'+highVol+'</div></div>';
+  html += '<div style="background:'+(pauseCnt>0?'#fefce8':'#f0fdf4')+';border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">申赎异常</div><div style="font-size:1.1rem;font-weight:700;color:'+(pauseCnt>0?'#92400e':'#059669')+';">'+pauseCnt+'</div></div>';
+  html += '<div style="background:#f0fdf4;border-radius:8px;padding:8px;text-align:center;"><div style="font-size:0.6rem;color:var(--gray);">监控总数</div><div style="font-size:1.1rem;font-weight:700;">'+results.length+'</div></div>';
+  html += '</div>';
+  
+  // 基金卡片
+  for (const r of results) {
+    const statusBg = r.deviation > 1.0 ? '#fef2f2' : (Math.abs(r.estPct) > 3 ? '#fefce8' : '#fff');
+    const statusBorder = r.deviation > 1.0 ? '#fecaca' : (Math.abs(r.estPct) > 3 ? '#fde68a' : '#e5e7eb');
+    const chgColor = r.estPct > 0 ? '#c41230' : (r.estPct < 0 ? '#059669' : 'var(--gray)');
+    const arrow = r.estPct > 0 ? '▲' : (r.estPct < 0 ? '▼' : '');
+    
+    let status = '正常', statusCls = '#d1fae5';
+    if (r.deviation > 1.0) { status = '偏离较大'; statusCls = '#fecaca'; }
+    if (Math.abs(r.estPct) > 3) { status = '波动剧烈'; statusCls = '#fde68a'; }
+    
+    const sgInfo = parseSgStatus(r.info);
+    const sparkline = renderSparkline(r.code);
+    
+    html += '<div style="background:'+statusBg+';border:1px solid '+statusBorder+';border-radius:8px;padding:8px 10px;margin-bottom:5px;">';
+    
+    // 第一行：名称 + 申购状态 + 监控状态
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;">';
+    html += '<span style="font-weight:600;font-size:0.82rem;">'+r.name+'</span>';
+    html += '<div style="display:flex;gap:4px;">';
+    html += '<span style="font-size:0.6rem;background:'+sgInfo.bg+';padding:2px 6px;border-radius:4px;color:'+sgInfo.color+';font-weight:500;">'+sgInfo.text+'</span>';
+    html += '<span style="font-size:0.6rem;background:'+statusCls+';padding:2px 6px;border-radius:4px;color:'+(r.deviation>1.0?'#c41230':'var(--dark)')+';">'+status+'</span>';
+    html += '</div></div>';
+    
+    // 第二行：走势图 + 估值数据
+    html += '<div style="display:flex;align-items:center;gap:8px;">';
+    if (sparkline) html += sparkline;
+    html += '<div style="flex:1;min-width:0;">';
+    html += '<div style="display:flex;justify-content:space-between;font-size:0.7rem;">';
+    html += '<span>净值 '+r.nav.toFixed(4)+' <span style="font-size:0.6rem;color:var(--gray);">'+r.navDate+'</span></span>';
+    html += '<span>估算 <b>'+r.est.toFixed(4)+'</b> <span style="color:'+chgColor+';">'+arrow+(r.estPct>0?'+':'')+r.estPct.toFixed(2)+'%</span></span>';
+    html += '</div>';
+    html += '<div style="font-size:0.63rem;color:'+(r.deviation>1.0?'#c41230':'var(--gray)')+';margin-top:1px;">偏离度：'+(r.deviation!=null?r.deviation.toFixed(2):'—')+'% | '+r.time+'</div>';
+    html += '</div></div>';
+    
+    html += '</div>';
+  }
+  
+  html += '<div style="font-size:0.6rem;color:#9ca3af;text-align:right;margin-top:8px;">数据来源：天天基金 | 估值仅供参考 | 走势图为近20日净值</div>';
   container.innerHTML = html;
 }
 
