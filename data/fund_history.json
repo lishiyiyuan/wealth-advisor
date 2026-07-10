@@ -1,10 +1,26 @@
 {
+  "000184": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
+    "streak": 2,
+    "streak_up": true
+  },
   "000218": {
     "1m": null,
     "3m": null,
     "6m": null,
     "1y": null,
     "streak": 5,
+    "streak_up": false
+  },
+  "000480": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
+    "streak": 1,
     "streak_up": false
   },
   "000793": {
@@ -21,7 +37,7 @@
     "6m": null,
     "1y": null,
     "streak": 1,
-    "streak_up": true
+    "streak_up": false
   },
   "001048": {
     "1m": null,
@@ -60,7 +76,7 @@
     "3m": null,
     "6m": null,
     "1y": null,
-    "streak": 6,
+    "streak": 7,
     "streak_up": false
   },
   "002252": {
@@ -87,12 +103,20 @@
     "streak": 1,
     "streak_up": false
   },
-  "006603": {
+  "003765": {
     "1m": null,
     "3m": null,
     "6m": null,
     "1y": null,
     "streak": 1,
+    "streak_up": false
+  },
+  "006603": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
+    "streak": 2,
     "streak_up": true
   },
   "006834": {
@@ -156,7 +180,7 @@
     "3m": null,
     "6m": null,
     "1y": null,
-    "streak": 6,
+    "streak": 7,
     "streak_up": false
   },
   "015873": {
@@ -204,8 +228,16 @@
     "3m": null,
     "6m": null,
     "1y": null,
+    "streak": 1,
+    "streak_up": false
+  },
+  "019260": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
     "streak": 2,
-    "streak_up": true
+    "streak_up": false
   },
   "019829": {
     "1m": null,
@@ -238,6 +270,14 @@
     "1y": null,
     "streak": 1,
     "streak_up": false
+  },
+  "022007": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
+    "streak": 19,
+    "streak_up": true
   },
   "022442": {
     "1m": null,
@@ -279,14 +319,6 @@
     "streak": 1,
     "streak_up": false
   },
-  "160605": {
-    "1m": null,
-    "3m": null,
-    "6m": null,
-    "1y": null,
-    "streak": 1,
-    "streak_up": true
-  },
   "164808": {
     "1m": null,
     "3m": null,
@@ -296,6 +328,14 @@
     "streak_up": false
   },
   "481009": {
+    "1m": null,
+    "3m": null,
+    "6m": null,
+    "1y": null,
+    "streak": 1,
+    "streak_up": false
+  },
+  "481012": {
     "1m": null,
     "3m": null,
     "6m": null,
